@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>材料領用與退回管理系統 - 材料課</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Poppins:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+/* 基礎設定與字體 */
+body {
+    font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+    margin: 0; padding: 0 16px 80px;
+    background: 
+        radial-gradient(at 10% 20%, #e0f2f7, transparent),
+        radial-gradient(at 70% 80%, #d1f7e0, transparent),
+        linear-gradient(135deg, #a7e9ff, #c3e2ff, #f3e9f9);
+    background-size: 300% 300%;
+    animation: backgroundShift 15s ease infinite alternate;
+    -webkit-font-smoothing: antialiased;
+    color: #1e293b; 
+    line-height: 1.6;
+}
+@keyframes backgroundShift {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+}
+
+header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(43, 85, 142, 0.95);
+    backdrop-filter: blur(8px);
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 20px 25px;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.2);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+header img {
+    height: 60px;
+    margin-right: 20px;
+}
+header h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    letter-spacing: 1px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+header h1 span {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-left: 12px;
+    padding: 5px 12px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    vertical-align: middle;
+}
+
+/* 主要表單區塊 */
+form {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    max-width: 850px; 
+    margin: 30px auto;
+    border-radius: 25px;
+    padding: 35px 30px;
+    box-shadow: 0 15px 60px rgba(0, 0, 0, 0.1);
+}
+label {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 700;
+    margin: 20px 0 10px 0;
+    display: block;
+    font-size: 1.25rem;
+    color: #1e293b;
+}
+
+/* 輸入框 */
+input[type=text], input[type=number], select, input[type=date] {
+    width: 100%;
+    padding: 16px 20px; 
+    border-radius: 15px;
+    border: 3px solid #cbd5e1;
+    font-size: 1.15rem; 
+    box-sizing: border-box;
+    background: #ffffff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    color: #1e293b;
+}
+input:focus, select:focus {
+    border-color: #2b558e; 
+    outline: none;
+    box-shadow: 0 0 0 5px rgba(43, 85, 142, 0.25); 
+}
+.error {
+    font-size: 1.1rem;
+    color: #e63946;
+    margin-top: 5px;
+    font-weight: 700;
+}
+
+/* 雙欄位排版 */
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+.form-row > div {
+    flex: 1;
+}
+
+/* 動態區塊控制 */
+.dynamic-section {
+    display: none; /* 預設隱藏 */
+    background: rgba(235, 245, 255, 0.5);
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    border: 2px dashed #90d3ff;
+}
+.dynamic-section.active {
+    display: block; /* 顯示 */
+    animation: fadeIn 0.5s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 材料卡片 */
+#materialsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 20px;
+}
+.material-card {
+    background: #e0f7f2; 
+    padding: 20px; 
+    border-radius: 18px; 
+    flex: 1 1 calc(50% - 20px); 
+    min-width: 250px; 
+    border: 3px solid transparent; 
+    font-size: 1.15rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.card-selected {
+    background: #90d3ff;
+    border-color: #2b558e;
+    transform: scale(1.03); 
+    box-shadow: 0 8px 20px rgba(43, 85, 142, 0.4);
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* 詳細資訊 */
+#itemDetails {
+    transition: all 0.5s ease;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    margin-top: 0;
+}
+#itemDetails.active {
+    opacity: 1;
+    max-height: 500px;
+    margin-top: 30px;
+}
+#itemDetails > div {
+    display: flex;
+    gap: 20px;
+}
+#itemDetails > div > div {
+    flex: 1;
+}
+
+/* 按鈕 */
+button[type=submit] {
+    margin-top: 40px;
+    font-weight: 700;
+    font-size: 1.5rem; 
+    padding: 20px 0;
+    border:none;
+    border-radius: 18px; 
+    cursor: pointer;
+    background: linear-gradient(90deg,#2b558e,#4d8be6);
+    color: white;
+    box-shadow: 0 10px 30px rgba(43, 85, 142, 0.5);
+    transition: all 0.3s ease;
+    width: 100%;
+}
+button[type=submit]:hover {
+    background: linear-gradient(90deg,#4d8be6,#2b558e);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(43, 85, 142, 0.7);
+}
+
+/* 歷史紀錄區 */
+.summary {
+    max-width: 850px;
+    margin: 40px auto 50px auto;
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(5px);
+    padding: 30px 35px;
+    border-radius: 25px;
+    color: white;
+    box-shadow: 0 15px 60px rgba(0, 0, 0, 0.2);
+}
+.summary h2 {
+    font-family: 'Poppins', sans-serif;
+    color: #90d3ff;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+}
+.filter-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+.filter-group button, .filter-group input {
+    flex: 1;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.filter-button {
+    background: #4d8be6;
+    color: white;
+}
+.filter-button:hover {
+    background: #2b558e;
+    transform: translateY(-1px);
+}
+.filter-input {
+    width: 100%; 
+    padding: 16px 20px; 
+    border-radius: 15px;
+    font-size: 1.25rem; 
+    box-sizing: border-box;
+    background: #ffffff; 
+    color: #1e293b; 
+    border: 3px solid #475569;
+}
+.filter-box {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px dashed #90d3ff;
+}
+.filter-box.hidden { display: none; }
+
+/* 列表樣式 */
+.summary ul {
+    list-style: none;
+    padding-left: 0;
+    font-size: 1.1rem;
+}
+.summary li {
+    background: rgba(51, 65, 85, 0.8);
+    border-radius: 12px;
+    margin-bottom: 15px;
+    padding: 18px;
+    border-left: 6px solid #4d8be6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+/* 退料的標示顏色 */
+.summary li.return-record {
+    border-left-color: #e63946; /* 紅色標示退料 */
+    background: rgba(85, 51, 51, 0.8);
+}
+
+.summary strong { color: #fff; font-weight: 700; }
+.delete-btn {
+    background: #e63946;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    flex-shrink: 0; 
+    margin-left: 15px;
+}
+.delete-btn:hover { background: #c0303e; transform: scale(1.08); }
+.summary-content { flex-grow: 1; }
+
+@media (max-width: 768px) {
+    .form-row, #itemDetails > div { flex-direction: column; gap: 0; }
+    header h1 { font-size: 1.6rem; }
+    .filter-group { flex-direction: column; gap: 10px; }
+    .material-card { flex: 1 1 100%; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <img src="image_74609f.jpg" alt="台電 Logo" /> 
+    <h1>材料管理系統 <span>領用/借用/退料</span></h1>
+</header>
+
+<form id="materialForm" autocomplete="off">
+    
+    <div class="form-row">
+        <div>
+            <label for="transactionType">類型 <span style="color:red">*</span></label>
+            <select id="transactionType" required onchange="toggleFormFields()">
+                <option value="">請選擇</option>
+                <option value="領料(有領料單)">領料(有領料單)</option>
+                <option value="借用">借用</option>
+                <option value="退料">退料</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div style="flex: 1;">
+            <label for="orderType">單號類別</label>
+            <select id="orderType">
+                <option value="領料單">領料單號</option>
+                <option value="退料單">退料單號</option>
+                <option value="其他單號">其他單號</option>
+            </select>
+        </div>
+        <div style="flex: 2;">
+            <label for="orderNumber">單號輸入</label>
+            <input type="text" id="orderNumber" placeholder="請輸入單號 (選填)" />
+        </div>
+    </div>
+
+    <div id="issueSection" class="dynamic-section">
+        <h3 style="margin-top:0; color:#2b558e;">📤 領料/借用 資訊</h3>
+        <div class="form-row">
+            <div>
+                <label for="dateInput">領用日期 <span style="color:red">*</span></label>
+                <input type="date" id="dateInput" />
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="person">領料人 <span style="color:red">*</span></label>
+                <input type="text" id="person" placeholder="請輸入領料人姓名" />
+            </div>
+            <div>
+                <label for="issuer">發料人 <span style="color:red">*</span></label>
+                <input type="text" id="issuer" placeholder="請輸入發料人姓名" />
+            </div>
+        </div>
+    </div>
+
+    <div id="returnSection" class="dynamic-section">
+        <h3 style="margin-top:0; color:#e63946;">📥 退料 資訊</h3>
+        <div class="form-row">
+            <div>
+                <label for="returnDate">退料日期 <span style="color:red">*</span></label>
+                <input type="date" id="returnDate" />
+            </div>
+            <div>
+                <label for="borrowDate">原借用日期</label>
+                <input type="date" id="borrowDate" />
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="returner">退料人 <span style="color:red">*</span></label>
+                <input type="text" id="returner" placeholder="請輸入退料人姓名" />
+            </div>
+            <div>
+                <label for="receiver">收料人 <span style="color:red">*</span></label>
+                <input type="text" id="receiver" placeholder="請輸入收料人姓名" />
+            </div>
+        </div>
+    </div>
+
+    <label for="category">材料類別 <span style="color:red">*</span></label>
+    <select id="category" onchange="updateMaterials()" required>
+        <option value="">請選擇材料類別</option>
+        <option value="A">A 類</option>
+        <option value="B">B 類</option>
+        <option value="C">C 類</option>
+        <option value="F">F 類</option>
+        <option value="H">H 類</option>
+    </select>
+
+    <label>材料名稱 (請點擊選擇)</label>
+    <div id="materialsContainer">
+        <p style="text-align: center; width: 100%; color: #94a3b8;">請先選擇材料類別</p>
+    </div>
+
+    <div id="itemDetails">
+        <p style="font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; color: #2b558e;">
+            已選材料: <span id="selectedMaterialName" style="color: #1e293b;">-</span>
+        </p>
+        <input type="hidden" id="selectedMaterialValue" required />
+
+        <div>
+            <div>
+                <label for="quantity">數量 <span style="color:red">*</span></label>
+                <input type="number" id="quantity" min="1" placeholder="請輸入正整數" required />
+                <div id="errorQty" class="error" style="display:none;">數量必須為正整數</div>
+            </div>
+            <div>
+                <label for="unit">單位</label>
+                <input type="text" id="unit" placeholder="例如: pc、kg" />
+            </div>
+            <div>
+                <label for="rating">評價類型</label>
+                <input type="text" id="rating" placeholder="例如: 0、1" />
+            </div>
+        </div>
+    </div>
+
+    <button type="submit">✅ 儲存資料</button>
+</form>
+
+<div class="summary" id="summary">
+    <h2>📋 歷史領用退回紀錄追蹤</h2>
+    
+    <div class="filter-group">
+        <button class="filter-button" onclick="setFilterMode('dateOnly')">按日期查詢</button>
+        <button class="filter-button" onclick="setFilterMode('personAndDate')">按人員+日期查詢</button>
+    </div>
+    
+    <button class="filter-button delete-btn" style="width:100%; margin-bottom: 25px; background: #e63946;" onclick="clearAllRecords()">⚡️ 清除所有紀錄</button>
+
+    <div id="dateOnlyFilterBox" class="filter-box hidden">
+        <label for="filterDateOnly">請選擇日期 (領用或退料日期)</label>
+        <input type="date" id="filterDateOnly" class="filter-input" />
+        <br>
+        <button class="filter-button" style="width:100%; margin-top:10px;" onclick="renderSummary()">🔍 查詢</button>
+    </div>
+
+    <div id="personAndDateFilterBox" class="filter-box hidden">
+        <label for="filterPersonName">姓名 (領料人 或 退料人)</label>
+        <input type="text" id="filterPersonName" placeholder="請輸入全名" class="filter-input" />
+        
+        <label for="filterDate">指定日期</label>
+        <input type="date" id="filterDate" class="filter-input" />
+        <br>
+        <button class="filter-button" style="width:100%; margin-top:10px;" onclick="renderSummary()">🔍 查詢</button>
+    </div>
+
+    <h3 style="color:#fff; margin-top:20px; font-size:1.4rem;">目前顯示: <span id="summaryTitle">請點選上方按鈕開始查詢</span></h3>
+    <ul id="totals">
+        <li>請點選上方按鈕開始查詢歷史記錄</li>
+    </ul>
+</div>
+
+<script>
+    // 材料字典 (與原程式碼相同)
+    const materialDict = {
+        "A": ["聚合柱型礙子 11.4kV", "懸垂礙子 C型 15000磅 φ10' 灰色", "懸垂礙子 C型 10000磅 6'φ 灰色", "防盬裝腳礙子 11.4KV 無腳", "軸型礙子 低壓 軸型", "拉線礙子 低壓 大型 L139.7㎜", "聚合柱型礙子 22.8KV", "聚合裝腳礙子 11.4KV 夾線型"],
+        "B": ["互連器 間接型A / 477MCM XLPE", "互連器 間接型B / AWG #2 XLPE", "互連繩 B型/ 112㎝", "互連繩 A型 / 52㎝", "互連器 夾條型A / 477MCM XLPE", "互連器 夾條型B / AWG #2 XLPE", "配電線路電桿反光貼紙 非鍍層立方角錐之微稜鏡反射材料 90x100㎝ 黃黑相間色", "配電線路電桿反光貼紙 非鍍層立方角錐之微稜鏡反射材料 90x60㎝ 黃黑相間色", "拉線夾板 銅線 100-150㎜²", "拉線夾板 鋁線 AWG 2/0-#2", "拉線夾板 鋁線 477MCM-300MCM-AWG 4/0", "V型掛鐵 A型無縫 SS400", "活線線夾 銅線 M8-60㎜2,T8-50㎜2", "H型壓接套管 鋁製 A#2,C60-38×A#2-#6,C38-14", "碳鋼擴張螺栓 S45C H內牙外迫式 5/8'φx2-1/2'", "電力保險絲組消音器 25KV 200A", "鉻酸鋅糊 1磅裝 材規Y413", "限流熔絲 15.5kV 40A 25kA 附抑弧開關", "電力保險絲 25kV 65E 12.5kA", "電力保險絲 25kV 125E 12.5kA", "開關箱 屋外型 不鏽鋼 600x400x230㎜ T2㎜", "壓接套管 銅 22㎜² 銅製", "壓接套管 銅 60㎜² 銅製", "壓接套管 銅 100㎜2 銅製", "C型壓接套管 銅製 銅14-22×8 α型", "C型壓接套管 銅製 銅14-38×14-38 β型", "電桿綁帶 複合電桿用B型 φ235×75×6㎜", "配電線路電桿反光標語片 CNS 4345感壓型第1級 33x12㎝自黏式Y193", "電桿牌 鋁 220×90×T0.511㎜ 藍底白字", "路燈開關 1P 240Vac 135A 非水銀式", "路燈開關 1P 240Vac 135A 電磁式", "成型支線夾條 GSW 55㎜2 襯圈型 L890㎜", "角型橫擔押 L1420㎜", "角型橫擔押 L1745㎜", "頂梢 11kV 防盬裝腳礙子 SS400", "低壓線架 三線式 鍍鋅鋼 附鐵閂", "低壓線架 五線式 鍍鋅鋼 附鐵閂", "鐵閂 單眼 φ5/8'×1800㎜ 鐵鍍鋅", "立雕型線路指示器 單相 15kV 指示燈型", "支架 #1電纜固定帶用 L型 135×92.5×72×T3㎜ 304SST", "支架 500MCM電纜固定帶用 L型140x92.5x87xT3㎜ 304SST", "壓接端子 銅 250MCM 閉口型 短型 2孔 13㎜φ", "壓接端子 銅 500MCM 閉口型 長型 2孔 15㎜φ 屋外終端用", "螺栓鎖 鎖鉤:5㎜φ 鎖鉤:鋁 螺栓:SS400 栓涵:鎂鋁矽合金", "孔蓋定位標示器 66.3KHz 測深50㎝", "孔蓋定位標示器 169.8KHz 測深50㎝", "伸出鐵架 標準式 鍍鋅鋼", "被覆瓷罩 陶瓷 11.4KV桿上變壓器用 90φx95φxH95㎜", "鍍鋅方墊圈 SS400 M16 18㎜φx4.5㎜ L52xW52㎜", "鍍鋅方頭螺栓 SGD30 M16×P2.0×240㎜ 附單螺帽", "鍍鋅方頭螺栓 SGD30 M16×P2.0×300㎜ 附單螺帽", "低壓線架 單線式 鍍鋅鋼 附鐵閂", "拉線夾板 銅線 22-38㎜²", "橫擔梢 11kV 防盬裝腳礙子 SS400", "鍍鋅方頭螺栓 SGD290-D M16×P2.0×270㎜ 附單螺帽", "鍍鋅方頭螺栓 SGD30 M16×P2.0×350㎜ 附單螺帽", "鍍鋅方頭螺栓 SGD290-D M16×P2.0×450㎜ 附單螺帽", "棉紗手套 棉紗含棉量100％ L250㎜ 電工用", "拉線夾板 銅線 50-80㎜2", "鍍鋅方頭螺栓 SGD30 M16×P2.0×140㎜ 附單螺帽", "鍍鋅方頭螺栓 SGD30 M16×P2.0×210㎜ 附單螺帽"],
+        "C": ["25KV交連PE引接線 1C 銅 22㎜2 交連PE被覆 被覆顏色黑色", "600V PVC鋁風雨線 1C 鋁 AWG #2 藍色", "600V PVC鋁風雨線 1C 鋁 AWG #2 灰色", "600V PVC風雨線 1C 銅 8㎜2 黑色", "600V PVC風雨線 1C 銅 22㎜2 黑色", "600V PVC鋁風雨線 1C 鋁 AWG 4/0 藍色", "鋼心鋁線 AWG #2 6/1", "全鋁線 300MCM 19股", "硬銅絞線(一般用) 100㎜²", "600V PVC電線 1C 銅 60㎜2 黑色", "600V PVC電線 1C 銅 22㎜2 黑色", "600V PVC電線 1C 銅 8㎜2 黑色", "硬銅絞線(一般用) 60㎜²", "硬銅絞線(一般用) 22㎜²", "素材木橫擔 L1800×90×90㎜", "素材木橫擔 L1200×90×90㎜", "600V PVC風雨線 1C 銅 60㎜2 黑色", "600V PVC風雨線 1C 銅 125㎜2 黑色", "鍍鋅鋼絞線 55㎜² (φ3.2㎜×7股) 支線用 S撚", "鍍鋅鐵線 SWM BWG#8 (φ4.19㎜)", "輕鋼橫擔 L2400×75×75×T2.3㎜", "鍍鋅等邊角鋼 SS400 90×90×T10㎜", "管路封塞 RP-03型 80㎜φ 一般用", "管路封塞 RP-05型 125㎜φ 一般用", "管路封塞 RP-06型 150㎜φ 一般用", "電纜用絕緣膠膏帶 T3.175㎜xW38.1㎜xL152㎝", "自融性防水膠帶 T1.7㎜xW38㎜xL305㎝", "預張式電纜終端接頭 屋外型 25kV 1C 銅 500MCM", "預張式電纜終端接頭 屋外型 25kV 1C 銅 AWG #1", "套管插頭 25kV 200A AWG #1", "預鑄型電纜直線接頭 25kV 1C 銅 AWG #1", "預鑄型電纜直線接頭 25kV 1C 銅 500MCM", "插頭封套 25kV 200A AWG #1", "負載可切肘型端頭 25kV 200A AWG #1 有電壓測試點", "四路分歧插頭 25kV 200A AWG #1", "負載不可切肘型端頭 25kV 600A 500MCM 有電壓測試點", "四路分歧插頭 25kV 200A AWG #1 A類配電箱用", "雙通套管插頭 25kV 200A AWG #1", "雙通插頭 25kV 200A AWG #1", "灌膠式電纜分歧接頭 600V 1C 銅 AWG 2/0~250MCM", "接戶橫木 60×60㎜"],
+        "F": ["亭置式開關 3相 24kV 四路 2-600A 2-200A SF6絕緣低碳鋼型", "非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 25kVA", "改良套管型桿上變壓器 單相 6.9kV 240/120V 50kVA", "非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 50kVA", "非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 100kVA", "密封型桿上變壓器 單相 6.9kV 240/120V 100kVA 不鏽鋼", "密封型桿上變壓器 單相 6.9kV 240/120V 50kVA 不鏽鋼", "桿上變壓器 單相 6.9kV 240/120V 50kVA", "桿上變壓器 單相 6.9kV 240/120V 25kVA", "密封型桿上變壓器 單相 6.9kV 240/120V 25kVA 不鏽鋼", "電容器用油開關 單相 14.4kV 200A 手動/電動 115Vac", "高壓電容器 單相 6.9kV 200kVAR 屋外型", "高壓電容器 單相 6.9kV 100kVAR 屋外型", "改良套管型桿上變壓器 單相 6.9kV 240/120V 167kVA", "桿上變壓器 單相 6.9/13.8kV 240/120V 25kVA 不銹鋼", "桿上變壓器 單相 6.9kV 240/120V 100kVA 不鏽鋼", "桿上變壓器 單相 6.9/13.8kV 240/120V 100kVA 不銹鋼", "亭置式變壓器 單相 6.9/13.8kV 25kVA 直式高燃點一般型附分接頭", "亭置式變壓器 單相 6.9/13.8kV 50kVA 直式高燃點一般型附分接頭", "改良套管型桿上變壓器 單相 6.9kV 240/120V 100kVA", "亭置式變壓器 單相 6.9/13.8kV 167kVA直式高燃點一般型附分接頭", "亭置式變壓器 單相 6.9/13.8kV 167kVA直式高燃點一般型附分接頭", "亭置式氣封開關 三相 24kV 四路 3-600A 1-200A SF6絕緣", "亭置式開關 3相 24kV 二路 2-200A SF6絕緣 低碳鋼型", "地下四路自動線路開關 三相 24kV 600A 2S2F 24V簡易型(I量測)", "亭置式氣封開關 三相 24kV 四路 2-600A 2-200A SF6絕緣", "地下四路自動線路開關 三相24kV600A 3S1F 24V標準型(V、I量測)", "高壓配電箱 屋外型 鐵 A類x1 單具組", "亭置式變壓器 單相 6.9/13.8kV 25kVA 直式附分接頭", "亭置式變壓器 單相 6.9/13.8kV 100kVA直式高燃點一般型附分接頭", "亭置式變壓器 單相 6.9/13.8kV 100kVA直式高燃點一般型附分接頭", "亭置式變壓器 三相 12/24kV 500kVA 高燃點一般型附分接頭", "高壓配電箱 屋外型 不鏽鋼 A類x1 單具組", "高壓配電箱 屋外型 不鏽鋼 A類x1 單具組", "預力混凝土基樁 預力電桿用 4000x200x40㎜", "高壓配電箱 屋外型 不鏽鋼 B類J型", "高壓配電箱 屋外型 不鏽鋼 B類P型", "高壓配電箱 屋外型 不鏽鋼 D類x1 單具組", "預力電桿 9m 配電 圓型 B級", "預力電桿 10.5m 配電 圓型 B級", "預力混凝土基樁 6000x250x50㎜", "預力混凝土基樁 6000x250x50㎜", "人孔蓋(含外蓋及蓋座)MC-150型外蓋φ908×80㎜蓋座φ1200×150㎜", "水泥腳木 空心圓形G3 φ150×1000㎜ 支線用", "預力電桿 14m 配電 圓型 C級", "預力電桿 12m 配電 圓型 C級", "預力電桿 12m 配電 圓型 E級", "手孔蓋HR150外蓋1068×668×80㎜座1210×810×150㎜", "手孔蓋墊座 方型 1210x810x200㎜ 混凝土"],
+        "H": ["電力保險絲座 25KV 200A 端子式", "電力保險絲座 25KV 200A 套管式", "限流熔絲座 15.5KV 200A 套管式", "限流熔絲座 15.5KV 200A 端子式", "線路故障指示器 單相 280A(600A) 1a 2指示燈 電池", "線路故障指示器 單相 800A(1000A) 1a 2指示燈 電池", "線路故障指示器 單相 800A 1指示燈 電池 FIC OV-A 架空線路", "聚合型熔絲鏈開關 15/27kV 100A 12kA 屋外型 附被覆罩", "配電級瓷套管避雷器 9KV 10KA 氧化鋅 無雷擊計數器 防鹽型", "配電級瓷套管避雷器 9kV 10kA 氧化鋅 無雷擊計數器 一般型", "配電級聚合套管避雷器 18KV 10KA 氧化鋅 無雷擊計數器", "高壓被覆罩 PE 11.4kV #2 H壓接型接線環用", "高壓被覆罩 PE 11.4kV #2 拉線夾板用(圓形開口)", "高壓被覆罩 PE 11.4kV 477MCM H壓接型接線環用", "高壓被覆罩 PE 22.8kV 477C圓形開口 477MCM導線、拉線夾板用", "高壓被覆罩 PE 22.8kV 477H 477MCM導線、H壓接型接線環用", "高壓被覆罩 PE 22.8kV #2圓形開口 #2AWG導線、拉線夾板用", "高壓被覆罩 PE 22.8kV #2H #2AWG線、H壓接型接線環用", "被覆罩 矽橡膠 11.4/22.8kV 避雷器用", "手動型線路負載啟斷開關 三相 15kV 600A 屋外型 SF6", "架空自動線路開關 三相 25.8kV 600A 24Vdc 標準型閂鎖型無控制箱", "負載啟斷開關 三相 25.8kV 600A 屋外型 SF6 手動型", "熔絲鏈開關 7.8/15kV 100A 10kA 屋外型 不鏽鋼固定架附被覆罩型", "配電級聚合套管避雷器 9KV 10KA 氧化鋅 無雷擊計數器", "U型軋頭 UC-501", "碳鋼單眼螺帽 SGD290-D M16-N/A", "架空自動線路開關 三相 15kV 600A 24Vdc 標準型閂鎖型無控制箱", "接地銅棒 φ5/8×L8' 附線夾", "熔絲鏈開關 7.8/15kV 100A 10kA 屋外型 開型"]
+    };
+
+    let dailyRecords = {};
+    let recordIndexCounter = 0; 
+    let currentFilterMode = 'none';
+
+    // --- 1. 表單邏輯與切換 ---
+    function toggleFormFields() {
+        const type = document.getElementById("transactionType").value;
+        const issueSection = document.getElementById("issueSection");
+        const returnSection = document.getElementById("returnSection");
+        
+        // 隱藏所有
+        issueSection.classList.remove('active');
+        returnSection.classList.remove('active');
+
+        // 根據類型顯示
+        if (type === "退料") {
+            returnSection.classList.add('active');
+        } else if (type !== "") {
+            // 領料 或 借用
+            issueSection.classList.add('active');
+        }
+    }
+
+    function updateMaterials() {
+        const cat = document.getElementById("category").value;
+        const container = document.getElementById("materialsContainer");
+        container.innerHTML = '';
+        hideItemDetails(); 
+
+        if (cat && materialDict[cat]) {
+            materialDict[cat].forEach(item => {
+                const card = document.createElement("div");
+                card.className = "material-card";
+                card.textContent = item;
+                card.setAttribute("data-material", item);
+                card.onclick = selectMaterial;
+                container.appendChild(card);
+            });
+        } else {
+             container.innerHTML = '<p style="text-align: center; width: 100%; color: #94a3b8;">請先選擇材料類別</p>';
+        }
+    }
+
+    function selectMaterial(e) {
+        const selectedCard = e.currentTarget;
+        const materialName = selectedCard.getAttribute("data-material");
+        document.querySelectorAll('.material-card').forEach(card => card.classList.remove('card-selected'));
+        selectedCard.classList.add('card-selected');
+        document.getElementById("selectedMaterialName").textContent = materialName;
+        document.getElementById("selectedMaterialValue").value = materialName;
+        showItemDetails();
+        document.getElementById("quantity").focus();
+    }
+
+    function showItemDetails() { document.getElementById("itemDetails").classList.add('active'); }
+    function hideItemDetails() { 
+        document.getElementById("itemDetails").classList.remove('active');
+        document.getElementById("selectedMaterialValue").value = "";
+        document.getElementById("quantity").value = "";
+        document.getElementById("unit").value = "";
+        document.getElementById("rating").value = "";
+        document.getElementById("selectedMaterialName").textContent = "-";
+        document.getElementById("errorQty").style.display = "none";
+    }
+
+    // --- 2. 儲存邏輯 (包含新欄位) ---
+    document.addEventListener("DOMContentLoaded", function() {
+        // 初始化 LocalStorage
+        const storageRecords = JSON.parse(localStorage.getItem("materialRecords") || "{}");
+        dailyRecords = storageRecords;
+        
+        // ID 修正
+        for (const key in dailyRecords) {
+            dailyRecords[key].forEach(item => {
+                if (!item.id) item.id = ++recordIndexCounter;
+                else recordIndexCounter = Math.max(recordIndexCounter, item.id);
+            });
+        }
+        
+        // 預設日期
+        const today = new Date().toISOString().split('T')[0];
+        if(document.getElementById("dateInput")) document.getElementById("dateInput").value = today;
+        if(document.getElementById("returnDate")) document.getElementById("returnDate").value = today;
+
+        document.getElementById("materialForm").onsubmit = function(e) {
+            e.preventDefault();
+
+            const type = document.getElementById("transactionType").value;
+            const category = document.getElementById("category").value;
+            const material = document.getElementById("selectedMaterialValue").value; 
+            const rating = document.getElementById("rating").value.trim();
+            const unit = document.getElementById("unit").value.trim();
+            const qty = document.getElementById("quantity").value;
+            
+            // 單號資訊
+            const orderType = document.getElementById("orderType").value;
+            const orderNumber = document.getElementById("orderNumber").value.trim();
+
+            if (!material) { alert("請選擇材料!"); return false; }
+            if (!(qty && !isNaN(qty) && Number(qty) > 0 && Number.isInteger(Number(qty)))) {
+                document.getElementById("errorQty").style.display = "block";
+                return false;
+            }
+
+            let newRecord = {
+                id: ++recordIndexCounter,
+                type: type,
+                orderType: orderType,
+                orderNumber: orderNumber,
+                category: category,
+                material: material,
+                rating: rating,
+                unit: unit,
+                quantity: Number(qty),
+                timestamp: new Date().toISOString()
+            };
+
+            let storageKey = "";
+
+            if (type === "退料") {
+                // 退料邏輯驗證
+                const returnDate = document.getElementById("returnDate").value;
+                const returner = document.getElementById("returner").value.trim();
+                const receiver = document.getElementById("receiver").value.trim();
+                const borrowDate = document.getElementById("borrowDate").value;
+
+                if (!returnDate || !returner || !receiver) {
+                    alert("請填寫完整的退料資訊 (日期、退料人、收料人)");
+                    return false;
+                }
+                
+                newRecord.actionDate = returnDate; // 統一主日期欄位
+                newRecord.mainPerson = returner;   // 統一主人員欄位
+                newRecord.returnDate = returnDate;
+                newRecord.returner = returner;
+                newRecord.receiver = receiver;
+                newRecord.borrowDate = borrowDate;
+                
+                storageKey = `${returnDate}_${returner}`;
+
+            } else {
+                // 領料/借用 邏輯驗證
+                const issueDate = document.getElementById("dateInput").value;
+                const person = document.getElementById("person").value.trim();
+                const issuer = document.getElementById("issuer").value.trim();
+
+                if (!issueDate || !person || !issuer) {
+                    alert("請填寫完整的領料資訊 (日期、領料人、發料人)");
+                    return false;
+                }
+
+                newRecord.actionDate = issueDate;
+                newRecord.mainPerson = person;
+                newRecord.date = issueDate; // 保留舊欄位兼容
+                newRecord.person = person;  // 保留舊欄位兼容
+                newRecord.issuer = issuer;
+                
+                storageKey = `${issueDate}_${person}`;
+            }
+
+            // 儲存
+            if(!dailyRecords[storageKey]) dailyRecords[storageKey] = [];
+            dailyRecords[storageKey].push(newRecord);
+            localStorage.setItem("materialRecords", JSON.stringify(dailyRecords));
+
+            // UI 重置
+            document.querySelectorAll('.material-card').forEach(card => card.classList.remove('card-selected'));
+            hideItemDetails(); 
+            document.getElementById("category").value = '';
+            document.getElementById("materialsContainer").innerHTML = '<p style="text-align: center; width: 100%; color: #94a3b8;">請先選擇材料類別</p>';
+            
+            if (currentFilterMode !== 'none') renderSummary();
+
+            alert(`✅ 已儲存 ${type} 資料：${material}`);
+        };
+    });
+
+    // --- 3. 歷史紀錄查詢與顯示 ---
+    function setFilterMode(mode) {
+        currentFilterMode = mode;
+        const dateOnlyBox = document.getElementById("dateOnlyFilterBox");
+        const personDateBox = document.getElementById("personAndDateFilterBox");
+        
+        dateOnlyBox.classList.add('hidden');
+        personDateBox.classList.add('hidden');
+        document.getElementById("filterDateOnly").value = '';
+        document.getElementById("filterPersonName").value = '';
+        document.getElementById("filterDate").value = '';
+
+        if (mode === 'dateOnly') {
+            dateOnlyBox.classList.remove('hidden');
+            document.getElementById("summaryTitle").textContent = '請選擇日期進行查詢';
+        } else if (mode === 'personAndDate') {
+            personDateBox.classList.remove('hidden');
+            document.getElementById("summaryTitle").textContent = '請輸入姓名與日期進行查詢';
+        } else {
+            document.getElementById("summaryTitle").textContent = '請點選上方按鈕開始查詢';
+            document.getElementById("totals").innerHTML = '<li>請點選上方按鈕開始查詢歷史記錄</li>';
+        }
+    }
+
+    function renderSummary() {
+        const summaryUl = document.getElementById("totals");
+        let entries = [];
+        let title = '未篩選';
+        
+        const dateOnlyInput = document.getElementById("filterDateOnly").value;
+        const personExact = document.getElementById("filterPersonName").value.trim();
+        const dateExact = document.getElementById("filterDate").value;
+
+        if (currentFilterMode === 'dateOnly' && dateOnlyInput) {
+            title = `${dateOnlyInput} 的紀錄 (日期查詢)`;
+        } else if (currentFilterMode === 'personAndDate' && personExact !== '' && dateExact !== '') {
+            title = `【${personExact}】在 ${dateExact} 的紀錄`;
+        } else {
+             summaryUl.innerHTML = '<li>請補齊查詢條件！</li>';
+             document.getElementById("summaryTitle").textContent = '查詢條件不完整';
+             return;
+        }
+
+        document.getElementById("summaryTitle").textContent = title;
+
+        for(let key in dailyRecords) {
+            // key 結構為 Date_PersonName
+            const recordDate = key.split('_')[0];
+            const recordPerson = key.substring(11); // 跳過 YYYY-MM-DD_ (11 chars)
+            
+            let isMatch = false;
+            if (currentFilterMode === 'dateOnly') {
+                if (recordDate === dateOnlyInput) isMatch = true; 
+            } else if (currentFilterMode === 'personAndDate') {
+                 if (recordPerson === personExact && recordDate === dateExact) isMatch = true;
+            }
+
+            if (!isMatch) continue;
+            
+            const items = dailyRecords[key];
+            
+            items.forEach(i => {
+                const recordKey = key;
+                // 判斷是否為退料單，改變樣式與顯示內容
+                const isReturn = (i.type === "退料");
+                const liClass = isReturn ? 'return-record' : '';
+                const orderInfo = i.orderNumber ? `[${i.orderType}: ${i.orderNumber}]` : '';
+
+                let detailHtml = '';
+                if (isReturn) {
+                    detailHtml = `
+                        <strong>類型:</strong> <span style="color:#ffadad">${i.type}</span> ${orderInfo} <br>
+                        <strong>退料日期:</strong> ${i.returnDate} <br>
+                        <strong>退料人:</strong> ${i.returner} &nbsp;|&nbsp; <strong>收料人:</strong> ${i.receiver} <br>
+                        <strong>原借用日:</strong> ${i.borrowDate || '無'} <br>
+                    `;
+                } else {
+                    detailHtml = `
+                        <strong>類型:</strong> <span style="color:#90d3ff">${i.type}</span> ${orderInfo} <br>
+                        <strong>領用日期:</strong> ${i.actionDate || i.date} <br>
+                        <strong>領料人:</strong> ${i.mainPerson || i.person} &nbsp;|&nbsp; <strong>發料人:</strong> ${i.issuer} <br>
+                    `;
+                }
+
+                entries.push(`
+                    <li class="${liClass}" data-record-id="${i.id}">
+                        <div class="summary-content">
+                            ${detailHtml}
+                            <strong>材料:</strong> (${i.category}) ${i.material} <br>
+                            <strong>數量:</strong> ${i.quantity} ${i.unit || ''} <br>
+                            <strong>評價:</strong> ${i.rating || '-'}
+                        </div>
+                        <button class="delete-btn" onclick="deleteRecord('${recordKey}', ${i.id})">🗑️ 刪除</button>
+                    </li>
+                `);
+            });
+        }
+        
+        entries.sort((a, b) => {
+            const idA = parseInt(a.match(/data-record-id="(\d+)"/)[1]);
+            const idB = parseInt(b.match(/data-record-id="(\d+)"/)[1]);
+            return idB - idA;
+        });
+
+        summaryUl.innerHTML = entries.length ? entries.join('') : "<li>查無相關記錄</li>";
+    }
+
+    function deleteRecord(key, id) {
+        if (!confirm("確定要刪除這筆記錄嗎？")) return;
+        if (dailyRecords[key]) {
+            const recordIndex = dailyRecords[key].findIndex(item => item.id === parseInt(id));
+            if (recordIndex > -1) {
+                dailyRecords[key].splice(recordIndex, 1);
+                if (dailyRecords[key].length === 0) delete dailyRecords[key];
+            }
+        }
+        localStorage.setItem("materialRecords", JSON.stringify(dailyRecords));
+        renderSummary(); 
+    }
+    
+    function clearAllRecords() {
+        if (confirm("⚠️ 警告：您確定要清除所有紀錄嗎？此動作無法復原！")) {
+            localStorage.clear(); 
+            dailyRecords = {}; 
+            recordIndexCounter = 0;
+            document.getElementById("summaryTitle").textContent = '所有記錄已清除';
+            document.getElementById("totals").innerHTML = '<li>查無相關記錄</li>';
+            setFilterMode('none'); 
+            alert("✅ 紀錄已全部清除完畢！");
+        }
+    }
+</script>
+</body>
+</html>
