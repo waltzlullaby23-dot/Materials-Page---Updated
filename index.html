@@ -262,9 +262,16 @@
   </div>
 
   <!-- 浮世繪風格製作人簽名（左下） -->
-  <div class="ukiyo-signature" onclick="toggleProducer()">
-  製作人：<span id="producerName" style="display:none;">柯文展</span>
+  <div class="ukiyo-signature" id="producer">
+  製作人：<span hidden>柯文展</span>
 </div>
+
+<script>
+  document.getElementById("producer").onclick = function () {
+    const name = this.querySelector("span");
+    name.hidden = !name.hidden;
+  };
+</script>
 
 
   <script>
