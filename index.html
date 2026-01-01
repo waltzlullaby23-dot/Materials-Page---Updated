@@ -66,7 +66,7 @@ header {
 
 .container-3d {
     background: var(--glass-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    max-width: 850px; margin: 30px auto; border-radius: 20px; padding: 30px;
+    max-width: 950px; margin: 30px auto; border-radius: 20px; padding: 30px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid var(--glass-border);
 }
 
@@ -99,6 +99,12 @@ input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px soli
 .btn-clear-all { grid-column: span 2; padding: 10px; background: none; border: 1px dashed var(--danger-red); color: var(--danger-red); border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 5px; }
 .btn-clear-all:hover { background: var(--danger-red); color: white; }
 
+.analysis-box { background: #fff; padding: 15px; border-radius: 10px; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
+
+/* small helpers */
+.warn { color: var(--danger-red); font-weight:700; }
+.ok { color: green; font-weight:700; }
+
 @media (max-width: 768px) { .form-row, .form-row-3, .search-box { grid-template-columns: 1fr; } .btn-clear-all { grid-column: span 1; } }
 </style>
 </head>
@@ -121,7 +127,7 @@ input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px soli
             <h3 class="section-title">壹、日期與類型</h3>
             <div class="form-row">
                 <div><label>異動日期</label><input type="date" id="mainDate" required /></div>
-                <div><label>借用日期 (無領料單填寫)</label><input type="date" id="borrowDate" /></div>
+                <div><label>借用日期 (選填)</label><input type="date" id="borrowDate" /></div>
             </div>
             <div class="form-row">
                 <div>
@@ -132,7 +138,7 @@ input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px soli
                         <option value="退料">退料 (Return)</option>
                     </select>
                 </div>
-                <div><label>單號</label><input type="text" id="orderNo" placeholder="請輸入單號" /></div>
+                <div><label>單號</label><input type="text" id="orderNo" placeholder="請輸入單號 (必填)" required /></div>
             </div>
 
             <h3 class="section-title">貳、人員與材料</h3>
@@ -140,8 +146,14 @@ input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px soli
                 <input type="text" id="personName" placeholder="領/退/借用人姓名 (必填)" required />
                 <input type="text" id="staffName" placeholder="發/收料經辦人 (必填)" required />
             </div>
+
+            <div style="margin-top:10px">
+                <label>料號 (Part No.)</label>
+                <input type="text" id="partNo" placeholder="請輸入料號 (範例：T68-0001) (必填)" required />
+            </div>
+
             <select id="category" onchange="renderMaterials()" style="margin-top:10px">
-                <option value="">-- 選擇材料類別 --</option>
+                <option value="">-- 選擇材料類別（選填） --</option>
                 <option value="A">A 類 (礙子)</option>
                 <option value="B">B 類 (鐵件)</option>
                 <option value="C">C 類 (線材)</option>
@@ -150,9 +162,9 @@ input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px soli
             </select>
             <div id="materialsContainer" style="margin-top:15px; display:grid; grid-template-columns:1fr 1fr; gap:10px"></div>
 
-            <div id="qtySection" style="display:none; margin-top:20px;">
+            <div id="qtySection" style="display:block; margin-top:20px;">
                 <div class="form-row-3">
-                    <input type="number" id="qty" placeholder="數量" min="1" required />
+                    <input type="number" id="qty" placeholder="數量 (必填)" min="1" required />
                     <input type="text" id="unit" placeholder="單位 (PC/KG..)" required />
                     <select id="evalType">
                         <option value="">-- 評價類型 --</option>
@@ -172,8 +184,10 @@ input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px soli
         <div class="search-box">
             <input type="text" id="searchPerson" placeholder="🔍 搜尋姓名..." onkeyup="handleSearch()">
             <input type="text" id="searchStaff" placeholder="🔍 搜尋經辦人..." onkeyup="handleSearch()">
+            <input type="text" id="searchPartNo" placeholder="🔍 搜尋料號..." onkeyup="handleSearch()">
             <select id="searchYear" onchange="handleSearch()">
                 <option value="">所有年份</option>
+                <option value="2024">2024年</option>
                 <option value="2025">2025年</option>
                 <option value="2026">2026年</option>
             </select>
@@ -187,19 +201,61 @@ input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px soli
         </div>
 
         <div id="logList"></div>
+
+        <!-- 新增快速料號功能區 -->
+        <div style="margin-top:18px; display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="analysis-box">
+                <h4>🔎 即時庫存查詢</h4>
+                <input type="text" id="queryPartNo" placeholder="輸入料號查詢庫存 (例：T68-0001)">
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button class="material-btn" onclick="queryInventory()">查詢庫存</button>
+                    <button class="material-btn" onclick="openBaselineDialog()">設定/調整初始庫存</button>
+                </div>
+                <div id="inventoryResult" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="analysis-box">
+                <h4>📊 存貨分析與預測</h4>
+                <input type="text" id="analysisPartNo" placeholder="輸入料號進行歷史與預測分析">
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button class="material-btn" onclick="analyzePart()">產生分析報告</button>
+                    <button class="material-btn" onclick="openThresholdDialog()">設定預警</button>
+                </div>
+                <div id="analysisResult" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- baseline & threshold dialogs (簡易 UI) -->
+        <div id="dialogs" style="margin-top:12px"></div>
+
     </div>
 </div>
 
 <script>
+/* ======= 資料結構與初始資料 ======= */
 const materialDict = {
-   "A": ["聚合柱型礙子 11.4kV", "懸垂礙子 C型 15000磅 φ10' 灰色", "懸垂礙子 C型 10000磅 6'φ 灰色", "防盬裝腳礙子 11.4KV 無腳", "軸型礙子 低壓 軸型", "拉線礙子 低壓 大型 L139.7㎜", "聚合柱型礙子 22.8KV", "聚合裝腳礙子 11.4KV 夾線型"],
-        "B": ["互連器 間接型A / 477MCM XLPE", "互連器 間接型B / AWG #2 XLPE", "互連繩 B型/ 112㎝", "互連繩 A型 / 52㎝", "互連器 夾條型A / 477MCM XLPE", "互連器 夾條型B / AWG #2 XLPE", "配電線路電桿反光貼紙 非鍍層立方角錐之微稜鏡反射材料 90x100㎝ 黃黑相間色", "配電線路電桿反光貼紙 非鍍層立方角錐之微稜鏡反射材料 90x60㎝ 黃黑相間色", "拉線夾板 銅線 100-150㎜²", "拉線夾板 鋁線 AWG 2/0-#2", "拉線夾板 鋁線 477MCM-300MCM-AWG 4/0", "V型掛鐵 A型無縫 SS400", "活線線夾 銅線 M8-60㎜2,T8-50㎜2", "H型壓接套管 鋁製 A#2,C60-38×A#2-#6,C38-14", "碳鋼擴張螺栓 S45C H內牙外迫式 5/8'φx2-1/2'", "電力保險絲組消音器 25KV 200A", "鉻酸鋅糊 1磅裝 材規Y413", "限流熔絲 15.5kV 40A 25kA 附抑弧開關", "電力保險絲 25kV 65E 12.5kA", "電力保險絲 25kV 125E 12.5kA", "開關箱 屋外型 不鏽鋼 600x400x230㎜ T2㎜", "壓接套管 銅 22㎜² 銅製", "壓接套管 銅 60㎜² 銅製", "壓接套管 銅 100㎜2 銅製", "C型壓接套管 銅製 銅14-22×8 α型", "C型壓接套管 銅製 銅14-38×14-38 β型", "電桿綁帶 複合電桿用B型 φ235×75×6㎜", "配電線路電桿反光標語片 CNS 4345感壓型第1級 33x12㎝自黏式Y193", "電桿牌 鋁 220×90×T0.511㎜ 藍底白字", "路燈開關 1P 240Vac 135A 非水銀式", "路燈開關 1P 240Vac 135A 電磁式", "成型支線夾條 GSW 55㎜2 襯圈型 L890㎜", "角型橫擔押 L1420㎜", "角型橫擔押 L1745㎜", "頂梢 11kV 防盬裝腳礙子 SS400", "低壓線架 三線式 鍍鋅鋼 附鐵閂", "低壓線架 五線式 鍍鋅鋼 附鐵閂", "鐵閂 單眼 φ5/8'×1800㎜ 鐵鍍鋅", "立雕型線路指示器 單相 15kV 指示燈型", "支架 #1電纜固定帶用 L型 135×92.5×72×T3㎜ 304SST", "支架 500MCM電纜固定帶用 L型140x92.5x87xT3㎜ 304SST", "壓接端子 銅 250MCM 閉口型 短型 2孔 13㎜φ", "壓接端子 銅 500MCM 閉口型 長型 2孔 15㎜φ 屋外終端用", "螺栓鎖 鎖鉤:5㎜φ 鎖鉤:鋁 螺栓:SS400 栓涵:鎂鋁矽合金", "孔蓋定位標示器 66.3KHz 測深50㎝", "孔蓋定位標示器 169.8KHz 測深50㎝", "伸出鐵架 標準式 鍍鋅鋼", "被覆瓷罩 陶瓷 11.4KV桿上變壓器用 90φx95φxH95㎜", "鍍鋅方墊圈 SS400 M16 18㎜φx4.5㎜ L52xW52㎜", "鍍鋅方頭螺栓 SGD30 M16×P2.0×240㎜ 附單螺帽", "鍍鋅方頭螺栓 SGD30 M16×P2.0×300㎜ 附單螺帽", "低壓線架 單線式 鍍鋅鋼 附鐵閂", "拉線夾板 銅線 22-38㎜²", "橫擔梢 11kV 防盬裝腳礙子 SS400", "鍍鋅方頭螺栓 SGD290-D M16×P2.0×270㎜ 附單螺帽", "鍍鋅方頭螺栓 SGD30 M16×P2.0×350㎜ 附單螺帽", "鍍鋅方頭螺栓 SGD290-D M16×P2.0×450㎜ 附單螺帽", "棉紗手套 棉紗含棉量100％ L250㎜ 電工用", "拉線夾板 銅線 50-80㎜2", "鍍鋅方頭螺栓 SGD30 M16×P2.0×140㎜ 附單螺帽", "鍍鋅方頭螺栓 SGD30 M16×P2.0×210㎜ 附單螺帽"],
-        "C": ["25KV交連PE引接線 1C 銅 22㎜2 交連PE被覆 被覆顏色黑色", "600V PVC鋁風雨線 1C 鋁 AWG #2 藍色", "600V PVC鋁風雨線 1C 鋁 AWG #2 灰色", "600V PVC風雨線 1C 銅 8㎜2 黑色", "600V PVC風雨線 1C 銅 22㎜2 黑色", "600V PVC鋁風雨線 1C 鋁 AWG 4/0 藍色", "鋼心鋁線 AWG #2 6/1", "全鋁線 300MCM 19股", "硬銅絞線(一般用) 100㎜²", "600V PVC電線 1C 銅 60㎜2 黑色", "600V PVC電線 1C 銅 22㎜2 黑色", "600V PVC電線 1C 銅 8㎜2 黑色", "硬銅絞線(一般用) 60㎜²", "硬銅絞線(一般用) 22㎜²", "素材木橫擔 L1800×90×90㎜", "素材木橫擔 L1200×90×90㎜", "600V PVC風雨線 1C 銅 60㎜2 黑色", "600V PVC風雨線 1C 銅 125㎜2 黑色", "鍍鋅鋼絞線 55㎜² (φ3.2㎜×7股) 支線用 S撚", "鍍鋅鐵線 SWM BWG#8 (φ4.19㎜)", "輕鋼橫擔 L2400×75×75×T2.3㎜", "鍍鋅等邊角鋼 SS400 90×90×T10㎜", "管路封塞 RP-03型 80㎜φ 一般用", "管路封塞 RP-05型 125㎜φ 一般用", "管路封塞 RP-06型 150㎜φ 一般用", "電纜用絕緣膠膏帶 T3.175㎜xW38.1㎜xL152㎝", "自融性防水膠帶 T1.7㎜xW38㎜xL305㎝", "預張式電纜終端接頭 屋外型 25kV 1C 銅 500MCM", "預張式電纜終端接頭 屋外型 25kV 1C 銅 AWG #1", "套管插頭 25kV 200A AWG #1", "預鑄型電纜直線接頭 25kV 1C 銅 AWG #1", "預鑄型電纜直線接頭 25kV 1C 銅 500MCM", "插頭封套 25kV 200A AWG #1", "負載可切肘型端頭 25kV 200A AWG #1 有電壓測試點", "四路分歧插頭 25kV 200A AWG #1", "負載不可切肘型端頭 25kV 600A 500MCM 有電壓測試點", "四路分歧插頭 25kV 200A AWG #1 A類配電箱用", "雙通套管插頭 25kV 200A AWG #1", "雙通插頭 25kV 200A AWG #1", "灌膠式電纜分歧接頭 600V 1C 銅 AWG 2/0~250MCM", "接戶橫木 60×60㎜"],
-        "F": ["亭置式開關 3相 24kV 四路 2-600A 2-200A SF6絕緣低碳鋼型", "非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 25kVA", "改良套管型桿上變壓器 單相 6.9kV 240/120V 50kVA", "非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 50kVA", "非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 100kVA", "密封型桿上變壓器 單相 6.9kV 240/120V 100kVA 不鏽鋼", "密封型桿上變壓器 單相 6.9kV 240/120V 50kVA 不鏽鋼", "桿上變壓器 單相 6.9kV 240/120V 50kVA", "桿上變壓器 單相 6.9kV 240/120V 25kVA", "密封型桿上變壓器 單相 6.9kV 240/120V 25kVA 不鏽鋼", "電容器用油開關 單相 14.4kV 200A 手動/電動 115Vac", "高壓電容器 單相 6.9kV 200kVAR 屋外型", "高壓電容器 單相 6.9kV 100kVAR 屋外型", "改良套管型桿上變壓器 單相 6.9kV 240/120V 167kVA", "桿上變壓器 單相 6.9/13.8kV 240/120V 25kVA 不銹鋼", "桿上變壓器 單相 6.9kV 240/120V 100kVA 不鏽鋼", "桿上變壓器 單相 6.9/13.8kV 240/120V 100kVA 不銹鋼", "亭置式變壓器 單相 6.9/13.8kV 25kVA 直式高燃點一般型附分接頭", "亭置式變壓器 單相 6.9/13.8kV 50kVA 直式高燃點一般型附分接頭", "改良套管型桿上變壓器 單相 6.9kV 240/120V 100kVA", "亭置式變壓器 單相 6.9/13.8kV 167kVA直式高燃點一般型附分接頭", "亭置式變壓器 單相 6.9/13.8kV 167kVA直式高燃點一般型附分接頭", "亭置式氣封開關 三相 24kV 四路 3-600A 1-200A SF6絕緣", "亭置式開關 3相 24kV 二路 2-200A SF6絕緣 低碳鋼型", "地下四路自動線路開關 三相 24kV 600A 2S2F 24V簡易型(I量測)", "亭置式氣封開關 三相 24kV 四路 2-600A 2-200A SF6絕緣", "地下四路自動線路開關 三相24kV600A 3S1F 24V標準型(V、I量測)", "高壓配電箱 屋外型 鐵 A類x1 單具組", "亭置式變壓器 單相 6.9/13.8kV 25kVA 直式附分接頭", "亭置式變壓器 單相 6.9/13.8kV 100kVA直式高燃點一般型附分接頭", "亭置式變壓器 單相 6.9/13.8kV 100kVA直式高燃點一般型附分接頭", "亭置式變壓器 三相 12/24kV 500kVA 高燃點一般型附分接頭", "高壓配電箱 屋外型 不鏽鋼 A類x1 單具組", "高壓配電箱 屋外型 不鏽鋼 A類x1 單具組", "預力混凝土基樁 預力電桿用 4000x200x40㎜", "高壓配電箱 屋外型 不鏽鋼 B類J型", "高壓配電箱 屋外型 不鏽鋼 B類P型", "高壓配電箱 屋外型 不鏽鋼 D類x1 單具組", "預力電桿 9m 配電 圓型 B級", "預力電桿 10.5m 配電 圓型 B級", "預力混凝土基樁 6000x250x50㎜", "預力混凝土基樁 6000x250x50㎜", "人孔蓋(含外蓋及蓋座)MC-150型外蓋φ908×80㎜蓋座φ1200×150㎜", "水泥腳木 空心圓形G3 φ150×1000㎜ 支線用", "預力電桿 14m 配電 圓型 C級", "預力電桿 12m 配電 圓型 C級", "預力電桿 12m 配電 圓型 E級", "手孔蓋HR150外蓋1068×668×80㎜座1210×810×150㎜", "手孔蓋墊座 方型 1210x810x200㎜ 混凝土"],
-        "H": ["電力保險絲座 25KV 200A 端子式", "電力保險絲座 25KV 200A 套管式", "限流熔絲座 15.5KV 200A 套管式", "限流熔絲座 15.5KV 200A 端子式", "線路故障指示器 單相 280A(600A) 1a 2指示燈 電池", "線路故障指示器 單相 800A(1000A) 1a 2指示燈 電池", "線路故障指示器 單相 800A 1指示燈 電池 FIC OV-A 架空線路", "聚合型熔絲鏈開關 15/27kV 100A 12kA 屋外型 附被覆罩", "配電級瓷套管避雷器 9KV 10KA 氧化鋅 無雷擊計數器 防鹽型", "配電級瓷套管避雷器 9kV 10kA 氧化鋅 無雷擊計數器 一般型", "配電級聚合套管避雷器 18KV 10KA 氧化鋅 無雷擊計數器", "高壓被覆罩 PE 11.4kV #2 H壓接型接線環用", "高壓被覆罩 PE 11.4kV #2 拉線夾板用(圓形開口)", "高壓被覆罩 PE 11.4kV 477MCM H壓接型接線環用", "高壓被覆罩 PE 22.8kV 477C圓形開口 477MCM導線、拉線夾板用", "高壓被覆罩 PE 22.8kV 477H 477MCM導線、H壓接型接線環用", "高壓被覆罩 PE 22.8kV #2圓形開口 #2AWG導線、拉線夾板用", "高壓被覆罩 PE 22.8kV #2H #2AWG線、H壓接型接線環用", "被覆罩 矽橡膠 11.4/22.8kV 避雷器用", "手動型線路負載啟斷開關 三相 15kV 600A 屋外型 SF6", "架空自動線路開關 三相 25.8kV 600A 24Vdc 標準型閂鎖型無控制箱", "負載啟斷開關 三相 25.8kV 600A 屋外型 SF6 手動型", "熔絲鏈開關 7.8/15kV 100A 10kA 屋外型 不鏽鋼固定架附被覆罩型", "配電級聚合套管避雷器 9KV 10KA 氧化鋅 無雷擊計數器", "U型軋頭 UC-501", "碳鋼單眼螺帽 SGD290-D M16-N/A", "架空自動線路開關 三相 15kV 600A 24Vdc 標準型閂鎖型無控制箱", "接地銅棒 φ5/8×L8' 附線夾", "熔絲鏈開關 7.8/15kV 100A 10kA 屋外型 開型"]
+    "A": ["聚合柱型礙子 11.4kV", "懸垂礙子 C型 15000磅 φ10' 灰色", "懸垂礙子 C型 10000磅 6'φ 灰色", "防盬裝腳礙子 11.4KV 無腳"],
+    "B": ["互連器 間接型A / 477MCM XLPE", "互連繩 B型/ 112㎝", "V型掛鐵 A型無縫 SS400", "活線線夾", "H型壓接套管"],
+    "C": ["25KV交連PE引接線", "600V PVC鋁風雨線", "鋼心鋁線", "套管插頭", "四路分歧插頭", "雙通套管插頭"],
+    "F": ["亭置式開關", "桿上變壓器", "高壓電容器", "人孔蓋"],
+    "H": ["電力保險絲座", "線路故障指示器", "避雷器", "熔絲鏈開關"]
 };
 
+// records 中每筆物件結構
+// {
+//   id: number (timestamp),
+//   date: "YYYY-MM-DD",
+//   type: "領料"/"退料"/"借用",
+//   person, staff, item (名稱), partNo, qty (number), unit, evalType, orderNo
+// }
 let records = JSON.parse(localStorage.getItem("ukiyo_db_v5") || "[]");
+
+// baselineStocks: { partNo: number }
+let baselineStocks = JSON.parse(localStorage.getItem("ukiyo_baseline_v1") || "{}");
+
+// thresholds: { partNo: { safetyStock: number, lowAlert: true/false, highAlert: true/false, turnoverThreshold: number } }
+let thresholds = JSON.parse(localStorage.getItem("ukiyo_thresholds_v1") || "{}");
+
 let selectedItem = "";
 
 function renderMaterials() {
@@ -221,56 +277,69 @@ function renderMaterials() {
     });
 }
 
-// 儲存邏輯
+/* 儲存邏輯（含料號與單號） */
 document.getElementById("materialForm").onsubmit = function(e) {
     e.preventDefault();
+
+    const qtyVal = Number(document.getElementById("qty").value || 0);
+    if(!qtyVal || qtyVal <= 0) { alert("請輸入正確數量"); return; }
+    const partNo = document.getElementById("partNo").value.trim();
+    if(!partNo) { alert("請輸入料號"); return; }
+    const orderNo = document.getElementById("orderNo").value.trim();
+    if(!orderNo) { alert("請輸入單號"); return; }
+
     const data = {
         id: Date.now(),
         date: document.getElementById("mainDate").value,
         type: document.getElementById("transType").value,
         person: document.getElementById("personName").value,
         staff: document.getElementById("staffName").value,
-        item: selectedItem,
-        qty: document.getElementById("qty").value,
+        item: selectedItem || "",      // 物品名稱（若選了）
+        partNo: partNo,
+        qty: qtyVal,
         unit: document.getElementById("unit").value,
-        evalType: document.getElementById("evalType").value
+        evalType: document.getElementById("evalType").value,
+        orderNo: orderNo
     };
     records.unshift(data);
     localStorage.setItem("ukiyo_db_v5", JSON.stringify(records));
     alert("✅ 紀錄已成功儲存！");
-    
+
     // 重置部分表單
     document.getElementById("qty").value = "";
+    document.getElementById("orderNo").value = "";
     handleSearch(); // 更新顯示
 };
 
-// 搜尋與隱藏邏輯
+/* 搜尋與顯示歷史 */
 function handleSearch() {
     const sPerson = document.getElementById("searchPerson").value.trim();
     const sStaff = document.getElementById("searchStaff").value.trim();
     const sYear = document.getElementById("searchYear").value;
     const sMonth = document.getElementById("searchMonth").value;
-    
+    const sPart = document.getElementById("searchPartNo").value.trim();
+
     const list = document.getElementById("logList");
 
     // 如果所有搜尋條件都是空的，則隱藏清單
-    if(!sPerson && !sStaff && !sYear && !sMonth) {
+    if(!sPerson && !sStaff && !sYear && !sMonth && !sPart) {
         list.style.display = "none";
         return;
     }
 
     list.style.display = "block";
-    renderHistory(sPerson, sStaff, sYear, sMonth);
+    renderHistory(sPerson, sStaff, sYear, sMonth, sPart);
 }
 
-function renderHistory(sPerson, sStaff, sYear, sMonth) {
+function renderHistory(sPerson, sStaff, sYear, sMonth, sPart) {
     const list = document.getElementById("logList");
     list.innerHTML = "";
 
     const filtered = records.filter(r => {
         const [rYear, rMonth] = r.date.split("-");
-        return (sPerson === "" || r.person.includes(sPerson)) &&
-               (sStaff === "" || r.staff.includes(sStaff)) &&
+        return (sPerson === "" || (r.person && r.person.includes(sPerson))) &&
+               (sStaff === "" || (r.staff && r.staff.includes(sStaff))) &&
+               (sPart === "" || (r.partNo && r.partNo.includes(sPart))) &&
                (sYear === "" || rYear === sYear) &&
                (sMonth === "" || rMonth === sMonth);
     });
@@ -286,10 +355,13 @@ function renderHistory(sPerson, sStaff, sYear, sMonth) {
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                 <div>
-                    <b>${r.date}</b> <span style="color:var(--danger-red); border:1px solid var(--danger-red); padding:1px 4px; font-size:0.8em; border-radius:4px; margin-left:5px">${r.type}</span><br>
-                    <span style="color:var(--ukiyo-mid-blue); font-weight:bold; font-size:1.1em; display:block; margin-top:5px">${r.item}</span>
+                    <b>${r.date}</b> <span style="color:var(--danger-red); border:1px solid var(--danger-red); padding:1px 6px; font-size:0.8em; border-radius:4px; margin-left:5px">${r.type}</span><br>
+                    <span style="color:var(--ukiyo-mid-blue); font-weight:bold; font-size:1.05em; display:block; margin-top:5px">${r.item || '未填名稱'}</span>
+                    <div style="margin-top:6px; font-size:0.9em;">料號: <b>${r.partNo}</b> ｜ 單號: <b>${r.orderNo}</b></div>
                 </div>
-                <button class="btn-delete" onclick="deleteRecord(${r.id})">🗑️</button>
+                <div style="text-align:right">
+                    <button class="btn-delete" onclick="deleteRecord(${r.id})">🗑️</button>
+                </div>
             </div>
             <div style="margin-top:10px; font-size:0.9em; border-top:1px dashed #eee; padding-top:8px; display:grid; grid-template-columns: 1fr 1fr;">
                 <span>數量: <b>${r.qty}</b> ${r.unit}</span>
@@ -302,7 +374,7 @@ function renderHistory(sPerson, sStaff, sYear, sMonth) {
     });
 }
 
-// 刪除單筆
+/* 刪除單筆 */
 function deleteRecord(id) {
     if(confirm("確定要刪除這筆紀錄嗎？此動作無法復原。")) {
         records = records.filter(r => r.id !== id);
@@ -311,7 +383,7 @@ function deleteRecord(id) {
     }
 }
 
-// 全部刪除
+/* 全部刪除 */
 function clearAllRecords() {
     if(confirm("⚠️ 注意：這將會永久刪除此裝置上所有的歷史紀錄！\n您確定要繼續嗎？")) {
         const finalCheck = confirm("再次確認：真的要全部刪除嗎？");
@@ -324,8 +396,288 @@ function clearAllRecords() {
     }
 }
 
-// 初始設定日期
+/* 初始設定日期 */
 document.getElementById("mainDate").valueAsDate = new Date();
+
+/* ======= 即時庫存與分析 ======= */
+
+/**
+ * computeInventory(partNo)
+ * 計算庫存：
+ *   start with baselineStocks[partNo] (若無則 0)
+ *   for each record (時間不限)：
+ *     if type == '領料' or '借用' => outflow -> inventory -= qty
+ *     if type == '退料' => inflow -> inventory += qty
+ * 返回 { inventory: number, lastRecords: [...], summary: {...} }
+ */
+function computeInventory(partNo) {
+    const baseline = Number(baselineStocks[partNo] || 0);
+    let inv = baseline;
+    const relevant = records.filter(r => r.partNo === partNo).sort((a,b)=> new Date(a.date) - new Date(b.date));
+    relevant.forEach(r => {
+        if(r.type === '領料' || r.type === '借用') inv -= Number(r.qty);
+        else if(r.type === '退料') inv += Number(r.qty);
+    });
+    // 計算年度使用量（出庫 - 入庫）
+    // usageByYear: { 2023: number, 2024: number }
+    const usageByYear = {};
+    relevant.forEach(r => {
+        const yr = r.date.split("-")[0] || 'unknown';
+        const qty = Number(r.qty);
+        if(!usageByYear[yr]) usageByYear[yr] = 0;
+        if(r.type === '領料' || r.type === '借用') usageByYear[yr] += qty;
+        else if(r.type === '退料') usageByYear[yr] -= qty; // 把退料視為減少使用
+    });
+    return { inventory: inv, baseline, lastRecords: relevant.slice().reverse(), usageByYear };
+}
+
+function queryInventory() {
+    const part = document.getElementById("queryPartNo").value.trim();
+    const out = document.getElementById("inventoryResult");
+    out.innerHTML = "";
+    if(!part) { out.innerHTML = "<div style='color:#999'>請輸入料號</div>"; return; }
+    const res = computeInventory(part);
+    const inv = res.inventory;
+    let html = `<div>料號: <b>${part}</b><br>初始/盤點庫存: <b>${res.baseline}</b><br>目前庫存 (依紀錄計算): <b>${inv}</b></div>`;
+    // thresholds check
+    const th = thresholds[part];
+    if(th) {
+        html += `<div style="margin-top:8px;">`;
+        if(th.safetyStock != null) {
+            html += `安全庫存: <b>${th.safetyStock}</b>。 `;
+            if(inv < th.safetyStock && th.lowAlert) html += `<div class="warn">⚠️ 庫存低於安全庫存！ (已啟用低於安全庫存提醒)</div>`;
+            if(inv > th.safetyStock && th.highAlert) html += `<div class="warn">⚠️ 庫存高於安全庫存 (已啟用高於安全庫存提醒)</div>`;
+            if(inv >= th.safetyStock && !th.highAlert) html += `<div class="ok">庫存>=安全庫存</div>`;
+            if(inv < th.safetyStock && !th.lowAlert) html += `<div class="warn">庫存低於安全值 (但提醒功能未啟用)</div>`;
+        }
+        // compute turnover (年) if enough data
+        const usageYears = Object.values(res.usageByYear).map(v => Number(v));
+        const annualUsage = usageYears.reduce((a,b)=>a+b,0) / (usageYears.length || 1);
+        const avgInventory = (Math.max(res.baseline,0) + inv) / 2;
+        const turnover = avgInventory > 0 ? (annualUsage / avgInventory) : null;
+        if(turnover != null) {
+            html += `<div style="margin-top:6px">估計年使用量: ${annualUsage.toFixed(2)}，估計存貨周轉率: ${turnover.toFixed(2)}</div>`;
+            if(th.turnoverThreshold && turnover > th.turnoverThreshold) {
+                html += `<div class="warn">⚠️ 周轉率高於設定閾值 (${th.turnoverThreshold})，可能需求激增或庫存偏低。</div>`;
+            }
+        }
+        html += `</div>`;
+    } else {
+        html += `<div style="margin-top:8px; color:#666">尚無設定安全庫存/警示。可按「設定預警」為此料號開啟提醒。</div>`;
+    }
+
+    // show last 5 records
+    if(res.lastRecords.length) {
+        html += `<div style="margin-top:10px;"><b>最近紀錄 (最新在前)</b><ul>`;
+        res.lastRecords.slice(0,8).forEach(r => {
+            html += `<li>${r.date} ${r.type} ${r.qty}${r.unit || ''} 單號:${r.orderNo} 經辦:${r.staff}</li>`;
+        });
+        html += `</ul></div>`;
+    }
+    out.innerHTML = html;
+}
+
+/* ======= baseline 設定介面 ======= */
+function openBaselineDialog() {
+    const dialogs = document.getElementById("dialogs");
+    dialogs.innerHTML = `
+        <div class="analysis-box">
+            <h4>🎯 設定 / 調整 初始庫存 (盤點)</h4>
+            <input type="text" id="basePartNo" placeholder="料號">
+            <input type="number" id="baseQty" placeholder="庫存數量" min="0">
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="material-btn" onclick="saveBaseline()">儲存盤點</button>
+                <button class="material-btn" onclick="closeDialogs()">取消</button>
+            </div>
+            <div id="baseMsg" style="margin-top:8px;"></div>
+        </div>
+    `;
+}
+
+function saveBaseline() {
+    const p = document.getElementById("basePartNo").value.trim();
+    const q = Number(document.getElementById("baseQty").value || 0);
+    const msg = document.getElementById("baseMsg");
+    if(!p) { msg.innerHTML = "<div style='color:#d64545;'>請輸入料號</div>"; return; }
+    if(q < 0) { msg.innerHTML = "<div style='color:#d64545;'>庫存數量需 >= 0</div>"; return; }
+    baselineStocks[p] = q;
+    localStorage.setItem("ukiyo_baseline_v1", JSON.stringify(baselineStocks));
+    msg.innerHTML = "<div style='color:green'>已儲存盤點初始庫存。</div>";
+    setTimeout(()=>{ closeDialogs(); }, 800);
+}
+
+/* ======= 閾值/預警設定介面 ======= */
+function openThresholdDialog(partNoCandidate) {
+    const dialogs = document.getElementById("dialogs");
+    const candidate = partNoCandidate || document.getElementById("analysisPartNo").value.trim() || document.getElementById("queryPartNo").value.trim() || '';
+    dialogs.innerHTML = `
+        <div class="analysis-box">
+            <h4>🚨 設定預警 (料號)</h4>
+            <input type="text" id="thPartNo" placeholder="料號" value="${candidate}">
+            <input type="number" id="thSafety" placeholder="安全庫存數量" min="0">
+            <div style="margin-top:8px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <label><input type="checkbox" id="thLowAlert"> 低於安全庫存提醒 (低於即警示)</label>
+                <label><input type="checkbox" id="thHighAlert"> 高於安全庫存提醒 (高於即警示)</label>
+            </div>
+            <input type="number" id="thTurnover" placeholder="周轉率警示閾值 (可留空)" min="0" step="0.1">
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <button class="material-btn" onclick="saveThreshold()">存檔</button>
+                <button class="material-btn" onclick="closeDialogs()">取消</button>
+            </div>
+            <div id="thMsg" style="margin-top:8px;"></div>
+        </div>
+    `;
+}
+
+function saveThreshold() {
+    const p = document.getElementById("thPartNo").value.trim();
+    if(!p) { document.getElementById("thMsg").innerHTML = "<div style='color:#d64545'>請輸入料號</div>"; return; }
+    const safety = Number(document.getElementById("thSafety").value || 0);
+    const lowAlert = document.getElementById("thLowAlert").checked;
+    const highAlert = document.getElementById("thHighAlert").checked;
+    const turnover = Number(document.getElementById("thTurnover").value || 0) || null;
+    thresholds[p] = { safetyStock: safety, lowAlert, highAlert, turnoverThreshold: turnover };
+    localStorage.setItem("ukiyo_thresholds_v1", JSON.stringify(thresholds));
+    document.getElementById("thMsg").innerHTML = "<div style='color:green'>已儲存預警設定。</div>";
+    setTimeout(()=>{ closeDialogs(); }, 800);
+}
+
+function closeDialogs(){ document.getElementById("dialogs").innerHTML = ""; }
+
+/* ======= 存貨分析（歷史統計與未來預測） ======= */
+/*
+ - 以最近最多 10 年為期，計算每年的淨用量（領+借 - 退）
+ - 計算年平均 (sum years / yearsCount)
+ - 計算「10 年內同月的單月平均」: 對每個月份 (1..12) 計算該月份在每年中的淨使用量平均
+ - 簡易預測：用每年總量做線性回歸求趨勢 (若資料不足則使用平均)
+   再用月份季節係數(同月平均 / 年平均月) 來預測未來 12 個月需求量
+*/
+function analyzePart() {
+    const part = document.getElementById("analysisPartNo").value.trim();
+    const out = document.getElementById("analysisResult");
+    out.innerHTML = "";
+    if(!part) { out.innerHTML = "<div style='color:#999'>請輸入料號</div>"; return; }
+
+    // 收集最近 10 年內資料
+    const today = new Date();
+    const maxYears = 10;
+    const earliestYear = today.getFullYear() - (maxYears - 1); // 包含今年在內往前 10 年
+    const relevant = records.filter(r => r.partNo === part && r.date && Number(r.date.split("-")[0]) >= earliestYear);
+
+    if(relevant.length === 0) { out.innerHTML = `<div style='color:#999'>查無此料號過去 10 年內紀錄</div>`; return; }
+
+    // 準備資料結構
+    const usageByYear = {}; // { year: netUsage }
+    const usageByMonthYear = {}; // { '2024-01': netUsage }
+    relevant.forEach(r => {
+        const [yr, mo] = r.date.split("-");
+        const keyMY = `${yr}-${mo}`;
+        const qty = Number(r.qty);
+        const delta = (r.type === '領料' || r.type === '借用') ? qty : (r.type === '退料' ? -qty : 0);
+        usageByYear[yr] = (usageByYear[yr] || 0) + delta;
+        usageByMonthYear[keyMY] = (usageByMonthYear[keyMY] || 0) + delta;
+    });
+
+    // 年平均
+    const years = Object.keys(usageByYear).sort();
+    const yearValues = years.map(y => usageByYear[y]);
+    const yearCount = years.length;
+    const yearSum = yearValues.reduce((a,b)=>a+b,0);
+    const yearAvg = yearCount ? yearSum / yearCount : 0;
+
+    // 同月平均（跨年）
+    // monthAverages: { '01': avg, '02': avg, ... }
+    const monthSums = {}; const monthCounts = {};
+    Object.keys(usageByMonthYear).forEach(k => {
+        const [yr, mo] = k.split("-");
+        monthSums[mo] = (monthSums[mo] || 0) + usageByMonthYear[k];
+        monthCounts[mo] = (monthCounts[mo] || 0) + 1;
+    });
+    const monthAverages = {};
+    for(let m=1; m<=12; m++){
+        const mm = m.toString().padStart(2,'0');
+        monthAverages[mm] = monthCounts[mm] ? (monthSums[mm] / monthCounts[mm]) : 0;
+    }
+
+    // 簡單線性回歸（年 vs usage）求趨勢斜率
+    // x = 0..n-1 for each year in ascending order
+    let slope = 0, intercept = yearAvg;
+    if(yearCount >= 2) {
+        const xs = years.map((y,i)=>i);
+        const ys = yearValues;
+        const xMean = xs.reduce((a,b)=>a+b,0)/xs.length;
+        const yMean = ys.reduce((a,b)=>a+b,0)/ys.length;
+        let num = 0, den = 0;
+        for(let i=0;i<xs.length;i++){ num += (xs[i]-xMean)*(ys[i]-yMean); den += (xs[i]-xMean)*(xs[i]-xMean); }
+        slope = den === 0 ? 0 : num/den;
+        intercept = yMean - slope * xMean;
+    }
+
+    // 預測未來 12 個月需求（以 nextYear x month seasonality）
+    const predictions = []; // [{month:'2026-01', predicted: num}]
+    const lastYear = Math.max(...years.map(y=>Number(y)));
+    for(let m=1; m<=12; m++){
+        // predict year total for next year index (use slope)
+        const xNext = years.length; // next index
+        const predictedYearTotal = intercept + slope * xNext;
+        const mm = m.toString().padStart(2,'0');
+        // month fraction: use monthAverages relative to sum of monthAverages to split year total seasonally
+        const seasonDenom = Object.values(monthAverages).reduce((a,b)=>a+Math.abs(b),0) || 12;
+        const fraction = Math.abs(monthAverages[mm]) / seasonDenom;
+        const predictedMonth = predictedYearTotal * fraction;
+        // if monthAverage is 0 (no seasonality), fallback to yearAvg/12
+        const fallback = yearAvg / 12;
+        const finalPred = (monthAverages[mm] === 0) ? fallback : predictedMonth;
+        // build label (next calendar year)
+        const nextYearLabel = lastYear + 1;
+        predictions.push({ month: `${nextYearLabel}-${mm}`, predicted: finalPred });
+    }
+
+    // 組 HTML 呈現
+    let html = `<div><b>料號 ${part} 的分析 (最近最多 10 年範圍)</b></div>`;
+    html += `<div style="margin-top:8px">資料年份範圍: ${years[0]} - ${years[years.length-1]} (共 ${yearCount} 年)</div>`;
+    html += `<div style="margin-top:8px">年度淨用量平均 (年平均): <b>${yearAvg.toFixed(2)}</b></div>`;
+
+    html += `<div style="margin-top:10px"><b>每月同月平均 (十年內同月平均)</b><table style="width:100%; border-collapse:collapse; margin-top:6px;">`;
+    html += `<tr style="background:#f4f6f8;"><th style="padding:6px;">月份</th><th style="padding:6px;">平均用量</th></tr>`;
+    for(let m=1; m<=12; m++){
+        const mm = m.toString().padStart(2,'0');
+        html += `<tr><td style="padding:6px;">${m}月</td><td style="padding:6px;">${monthAverages[mm].toFixed(2)}</td></tr>`;
+    }
+    html += `</table></div>`;
+
+    // 顯示未來 12 個月預測
+    html += `<div style="margin-top:10px"><b>簡易預測 (未來 12 個月需求估計)</b><ol>`;
+    predictions.forEach(p => {
+        html += `<li>${p.month}: ${p.predicted.toFixed(2)}</li>`;
+    });
+    html += `</ol></div>`;
+
+    // 顯示原始逐年資料
+    html += `<div style="margin-top:10px"><b>逐年淨用量</b><ul>`;
+    years.forEach(y => html += `<li>${y}: ${usageByYear[y].toFixed(2)}</li>`);
+    html += `</ul></div>`;
+
+    // 另外顯示目前庫存與預警（若已設定）
+    const invInfo = computeInventory(part);
+    html += `<div style="margin-top:8px"><b>即時庫存參考：</b> 初始: ${invInfo.baseline}, 目前: ${invInfo.inventory}</div>`;
+    const th = thresholds[part];
+    if(th) {
+        if(invInfo.inventory < th.safetyStock && th.lowAlert) html += `<div class="warn">⚠️ 庫存低於安全庫存 (已啟用低於提醒)</div>`;
+        if(invInfo.inventory > th.safetyStock && th.highAlert) html += `<div class="warn">⚠️ 庫存高於安全庫存 (已啟用高於提醒)</div>`;
+    }
+
+    out.innerHTML = html;
+}
+
+/* ======= 工具：重設/讀取 localStorage (for debug) ======= */
+function loadAllFromStorage() {
+    records = JSON.parse(localStorage.getItem("ukiyo_db_v5") || "[]");
+    baselineStocks = JSON.parse(localStorage.getItem("ukiyo_baseline_v1") || "{}");
+    thresholds = JSON.parse(localStorage.getItem("ukiyo_thresholds_v1") || "{}");
+}
+loadAllFromStorage();
+
 </script>
 </body>
 </html>
