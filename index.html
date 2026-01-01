@@ -1,683 +1,694 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>台電材料管理系統</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Orbitron:wght@600;900&display=swap" rel="stylesheet" />
-<style>
-:root {
-    --ukiyo-deep-blue: #1D3B56;
-    --ukiyo-mid-blue: #2A587A;
-    --ukiyo-light-blue: #6B93B8;
-    --ukiyo-foam: #F0F4F5;
-    --ukiyo-sky: #E6D3A3;
-    --ukiyo-paper: #F2E6D9;
-    --glass-bg: rgba(255, 255, 255, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.9);
-    --danger-red: #d64545;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>台電材料管理系統</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Orbitron:wght@600;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ukiyo-deep-blue: #1D3B56;
+      --ukiyo-mid-blue: #2A587A;
+      --ukiyo-light-blue: #6B93B8;
+      --ukiyo-foam: #F0F4F5;
+      --ukiyo-sky: #E6D3A3;
+      --ukiyo-paper: #F2E6D9;
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.9);
+      --danger-red: #d64545;
+    }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #1a202c;
+      overflow-x: hidden;
+      background-color: var(--ukiyo-sky);
+      min-height: 100vh;
+      position: relative;
+    }
 
-body {
-    font-family: 'Noto Sans TC', sans-serif;
-    margin: 0; padding: 0;
-    color: #1a202c;
-    overflow-x: hidden;
-    background-color: var(--ukiyo-sky);
-    min-height: 100vh;
-    position: relative;
-}
+    /* 背景動畫 */
+    .ukiyo-scene {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 30%, #f7f0e6, var(--ukiyo-sky));
+    }
+    .mt-fuji {
+      position: absolute;
+      bottom: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-bottom: 200px solid #2c3e50;
+      z-index: 1;
+    }
+    .mt-fuji::after {
+      content: '';
+      position: absolute;
+      top: 60px;
+      left: -150px;
+      width: 300px;
+      height: 140px;
+      background: linear-gradient(to bottom, #fff 20%, transparent 80%);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      transform: scale(0.28) translateY(-320px);
+    }
+    .wave { position: absolute; bottom: 0; width: 200%; height: 100%; background-repeat: repeat-x; background-position: bottom; transform: translate3d(0, 0, 0); }
+    .wave-back { z-index: 2; height: 45%; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 180' preserveAspectRatio='none'%3E%3Cpath d='M0,120 C150,150 250,80 400,110 C550,140 650,80 800,110 L800,180 L0,180 Z' fill='%232A587A' opacity='0.8'/%3E%3C/svg%3E"); animation: moveWave 25s linear infinite; }
+    .wave-mid { z-index: 3; height: 40%; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 180' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C200,60 350,140 600,80 C750,40 800,100 800,100 L800,180 L0,180 Z' fill='%236B93B8' opacity='0.9'/%3E%3C/svg%3E"); animation: moveWave 15s linear infinite reverse; }
+    .wave-front { z-index: 4; height: 35%; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%231D3B56' fill-opacity='1' d='M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E"); animation: moveWave 10s linear infinite; }
+    @keyframes moveWave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-/* 背景動畫 */
-.ukiyo-scene {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    z-index: -1; overflow: hidden;
-    background: radial-gradient(circle at 50% 30%, #f7f0e6, var(--ukiyo-sky));
-}
-.mt-fuji {
-    position: absolute; bottom: 25%; left: 50%; transform: translateX(-50%);
-    width: 0; height: 0;
-    border-left: 150px solid transparent; border-right: 150px solid transparent;
-    border-bottom: 200px solid #2c3e50; z-index: 1;
-}
-.mt-fuji::after {
-    content: ''; position: absolute; top: 60px; left: -150px;
-    width: 300px; height: 140px; background: linear-gradient(to bottom, #fff 20%, transparent 80%);
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%); transform: scale(0.28) translateY(-320px);
-}
-.wave { position: absolute; bottom: 0; width: 200%; height: 100%; background-repeat: repeat-x; background-position: bottom; transform: translate3d(0, 0, 0); }
-.wave-back { z-index: 2; height: 45%; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 180' preserveAspectRatio='none'%3E%3Cpath d='M0,120 C150,150 250,80 400,110 C550,140 650,80 800,110 L800,180 L0,180 Z' fill='%232A587A' opacity='0.8'/%3E%3C/svg%3E"); animation: moveWave 25s linear infinite; }
-.wave-mid { z-index: 3; height: 40%; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 180' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C200,60 350,140 600,80 C750,40 800,100 800,100 L800,180 L0,180 Z' fill='%236B93B8' opacity='0.9'/%3E%3C/svg%3E"); animation: moveWave 15s linear infinite reverse; }
-.wave-front { z-index: 4; height: 35%; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%231D3B56' fill-opacity='1' d='M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E"); animation: moveWave 10s linear infinite; }
-@keyframes moveWave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    /* UI 內容 */
+    .content-wrapper { position: relative; z-index: 10; padding: 0 16px 80px; }
+    header { position: sticky; top: 15px; z-index: 100; max-width: 900px; margin: 20px auto; background: var(--ukiyo-deep-blue); color: white; border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(29, 59, 86, 0.5); border: 2px solid #D4AF37; }
+    .container-3d { background: var(--glass-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); max-width: 950px; margin: 30px auto; border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid var(--glass-border); }
+    h3.section-title { color: var(--ukiyo-deep-blue); border-left: 6px solid var(--danger-red); padding-left: 15px; margin: 25px 0 15px; font-weight: 900; }
+    input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 15px; margin-bottom: 15px; }
+    .material-btn { padding: 12px; background: white; border: 1px solid #ddd; cursor: pointer; border-radius: 8px; text-align: center; transition: 0.2s; font-weight: 600; color: var(--ukiyo-deep-blue); }
+    .material-btn.active { background: var(--ukiyo-mid-blue); color: white; }
+    .btn-save { width: 100%; padding: 18px; border: none; border-radius: 12px; background: linear-gradient(45deg, var(--ukiyo-deep-blue), var(--ukiyo-mid-blue)); color: white; font-size: 1.2rem; font-weight: 900; cursor: pointer; transition: 0.3s; margin-top: 15px; }
+    .btn-save:hover { background: var(--danger-red); transform: translateY(-2px); }
 
-/* UI 內容 */
-.content-wrapper { position: relative; z-index: 10; padding: 0 16px 80px; }
+    /* 搜尋與歷史紀錄 */
+    .search-box { background: rgba(29, 59, 86, 0.08); padding: 20px; border-radius: 15px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    #logList { display: none; margin-top: 20px; } /* 預設隱藏清單 */
+    .record-li { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--ukiyo-mid-blue); box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; }
+    .btn-delete { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+    .btn-delete:hover { color: var(--danger-red); }
+    .btn-clear-all { grid-column: span 2; padding: 10px; background: none; border: 1px dashed var(--danger-red); color: var(--danger-red); border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 5px; }
+    .btn-clear-all:hover { background: var(--danger-red); color: white; }
+    .analysis-box { background: #fff; padding: 15px; border-radius: 10px; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
 
-header {
-    position: sticky; top: 15px; z-index: 100;
-    max-width: 900px; margin: 20px auto;
-    background: var(--ukiyo-deep-blue);
-    color: white; border-radius: 12px; padding: 15px;
-    display: flex; align-items: center; justify-content: center; /* 置中 */
-    box-shadow: 0 10px 25px rgba(29, 59, 86, 0.5);
-    border: 2px solid #D4AF37;
-}
+    /* small helpers */
+    .warn { color: var(--danger-red); font-weight:700; }
+    .ok { color: green; font-weight:700; }
 
-.container-3d {
-    background: var(--glass-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    max-width: 950px; margin: 30px auto; border-radius: 20px; padding: 30px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid var(--glass-border);
-}
+    /* 浮世繪風格製作人簽名 - 左下角 */
+    .ukiyo-signature {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      z-index: 220;
+      font-weight: 900;
+      font-size: 0.95rem;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(242,230,217,0.95), rgba(230,211,163,0.95));
+      border: 2px solid rgba(29,59,86,0.12);
+      transform: rotate(-6deg);
+      box-shadow: 0 8px 20px rgba(29,59,86,0.15);
+      color: #1D3B56;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Noto Sans TC', sans-serif;
+      backdrop-filter: blur(3px);
+    }
+    .ukiyo-signature::after{
+      content: "柯";
+      display:inline-block;
+      width:28px;
+      height:28px;
+      line-height:28px;
+      text-align:center;
+      font-weight:900;
+      color:#fff;
+      background: var(--danger-red);
+      border-radius:4px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transform: translateY(-1px);
+      font-family: 'Orbitron', sans-serif;
+    }
 
-h3.section-title { color: var(--ukiyo-deep-blue); border-left: 6px solid var(--danger-red); padding-left: 15px; margin: 25px 0 15px; font-weight: 900; }
-
-input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; }
-
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 15px; margin-bottom: 15px; }
-
-.material-btn { padding: 12px; background: white; border: 1px solid #ddd; cursor: pointer; border-radius: 8px; text-align: center; transition: 0.2s; font-weight: 600; color: var(--ukiyo-deep-blue); }
-.material-btn.active { background: var(--ukiyo-mid-blue); color: white; }
-
-.btn-save { width: 100%; padding: 18px; border: none; border-radius: 12px; background: linear-gradient(45deg, var(--ukiyo-deep-blue), var(--ukiyo-mid-blue)); color: white; font-size: 1.2rem; font-weight: 900; cursor: pointer; transition: 0.3s; margin-top: 15px; }
-.btn-save:hover { background: var(--danger-red); transform: translateY(-2px); }
-
-/* 搜尋與歷史紀錄 */
-.search-box { background: rgba(29, 59, 86, 0.08); padding: 20px; border-radius: 15px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-#logList { display: none; margin-top: 20px; } /* 預設隱藏清單 */
-
-.record-li {
-    background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px;
-    border-left: 5px solid var(--ukiyo-mid-blue); box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    position: relative;
-}
-
-.btn-delete { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
-.btn-delete:hover { color: var(--danger-red); }
-
-.btn-clear-all { grid-column: span 2; padding: 10px; background: none; border: 1px dashed var(--danger-red); color: var(--danger-red); border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 5px; }
-.btn-clear-all:hover { background: var(--danger-red); color: white; }
-
-.analysis-box { background: #fff; padding: 15px; border-radius: 10px; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
-
-/* small helpers */
-.warn { color: var(--danger-red); font-weight:700; }
-.ok { color: green; font-weight:700; }
-
-@media (max-width: 768px) { .form-row, .form-row-3, .search-box { grid-template-columns: 1fr; } .btn-clear-all { grid-column: span 1; } }
-</style>
+    @media (max-width: 768px) {
+      .form-row, .form-row-3, .search-box { grid-template-columns: 1fr; }
+      .btn-clear-all { grid-column: span 1; }
+      .ukiyo-signature { left: 10px; bottom: 10px; font-size: 0.85rem; transform: rotate(-4deg); }
+    }
+  </style>
 </head>
 <body>
-
-<div class="ukiyo-scene">
+  <div class="ukiyo-scene">
     <div class="mt-fuji"></div>
     <div class="wave wave-back"></div>
     <div class="wave wave-mid"></div>
     <div class="wave wave-front"></div>
-</div>
+  </div>
 
-<div class="content-wrapper">
+  <div class="content-wrapper">
     <header>
-        <div style="font-weight:900; font-size: 1.4rem; letter-spacing: 2px;">台電材料管理系統</div>
+      <div style="font-weight:900; font-size: 1.4rem; letter-spacing: 2px;">台電材料管理系統</div>
     </header>
 
     <div class="container-3d">
-        <form id="materialForm">
-            <h3 class="section-title">壹、日期與類型</h3>
-            <div class="form-row">
-                <div><label>異動日期</label><input type="date" id="mainDate" required /></div>
-                <div><label>借用日期 (選填)</label><input type="date" id="borrowDate" /></div>
-            </div>
-            <div class="form-row">
-                <div>
-                    <label>作業類型</label>
-                    <select id="transType">
-                        <option value="領料">領料 (Take)</option>
-                        <option value="借用">借用 (Borrow)</option>
-                        <option value="退料">退料 (Return)</option>
-                    </select>
-                </div>
-                <div><label>單號</label><input type="text" id="orderNo" placeholder="請輸入單號 (必填)" required /></div>
-            </div>
+      <form id="materialForm">
+        <h3 class="section-title">壹、日期與類型</h3>
+        <div class="form-row">
+          <div><label>異動日期</label><input type="date" id="mainDate" required /></div>
+          <div><label>借用日期 (無領料單填寫)</label><input type="date" id="borrowDate" /></div>
+        </div>
 
-            <h3 class="section-title">貳、人員與材料</h3>
-            <div class="form-row">
-                <input type="text" id="personName" placeholder="領/退/借用人姓名 (必填)" required />
-                <input type="text" id="staffName" placeholder="發/收料經辦人 (必填)" required />
-            </div>
-
-            <div style="margin-top:10px">
-                <label>料號 (Part No.)</label>
-                <input type="text" id="partNo" placeholder="請輸入料號 (範例：T68-0001) (必填)" required />
-            </div>
-
-            <select id="category" onchange="renderMaterials()" style="margin-top:10px">
-                <option value="">-- 選擇材料類別（選填） --</option>
-                <option value="A">A 類 (礙子)</option>
-                <option value="B">B 類 (鐵件)</option>
-                <option value="C">C 類 (線材)</option>
-                <option value="F">F 類 (變壓器)</option>
-                <option value="H">H 類 (開關)</option>
+        <div class="form-row">
+          <div>
+            <label>作業類型</label>
+            <select id="transType">
+              <option value="領料">領料 (Take)</option>
+              <option value="借用">借用 (Borrow)</option>
+              <option value="退料">退料 (Return)</option>
             </select>
-            <div id="materialsContainer" style="margin-top:15px; display:grid; grid-template-columns:1fr 1fr; gap:10px"></div>
+          </div>
+          <div><label>單號</label><input type="text" id="orderNo" placeholder="請輸入單號 (必填)" required /></div>
+        </div>
 
-            <div id="qtySection" style="display:block; margin-top:20px;">
-                <div class="form-row-3">
-                    <input type="number" id="qty" placeholder="數量 (必填)" min="1" required />
-                    <input type="text" id="unit" placeholder="單位 (PC/KG..)" required />
-                    <select id="evalType">
-                        <option value="">-- 評價類型 --</option>
-                        <option value="0新">(0新)</option>
-                        <option value="1舊">(1舊)</option>
-                        <option value="3(資產新)">3(資產新)</option>
-                        <option value="4(資產舊)">4(資產舊)</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn-save">🌊 確認儲存紀錄</button>
-            </div>
-        </form>
+        <h3 class="section-title">貳、人員與材料</h3>
+        <div class="form-row">
+          <input type="text" id="personName" placeholder="領/退/借用人姓名 (必填)" required />
+          <input type="text" id="staffName" placeholder="發/收料經辦人 (必填)" required />
+        </div>
+
+        <div style="margin-top:10px">
+          <label>料號 (Part No.)（選填）</label>
+          <!-- 改為選填（移除 required） -->
+          <input type="text" id="partNo" placeholder="請輸入料號（選填，範例：T68-0001）" />
+        </div>
+
+        <select id="category" onchange="renderMaterials()" style="margin-top:10px">
+          <option value="">-- 選擇材料類別（選填） --</option>
+          <option value="A">A 類 (礙子)</option>
+          <option value="B">B 類 (鐵件)</option>
+          <option value="C">C 類 (線材)</option>
+          <option value="F">F 類 (變壓器)</option>
+          <option value="H">H 類 (開關)</option>
+        </select>
+
+        <div id="materialsContainer" style="margin-top:15px; display:grid; grid-template-columns:1fr 1fr; gap:10px"></div>
+
+        <div id="qtySection" style="display:block; margin-top:20px;">
+          <div class="form-row-3">
+            <input type="number" id="qty" placeholder="數量 (必填)" min="1" required />
+            <input type="text" id="unit" placeholder="單位 (PC/KG..)" required />
+            <select id="evalType">
+              <option value="">-- 評價類型 --</option>
+              <option value="0新">(0新)</option>
+              <option value="1舊">(1舊)</option>
+              <option value="3(資產新)">3(資產新)</option>
+              <option value="4(資產舊)">4(資產舊)</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-save">🌊 確認儲存紀錄</button>
+        </div>
+      </form>
     </div>
 
     <div class="container-3d" style="background: rgba(255, 255, 255, 0.75);">
-        <h2 style="color:var(--ukiyo-deep-blue); text-align:center; margin-top:0">📋 歷史紀錄查詢</h2>
-        <div class="search-box">
-            <input type="text" id="searchPerson" placeholder="🔍 搜尋姓名..." onkeyup="handleSearch()">
-            <input type="text" id="searchStaff" placeholder="🔍 搜尋經辦人..." onkeyup="handleSearch()">
-            <input type="text" id="searchPartNo" placeholder="🔍 搜尋料號..." onkeyup="handleSearch()">
-            <select id="searchYear" onchange="handleSearch()">
-                <option value="">所有年份</option>
-                <option value="2024">2024年</option>
-                <option value="2025">2025年</option>
-                <option value="2026">2026年</option>
-            </select>
-            <select id="searchMonth" onchange="handleSearch()">
-                <option value="">所有月份</option>
-                <script>
-                    for(let i=1; i<=12; i++) document.write(`<option value="${i.toString().padStart(2,'0')}">${i}月</option>`);
-                </script>
-            </select>
-            <button class="btn-clear-all" onclick="clearAllRecords()">🗑️ 清除所有本地歷史紀錄</button>
+      <h2 style="color:var(--ukiyo-deep-blue); text-align:center; margin-top:0">📋 歷史紀錄查詢</h2>
+      <div class="search-box">
+        <input type="text" id="searchPerson" placeholder="🔍 搜尋姓名..." onkeyup="handleSearch()">
+        <input type="text" id="searchStaff" placeholder="🔍 搜尋經辦人..." onkeyup="handleSearch()">
+        <input type="text" id="searchPartNo" placeholder="🔍 搜尋料號..." onkeyup="handleSearch()">
+        <select id="searchYear" onchange="handleSearch()">
+          <option value="">所有年份</option>
+          <option value="2024">2024年</option>
+          <option value="2025">2025年</option>
+          <option value="2026">2026年</option>
+        </select>
+        <select id="searchMonth" onchange="handleSearch()">
+          <option value="">所有月份</option>
+        </select>
+        <button class="btn-clear-all" onclick="clearAllRecords()">🗑️ 清除所有本地歷史紀錄</button>
+      </div>
+
+      <div id="logList"></div>
+
+      <!-- 新增快速料號功能區 -->
+      <div style="margin-top:18px; display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div class="analysis-box">
+          <h4>🔎 即時庫存查詢</h4>
+          <input type="text" id="queryPartNo" placeholder="輸入料號查詢庫存 (例：T68-0001)">
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button class="material-btn" onclick="queryInventory()">查詢庫存</button>
+            <button class="material-btn" onclick="openBaselineDialog()">設定/調整初始庫存</button>
+          </div>
+          <div id="inventoryResult" style="margin-top:10px;"></div>
         </div>
 
-        <div id="logList"></div>
-
-        <!-- 新增快速料號功能區 -->
-        <div style="margin-top:18px; display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-            <div class="analysis-box">
-                <h4>🔎 即時庫存查詢</h4>
-                <input type="text" id="queryPartNo" placeholder="輸入料號查詢庫存 (例：T68-0001)">
-                <div style="display:flex; gap:8px; margin-top:8px;">
-                    <button class="material-btn" onclick="queryInventory()">查詢庫存</button>
-                    <button class="material-btn" onclick="openBaselineDialog()">設定/調整初始庫存</button>
-                </div>
-                <div id="inventoryResult" style="margin-top:10px;"></div>
-            </div>
-
-            <div class="analysis-box">
-                <h4>📊 存貨分析與預測</h4>
-                <input type="text" id="analysisPartNo" placeholder="輸入料號進行歷史與預測分析">
-                <div style="display:flex; gap:8px; margin-top:8px;">
-                    <button class="material-btn" onclick="analyzePart()">產生分析報告</button>
-                    <button class="material-btn" onclick="openThresholdDialog()">設定預警</button>
-                </div>
-                <div id="analysisResult" style="margin-top:10px;"></div>
-            </div>
+        <div class="analysis-box">
+          <h4>📊 存貨分析與預測</h4>
+          <input type="text" id="analysisPartNo" placeholder="輸入料號進行歷史與預測分析">
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button class="material-btn" onclick="analyzePart()">產生分析報告</button>
+            <button class="material-btn" onclick="openThresholdDialog()">設定預警</button>
+          </div>
+          <div id="analysisResult" style="margin-top:10px;"></div>
         </div>
+      </div>
 
-        <!-- baseline & threshold dialogs (簡易 UI) -->
-        <div id="dialogs" style="margin-top:12px"></div>
-
+      <!-- baseline & threshold dialogs (簡易 UI) -->
+      <div id="dialogs" style="margin-top:12px"></div>
     </div>
-</div>
+  </div>
 
-<script>
-/* ======= 資料結構與初始資料 ======= */
-const materialDict = {
-    "A": ["聚合柱型礙子 11.4kV", "懸垂礙子 C型 15000磅 φ10' 灰色", "懸垂礙子 C型 10000磅 6'φ 灰色", "防盬裝腳礙子 11.4KV 無腳"],
-    "B": ["互連器 間接型A / 477MCM XLPE", "互連繩 B型/ 112㎝", "V型掛鐵 A型無縫 SS400", "活線線夾", "H型壓接套管"],
-    "C": ["25KV交連PE引接線", "600V PVC鋁風雨線", "鋼心鋁線", "套管插頭", "四路分歧插頭", "雙通套管插頭"],
-    "F": ["亭置式開關", "桿上變壓器", "高壓電容器", "人孔蓋"],
-    "H": ["電力保險絲座", "線路故障指示器", "避雷器", "熔絲鏈開關"]
-};
+  <!-- 浮世繪風格製作人簽名（左下） -->
+  <div class="ukiyo-signature">製作人：柯文展</div>
 
-// records 中每筆物件結構
-// {
-//   id: number (timestamp),
-//   date: "YYYY-MM-DD",
-//   type: "領料"/"退料"/"借用",
-//   person, staff, item (名稱), partNo, qty (number), unit, evalType, orderNo
-// }
-let records = JSON.parse(localStorage.getItem("ukiyo_db_v5") || "[]");
+  <script>
+    /* ======= 資料結構與初始資料 ======= */
+    const materialDict = {
+      "A": ["聚合柱型礙子 11.4kV", "懸垂礙子 C型 15000磅 φ10' 灰色", "懸垂礙子 C型 10000磅 6'φ 灰色", "防盬裝腳礙子 11.4KV 無腳"],
+      "B": ["互連器 間接型A / 477MCM XLPE", "互連繩 B型/ 112㎝", "V型掛鐵 A型無縫 SS400", "活線線夾", "H型壓接套管"],
+      "C": ["25KV交連PE引接線", "600V PVC鋁風雨線", "鋼心鋁線", "套管插頭", "四路分歧插頭", "雙通套管插頭"],
+      "F": ["亭置式開關", "桿上變壓器", "高壓電容器", "人孔蓋"],
+      "H": ["電力保險絲座", "線路故障指示器", "避雷器", "熔絲鏈開關"]
+    };
 
-// baselineStocks: { partNo: number }
-let baselineStocks = JSON.parse(localStorage.getItem("ukiyo_baseline_v1") || "{}");
+    // records 格式與 localStorage 鍵
+    // records 每筆物件結構:
+    // { id, date, type, person, staff, item, partNo, qty, unit, evalType, orderNo }
+    let records = JSON.parse(localStorage.getItem("ukiyo_db_v5") || "[]");
+    let baselineStocks = JSON.parse(localStorage.getItem("ukiyo_baseline_v1") || "{}");
+    let thresholds = JSON.parse(localStorage.getItem("ukiyo_thresholds_v1") || "{}");
+    let selectedItem = "";
 
-// thresholds: { partNo: { safetyStock: number, lowAlert: true/false, highAlert: true/false, turnoverThreshold: number } }
-let thresholds = JSON.parse(localStorage.getItem("ukiyo_thresholds_v1") || "{}");
-
-let selectedItem = "";
-
-function renderMaterials() {
-    const cat = document.getElementById("category").value;
-    const box = document.getElementById("materialsContainer");
-    box.innerHTML = "";
-    if(!cat) return;
-    materialDict[cat].forEach(m => {
+    function renderMaterials() {
+      const cat = document.getElementById("category").value;
+      const box = document.getElementById("materialsContainer");
+      box.innerHTML = "";
+      if (!cat) return;
+      (materialDict[cat] || []).forEach(m => {
         const d = document.createElement("div");
         d.className = "material-btn";
         d.innerText = m;
         d.onclick = () => {
-            selectedItem = m;
-            document.getElementById("qtySection").style.display = "block";
-            Array.from(box.children).forEach(c => c.classList.remove("active"));
-            d.classList.add("active");
+          selectedItem = m;
+          document.getElementById("qtySection").style.display = "block";
+          Array.from(box.children).forEach(c => c.classList.remove("active"));
+          d.classList.add("active");
         };
         box.appendChild(d);
-    });
-}
+      });
+    }
 
-/* 儲存邏輯（含料號與單號） */
-document.getElementById("materialForm").onsubmit = function(e) {
-    e.preventDefault();
-
-    const qtyVal = Number(document.getElementById("qty").value || 0);
-    if(!qtyVal || qtyVal <= 0) { alert("請輸入正確數量"); return; }
-    const partNo = document.getElementById("partNo").value.trim();
-    if(!partNo) { alert("請輸入料號"); return; }
-    const orderNo = document.getElementById("orderNo").value.trim();
-    if(!orderNo) { alert("請輸入單號"); return; }
-
-    const data = {
+    /* 儲存邏輯（含料號與單號） */
+    document.getElementById("materialForm").onsubmit = function (e) {
+      e.preventDefault();
+      const qtyVal = Number(document.getElementById("qty").value || 0);
+      if (!qtyVal || qtyVal <= 0) {
+        alert("請輸入正確數量");
+        return;
+      }
+      // partNo 已改為選填：允許空字串
+      const partNo = (document.getElementById("partNo").value || "").trim();
+      const orderNo = (document.getElementById("orderNo").value || "").trim();
+      if (!orderNo) {
+        alert("請輸入單號");
+        return;
+      }
+      const data = {
         id: Date.now(),
         date: document.getElementById("mainDate").value,
         type: document.getElementById("transType").value,
         person: document.getElementById("personName").value,
         staff: document.getElementById("staffName").value,
-        item: selectedItem || "",      // 物品名稱（若選了）
+        item: selectedItem || "",
         partNo: partNo,
         qty: qtyVal,
         unit: document.getElementById("unit").value,
         evalType: document.getElementById("evalType").value,
         orderNo: orderNo
+      };
+      records.unshift(data);
+      localStorage.setItem("ukiyo_db_v5", JSON.stringify(records));
+      alert("✅ 紀錄已成功儲存！");
+      // 重置部分表單
+      document.getElementById("qty").value = "";
+      document.getElementById("orderNo").value = "";
+      handleSearch();
     };
-    records.unshift(data);
-    localStorage.setItem("ukiyo_db_v5", JSON.stringify(records));
-    alert("✅ 紀錄已成功儲存！");
 
-    // 重置部分表單
-    document.getElementById("qty").value = "";
-    document.getElementById("orderNo").value = "";
-    handleSearch(); // 更新顯示
-};
-
-/* 搜尋與顯示歷史 */
-function handleSearch() {
-    const sPerson = document.getElementById("searchPerson").value.trim();
-    const sStaff = document.getElementById("searchStaff").value.trim();
-    const sYear = document.getElementById("searchYear").value;
-    const sMonth = document.getElementById("searchMonth").value;
-    const sPart = document.getElementById("searchPartNo").value.trim();
-
-    const list = document.getElementById("logList");
-
-    // 如果所有搜尋條件都是空的，則隱藏清單
-    if(!sPerson && !sStaff && !sYear && !sMonth && !sPart) {
+    /* 搜尋與顯示歷史 */
+    function handleSearch() {
+      const sPerson = document.getElementById("searchPerson").value.trim();
+      const sStaff = document.getElementById("searchStaff").value.trim();
+      const sYear = document.getElementById("searchYear").value;
+      const sMonth = document.getElementById("searchMonth").value;
+      const sPart = document.getElementById("searchPartNo").value.trim();
+      const list = document.getElementById("logList");
+      // 如果所有搜尋條件都是空的，則隱藏清單
+      if (!sPerson && !sStaff && !sYear && !sMonth && !sPart) {
         list.style.display = "none";
         return;
+      }
+      list.style.display = "block";
+      renderHistory(sPerson, sStaff, sYear, sMonth, sPart);
     }
 
-    list.style.display = "block";
-    renderHistory(sPerson, sStaff, sYear, sMonth, sPart);
-}
+    function renderHistory(sPerson, sStaff, sYear, sMonth, sPart) {
+      const list = document.getElementById("logList");
+      list.innerHTML = "";
+      const filtered = records.filter(r => {
+        let rYear = "", rMonth = "";
+        if (r.date) {
+          const parts = r.date.split("-");
+          rYear = parts[0] || "";
+          rMonth = parts[1] || "";
+        }
+        return (sPerson === "" || (r.person && r.person.includes(sPerson)))
+          && (sStaff === "" || (r.staff && r.staff.includes(sStaff)))
+          && (sPart === "" || (r.partNo && r.partNo.includes(sPart)))
+          && (sYear === "" || rYear === sYear)
+          && (sMonth === "" || rMonth === sMonth);
+      });
 
-function renderHistory(sPerson, sStaff, sYear, sMonth, sPart) {
-    const list = document.getElementById("logList");
-    list.innerHTML = "";
-
-    const filtered = records.filter(r => {
-        const [rYear, rMonth] = r.date.split("-");
-        return (sPerson === "" || (r.person && r.person.includes(sPerson))) &&
-               (sStaff === "" || (r.staff && r.staff.includes(sStaff))) &&
-               (sPart === "" || (r.partNo && r.partNo.includes(sPart))) &&
-               (sYear === "" || rYear === sYear) &&
-               (sMonth === "" || rMonth === sMonth);
-    });
-
-    if(filtered.length === 0) {
+      if (filtered.length === 0) {
         list.innerHTML = "<p style='text-align:center; color:#999;'>查無相符紀錄</p>";
         return;
-    }
+      }
 
-    filtered.forEach(r => {
+      filtered.forEach(r => {
         const div = document.createElement("div");
         div.className = "record-li";
         div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                <div>
-                    <b>${r.date}</b> <span style="color:var(--danger-red); border:1px solid var(--danger-red); padding:1px 6px; font-size:0.8em; border-radius:4px; margin-left:5px">${r.type}</span><br>
-                    <span style="color:var(--ukiyo-mid-blue); font-weight:bold; font-size:1.05em; display:block; margin-top:5px">${r.item || '未填名稱'}</span>
-                    <div style="margin-top:6px; font-size:0.9em;">料號: <b>${r.partNo}</b> ｜ 單號: <b>${r.orderNo}</b></div>
-                </div>
-                <div style="text-align:right">
-                    <button class="btn-delete" onclick="deleteRecord(${r.id})">🗑️</button>
-                </div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <b>${r.date || ''}</b>
+              <span style="color:var(--danger-red); border:1px solid var(--danger-red); padding:1px 6px; font-size:0.8em; border-radius:4px; margin-left:5px">${r.type}</span><br>
+              <span style="color:var(--ukiyo-mid-blue); font-weight:bold; font-size:1.05em; display:block; margin-top:5px">${r.item || '未填名稱'}</span>
+              <div style="margin-top:6px; font-size:0.9em;">料號: <b>${r.partNo || '未填'}</b> ｜ 單號: <b>${r.orderNo || '未填'}</b></div>
             </div>
-            <div style="margin-top:10px; font-size:0.9em; border-top:1px dashed #eee; padding-top:8px; display:grid; grid-template-columns: 1fr 1fr;">
-                <span>數量: <b>${r.qty}</b> ${r.unit}</span>
-                <span>規格: <small>${r.evalType || '未填'}</small></span>
-                <span>👤 ${r.person}</span>
-                <span style="text-align:right">🖊️ 經辦: ${r.staff}</span>
+            <div style="text-align:right">
+              <button class="btn-delete" onclick="deleteRecord(${r.id})">🗑️</button>
             </div>
+          </div>
+          <div style="margin-top:10px; font-size:0.9em; border-top:1px dashed #eee; padding-top:8px; display:grid; grid-template-columns: 1fr 1fr;">
+            <span>數量: <b>${r.qty}</b> ${r.unit || ''}</span>
+            <span style="text-align:right">規格: <small>${r.evalType || '未填'}</small></span>
+            <span>👤 ${r.person || ''}</span>
+            <span style="text-align:right">🖊️ 經辦: ${r.staff || ''}</span>
+          </div>
         `;
         list.appendChild(div);
-    });
-}
+      });
+    }
 
-/* 刪除單筆 */
-function deleteRecord(id) {
-    if(confirm("確定要刪除這筆紀錄嗎？此動作無法復原。")) {
+    /* 刪除單筆 */
+    function deleteRecord(id) {
+      if (confirm("確定要刪除這筆紀錄嗎？此動作無法復原。")) {
         records = records.filter(r => r.id !== id);
         localStorage.setItem("ukiyo_db_v5", JSON.stringify(records));
         handleSearch();
+      }
     }
-}
 
-/* 全部刪除 */
-function clearAllRecords() {
-    if(confirm("⚠️ 注意：這將會永久刪除此裝置上所有的歷史紀錄！\n您確定要繼續嗎？")) {
+    /* 全部刪除 */
+    function clearAllRecords() {
+      if (confirm("⚠️ 注意：這將會永久刪除此裝置上所有的歷史紀錄！\n您確定要繼續嗎？")) {
         const finalCheck = confirm("再次確認：真的要全部刪除嗎？");
-        if(finalCheck) {
-            records = [];
-            localStorage.setItem("ukiyo_db_v5", JSON.stringify(records));
-            alert("已清除所有紀錄。");
-            handleSearch();
+        if (finalCheck) {
+          records = [];
+          localStorage.setItem("ukiyo_db_v5", JSON.stringify(records));
+          alert("已清除所有紀錄。");
+          handleSearch();
         }
+      }
     }
-}
 
-/* 初始設定日期 */
-document.getElementById("mainDate").valueAsDate = new Date();
+    /* 初始設定日期 */
+    document.getElementById("mainDate").valueAsDate = new Date();
 
-/* ======= 即時庫存與分析 ======= */
+    /* ======= 即時庫存與分析 ======= */
+    function computeInventory(partNo) {
+      const baseline = Number(baselineStocks[partNo] || 0);
+      let inv = baseline;
+      const relevant = records.filter(r => r.partNo === partNo).sort((a, b) => new Date(a.date) - new Date(b.date));
+      relevant.forEach(r => {
+        if (r.type === '領料' || r.type === '借用') inv -= Number(r.qty);
+        else if (r.type === '退料') inv += Number(r.qty);
+      });
+      const usageByYear = {};
+      relevant.forEach(r => {
+        const yr = (r.date || '').split("-")[0] || 'unknown';
+        const qty = Number(r.qty) || 0;
+        if (!usageByYear[yr]) usageByYear[yr] = 0;
+        if (r.type === '領料' || r.type === '借用') usageByYear[yr] += qty;
+        else if (r.type === '退料') usageByYear[yr] -= qty;
+      });
+      return { inventory: inv, baseline, lastRecords: relevant.slice().reverse(), usageByYear };
+    }
 
-/**
- * computeInventory(partNo)
- * 計算庫存：
- *   start with baselineStocks[partNo] (若無則 0)
- *   for each record (時間不限)：
- *     if type == '領料' or '借用' => outflow -> inventory -= qty
- *     if type == '退料' => inflow -> inventory += qty
- * 返回 { inventory: number, lastRecords: [...], summary: {...} }
- */
-function computeInventory(partNo) {
-    const baseline = Number(baselineStocks[partNo] || 0);
-    let inv = baseline;
-    const relevant = records.filter(r => r.partNo === partNo).sort((a,b)=> new Date(a.date) - new Date(b.date));
-    relevant.forEach(r => {
-        if(r.type === '領料' || r.type === '借用') inv -= Number(r.qty);
-        else if(r.type === '退料') inv += Number(r.qty);
-    });
-    // 計算年度使用量（出庫 - 入庫）
-    // usageByYear: { 2023: number, 2024: number }
-    const usageByYear = {};
-    relevant.forEach(r => {
-        const yr = r.date.split("-")[0] || 'unknown';
-        const qty = Number(r.qty);
-        if(!usageByYear[yr]) usageByYear[yr] = 0;
-        if(r.type === '領料' || r.type === '借用') usageByYear[yr] += qty;
-        else if(r.type === '退料') usageByYear[yr] -= qty; // 把退料視為減少使用
-    });
-    return { inventory: inv, baseline, lastRecords: relevant.slice().reverse(), usageByYear };
-}
-
-function queryInventory() {
-    const part = document.getElementById("queryPartNo").value.trim();
-    const out = document.getElementById("inventoryResult");
-    out.innerHTML = "";
-    if(!part) { out.innerHTML = "<div style='color:#999'>請輸入料號</div>"; return; }
-    const res = computeInventory(part);
-    const inv = res.inventory;
-    let html = `<div>料號: <b>${part}</b><br>初始/盤點庫存: <b>${res.baseline}</b><br>目前庫存 (依紀錄計算): <b>${inv}</b></div>`;
-    // thresholds check
-    const th = thresholds[part];
-    if(th) {
+    function queryInventory() {
+      const part = document.getElementById("queryPartNo").value.trim();
+      const out = document.getElementById("inventoryResult");
+      out.innerHTML = "";
+      if (!part) {
+        out.innerHTML = "<div style='color:#999'>請輸入料號</div>";
+        return;
+      }
+      const res = computeInventory(part);
+      const inv = res.inventory;
+      let html = `
+        <div>料號: <b>${part}</b><br>初始/盤點庫存: <b>${res.baseline}</b><br>目前庫存 (依紀錄計算): <b>${inv}</b></div>
+      `;
+      const th = thresholds[part];
+      if (th) {
         html += `<div style="margin-top:8px;">`;
-        if(th.safetyStock != null) {
-            html += `安全庫存: <b>${th.safetyStock}</b>。 `;
-            if(inv < th.safetyStock && th.lowAlert) html += `<div class="warn">⚠️ 庫存低於安全庫存！ (已啟用低於安全庫存提醒)</div>`;
-            if(inv > th.safetyStock && th.highAlert) html += `<div class="warn">⚠️ 庫存高於安全庫存 (已啟用高於安全庫存提醒)</div>`;
-            if(inv >= th.safetyStock && !th.highAlert) html += `<div class="ok">庫存>=安全庫存</div>`;
-            if(inv < th.safetyStock && !th.lowAlert) html += `<div class="warn">庫存低於安全值 (但提醒功能未啟用)</div>`;
+        if (th.safetyStock != null) {
+          html += `安全庫存: <b>${th.safetyStock}</b>。`;
+          if (inv < th.safetyStock && th.lowAlert) html += `<div class="warn">⚠️ 庫存低於安全庫存！ (已啟用低於安全庫存提醒)</div>`;
+          if (inv > th.safetyStock && th.highAlert) html += `<div class="warn">⚠️ 庫存高於安全庫存 (已啟用高於安全庫存提醒)</div>`;
+          if (inv >= th.safetyStock && !th.highAlert) html += `<div class="ok">庫存>=安全庫存</div>`;
+          if (inv < th.safetyStock && !th.lowAlert) html += `<div class="warn">庫存低於安全值 (但提醒功能未啟用)</div>`;
         }
-        // compute turnover (年) if enough data
         const usageYears = Object.values(res.usageByYear).map(v => Number(v));
-        const annualUsage = usageYears.reduce((a,b)=>a+b,0) / (usageYears.length || 1);
-        const avgInventory = (Math.max(res.baseline,0) + inv) / 2;
+        const annualUsage = usageYears.reduce((a, b) => a + b, 0) / (usageYears.length || 1);
+        const avgInventory = (Math.max(res.baseline, 0) + inv) / 2;
         const turnover = avgInventory > 0 ? (annualUsage / avgInventory) : null;
-        if(turnover != null) {
-            html += `<div style="margin-top:6px">估計年使用量: ${annualUsage.toFixed(2)}，估計存貨周轉率: ${turnover.toFixed(2)}</div>`;
-            if(th.turnoverThreshold && turnover > th.turnoverThreshold) {
-                html += `<div class="warn">⚠️ 周轉率高於設定閾值 (${th.turnoverThreshold})，可能需求激增或庫存偏低。</div>`;
-            }
+        if (turnover != null) {
+          html += `<div style="margin-top:6px">估計年使用量: ${annualUsage.toFixed(2)}，估計存貨周轉率: ${turnover.toFixed(2)}</div>`;
+          if (th.turnoverThreshold && turnover > th.turnoverThreshold) {
+            html += `<div class="warn">⚠️ 周轉率高於設定閾值 (${th.turnoverThreshold})，可能需求激增或庫存偏低。</div>`;
+          }
         }
         html += `</div>`;
-    } else {
+      } else {
         html += `<div style="margin-top:8px; color:#666">尚無設定安全庫存/警示。可按「設定預警」為此料號開啟提醒。</div>`;
-    }
+      }
 
-    // show last 5 records
-    if(res.lastRecords.length) {
+      if (res.lastRecords.length) {
         html += `<div style="margin-top:10px;"><b>最近紀錄 (最新在前)</b><ul>`;
-        res.lastRecords.slice(0,8).forEach(r => {
-            html += `<li>${r.date} ${r.type} ${r.qty}${r.unit || ''} 單號:${r.orderNo} 經辦:${r.staff}</li>`;
+        res.lastRecords.slice(0, 8).forEach(r => {
+          html += `<li>${r.date || ''} ${r.type || ''} ${r.qty || ''}${r.unit || ''} 單號:${r.orderNo || ''} 經辦:${r.staff || ''}</li>`;
         });
         html += `</ul></div>`;
+      }
+      out.innerHTML = html;
     }
-    out.innerHTML = html;
-}
 
-/* ======= baseline 設定介面 ======= */
-function openBaselineDialog() {
-    const dialogs = document.getElementById("dialogs");
-    dialogs.innerHTML = `
+    /* ======= baseline 設定介面 ======= */
+    function openBaselineDialog() {
+      const dialogs = document.getElementById("dialogs");
+      dialogs.innerHTML = `
         <div class="analysis-box">
-            <h4>🎯 設定 / 調整 初始庫存 (盤點)</h4>
-            <input type="text" id="basePartNo" placeholder="料號">
-            <input type="number" id="baseQty" placeholder="庫存數量" min="0">
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="material-btn" onclick="saveBaseline()">儲存盤點</button>
-                <button class="material-btn" onclick="closeDialogs()">取消</button>
-            </div>
-            <div id="baseMsg" style="margin-top:8px;"></div>
+          <h4>🎯 設定 / 調整 初始庫存 (盤點)</h4>
+          <input type="text" id="basePartNo" placeholder="料號">
+          <input type="number" id="baseQty" placeholder="庫存數量" min="0">
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button class="material-btn" onclick="saveBaseline()">儲存盤點</button>
+            <button class="material-btn" onclick="closeDialogs()">取消</button>
+          </div>
+          <div id="baseMsg" style="margin-top:8px;"></div>
         </div>
-    `;
-}
+      `;
+    }
 
-function saveBaseline() {
-    const p = document.getElementById("basePartNo").value.trim();
-    const q = Number(document.getElementById("baseQty").value || 0);
-    const msg = document.getElementById("baseMsg");
-    if(!p) { msg.innerHTML = "<div style='color:#d64545;'>請輸入料號</div>"; return; }
-    if(q < 0) { msg.innerHTML = "<div style='color:#d64545;'>庫存數量需 >= 0</div>"; return; }
-    baselineStocks[p] = q;
-    localStorage.setItem("ukiyo_baseline_v1", JSON.stringify(baselineStocks));
-    msg.innerHTML = "<div style='color:green'>已儲存盤點初始庫存。</div>";
-    setTimeout(()=>{ closeDialogs(); }, 800);
-}
+    function saveBaseline() {
+      const p = (document.getElementById("basePartNo").value || "").trim();
+      const q = Number(document.getElementById("baseQty").value || 0);
+      const msg = document.getElementById("baseMsg");
+      if (!p) { msg.innerHTML = "<div style='color:#d64545;'>請輸入料號</div>"; return; }
+      if (q < 0) { msg.innerHTML = "<div style='color:#d64545;'>庫存數量需 >= 0</div>"; return; }
+      baselineStocks[p] = q;
+      localStorage.setItem("ukiyo_baseline_v1", JSON.stringify(baselineStocks));
+      msg.innerHTML = "<div style='color:green'>已儲存盤點初始庫存。</div>";
+      setTimeout(() => { closeDialogs(); }, 800);
+    }
 
-/* ======= 閾值/預警設定介面 ======= */
-function openThresholdDialog(partNoCandidate) {
-    const dialogs = document.getElementById("dialogs");
-    const candidate = partNoCandidate || document.getElementById("analysisPartNo").value.trim() || document.getElementById("queryPartNo").value.trim() || '';
-    dialogs.innerHTML = `
+    /* ======= 閾值/預警設定介面 ======= */
+    function openThresholdDialog(partNoCandidate) {
+      const dialogs = document.getElementById("dialogs");
+      const candidate = partNoCandidate || document.getElementById("analysisPartNo").value.trim() || document.getElementById("queryPartNo").value.trim() || '';
+      dialogs.innerHTML = `
         <div class="analysis-box">
-            <h4>🚨 設定預警 (料號)</h4>
-            <input type="text" id="thPartNo" placeholder="料號" value="${candidate}">
-            <input type="number" id="thSafety" placeholder="安全庫存數量" min="0">
-            <div style="margin-top:8px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <label><input type="checkbox" id="thLowAlert"> 低於安全庫存提醒 (低於即警示)</label>
-                <label><input type="checkbox" id="thHighAlert"> 高於安全庫存提醒 (高於即警示)</label>
-            </div>
-            <input type="number" id="thTurnover" placeholder="周轉率警示閾值 (可留空)" min="0" step="0.1">
-            <div style="display:flex; gap:8px; margin-top:8px;">
-                <button class="material-btn" onclick="saveThreshold()">存檔</button>
-                <button class="material-btn" onclick="closeDialogs()">取消</button>
-            </div>
-            <div id="thMsg" style="margin-top:8px;"></div>
+          <h4>🚨 設定預警 (料號)</h4>
+          <input type="text" id="thPartNo" placeholder="料號" value="${candidate}">
+          <input type="number" id="thSafety" placeholder="安全庫存數量" min="0">
+          <div style="margin-top:8px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <label><input type="checkbox" id="thLowAlert"> 低於安全庫存提醒 (低於即警示)</label>
+            <label><input type="checkbox" id="thHighAlert"> 高於安全庫存提醒 (高於即警示)</label>
+          </div>
+          <input type="number" id="thTurnover" placeholder="周轉率警示閾值 (可留空)" min="0" step="0.1">
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button class="material-btn" onclick="saveThreshold()">存檔</button>
+            <button class="material-btn" onclick="closeDialogs()">取消</button>
+          </div>
+          <div id="thMsg" style="margin-top:8px;"></div>
         </div>
-    `;
-}
+      `;
+    }
 
-function saveThreshold() {
-    const p = document.getElementById("thPartNo").value.trim();
-    if(!p) { document.getElementById("thMsg").innerHTML = "<div style='color:#d64545'>請輸入料號</div>"; return; }
-    const safety = Number(document.getElementById("thSafety").value || 0);
-    const lowAlert = document.getElementById("thLowAlert").checked;
-    const highAlert = document.getElementById("thHighAlert").checked;
-    const turnover = Number(document.getElementById("thTurnover").value || 0) || null;
-    thresholds[p] = { safetyStock: safety, lowAlert, highAlert, turnoverThreshold: turnover };
-    localStorage.setItem("ukiyo_thresholds_v1", JSON.stringify(thresholds));
-    document.getElementById("thMsg").innerHTML = "<div style='color:green'>已儲存預警設定。</div>";
-    setTimeout(()=>{ closeDialogs(); }, 800);
-}
+    function saveThreshold() {
+      const p = (document.getElementById("thPartNo").value || "").trim();
+      if (!p) { document.getElementById("thMsg").innerHTML = "<div style='color:#d64545'>請輸入料號</div>"; return; }
+      const safety = Number(document.getElementById("thSafety").value || 0);
+      const lowAlert = document.getElementById("thLowAlert").checked;
+      const highAlert = document.getElementById("thHighAlert").checked;
+      const turnover = (document.getElementById("thTurnover").value !== "") ? Number(document.getElementById("thTurnover").value) : null;
+      thresholds[p] = { safetyStock: safety, lowAlert, highAlert, turnoverThreshold: turnover };
+      localStorage.setItem("ukiyo_thresholds_v1", JSON.stringify(thresholds));
+      document.getElementById("thMsg").innerHTML = "<div style='color:green'>已儲存預警設定。</div>";
+      setTimeout(() => { closeDialogs(); }, 800);
+    }
 
-function closeDialogs(){ document.getElementById("dialogs").innerHTML = ""; }
+    function closeDialogs() {
+      document.getElementById("dialogs").innerHTML = "";
+    }
 
-/* ======= 存貨分析（歷史統計與未來預測） ======= */
-/*
- - 以最近最多 10 年為期，計算每年的淨用量（領+借 - 退）
- - 計算年平均 (sum years / yearsCount)
- - 計算「10 年內同月的單月平均」: 對每個月份 (1..12) 計算該月份在每年中的淨使用量平均
- - 簡易預測：用每年總量做線性回歸求趨勢 (若資料不足則使用平均)
-   再用月份季節係數(同月平均 / 年平均月) 來預測未來 12 個月需求量
-*/
-function analyzePart() {
-    const part = document.getElementById("analysisPartNo").value.trim();
-    const out = document.getElementById("analysisResult");
-    out.innerHTML = "";
-    if(!part) { out.innerHTML = "<div style='color:#999'>請輸入料號</div>"; return; }
+    /* ======= 存貨分析（歷史統計與未來預測） ======= */
+    function analyzePart() {
+      const part = (document.getElementById("analysisPartNo").value || "").trim();
+      const out = document.getElementById("analysisResult");
+      out.innerHTML = "";
+      if (!part) { out.innerHTML = "<div style='color:#999'>請輸入料號</div>"; return; }
 
-    // 收集最近 10 年內資料
-    const today = new Date();
-    const maxYears = 10;
-    const earliestYear = today.getFullYear() - (maxYears - 1); // 包含今年在內往前 10 年
-    const relevant = records.filter(r => r.partNo === part && r.date && Number(r.date.split("-")[0]) >= earliestYear);
+      const today = new Date();
+      const maxYears = 10;
+      const earliestYear = today.getFullYear() - (maxYears - 1);
+      const relevant = records.filter(r => r.partNo === part && r.date && Number(r.date.split("-")[0]) >= earliestYear);
 
-    if(relevant.length === 0) { out.innerHTML = `<div style='color:#999'>查無此料號過去 10 年內紀錄</div>`; return; }
+      if (relevant.length === 0) { out.innerHTML = `<div style='color:#999'>查無此料號過去 ${maxYears} 年內紀錄</div>`; return; }
 
-    // 準備資料結構
-    const usageByYear = {}; // { year: netUsage }
-    const usageByMonthYear = {}; // { '2024-01': netUsage }
-    relevant.forEach(r => {
-        const [yr, mo] = r.date.split("-");
+      const usageByYear = {}; // 年度淨用量
+      const usageByMonthYear = {}; // 'YYYY-MM' => netUsage
+
+      relevant.forEach(r => {
+        const [yr, mo] = (r.date || "").split("-");
         const keyMY = `${yr}-${mo}`;
-        const qty = Number(r.qty);
+        const qty = Number(r.qty) || 0;
         const delta = (r.type === '領料' || r.type === '借用') ? qty : (r.type === '退料' ? -qty : 0);
         usageByYear[yr] = (usageByYear[yr] || 0) + delta;
         usageByMonthYear[keyMY] = (usageByMonthYear[keyMY] || 0) + delta;
-    });
+      });
 
-    // 年平均
-    const years = Object.keys(usageByYear).sort();
-    const yearValues = years.map(y => usageByYear[y]);
-    const yearCount = years.length;
-    const yearSum = yearValues.reduce((a,b)=>a+b,0);
-    const yearAvg = yearCount ? yearSum / yearCount : 0;
+      const years = Object.keys(usageByYear).sort();
+      const yearValues = years.map(y => usageByYear[y]);
+      const yearCount = years.length;
+      const yearSum = yearValues.reduce((a, b) => a + b, 0);
+      const yearAvg = yearCount ? yearSum / yearCount : 0;
 
-    // 同月平均（跨年）
-    // monthAverages: { '01': avg, '02': avg, ... }
-    const monthSums = {}; const monthCounts = {};
-    Object.keys(usageByMonthYear).forEach(k => {
+      const monthSums = {};
+      const monthCounts = {};
+      Object.keys(usageByMonthYear).forEach(k => {
         const [yr, mo] = k.split("-");
         monthSums[mo] = (monthSums[mo] || 0) + usageByMonthYear[k];
         monthCounts[mo] = (monthCounts[mo] || 0) + 1;
-    });
-    const monthAverages = {};
-    for(let m=1; m<=12; m++){
-        const mm = m.toString().padStart(2,'0');
+      });
+      const monthAverages = {};
+      for (let m = 1; m <= 12; m++) {
+        const mm = m.toString().padStart(2, '0');
         monthAverages[mm] = monthCounts[mm] ? (monthSums[mm] / monthCounts[mm]) : 0;
-    }
+      }
 
-    // 簡單線性回歸（年 vs usage）求趨勢斜率
-    // x = 0..n-1 for each year in ascending order
-    let slope = 0, intercept = yearAvg;
-    if(yearCount >= 2) {
-        const xs = years.map((y,i)=>i);
+      // 簡單線性回歸 (年 vs usage)
+      let slope = 0, intercept = yearAvg;
+      if (yearCount >= 2) {
+        const xs = years.map((y, i) => i);
         const ys = yearValues;
-        const xMean = xs.reduce((a,b)=>a+b,0)/xs.length;
-        const yMean = ys.reduce((a,b)=>a+b,0)/ys.length;
+        const xMean = xs.reduce((a, b) => a + b, 0) / xs.length;
+        const yMean = ys.reduce((a, b) => a + b, 0) / ys.length;
         let num = 0, den = 0;
-        for(let i=0;i<xs.length;i++){ num += (xs[i]-xMean)*(ys[i]-yMean); den += (xs[i]-xMean)*(xs[i]-xMean); }
-        slope = den === 0 ? 0 : num/den;
+        for (let i = 0; i < xs.length; i++) {
+          num += (xs[i] - xMean) * (ys[i] - yMean);
+          den += (xs[i] - xMean) * (xs[i] - xMean);
+        }
+        slope = den === 0 ? 0 : num / den;
         intercept = yMean - slope * xMean;
-    }
+      }
 
-    // 預測未來 12 個月需求（以 nextYear x month seasonality）
-    const predictions = []; // [{month:'2026-01', predicted: num}]
-    const lastYear = Math.max(...years.map(y=>Number(y)));
-    for(let m=1; m<=12; m++){
-        // predict year total for next year index (use slope)
-        const xNext = years.length; // next index
+      const predictions = [];
+      const lastYear = Math.max(...years.map(y => Number(y)));
+      for (let m = 1; m <= 12; m++) {
+        const xNext = years.length;
         const predictedYearTotal = intercept + slope * xNext;
-        const mm = m.toString().padStart(2,'0');
-        // month fraction: use monthAverages relative to sum of monthAverages to split year total seasonally
-        const seasonDenom = Object.values(monthAverages).reduce((a,b)=>a+Math.abs(b),0) || 12;
+        const mm = m.toString().padStart(2, '0');
+        const seasonDenom = Object.values(monthAverages).reduce((a, b) => a + Math.abs(b), 0) || 12;
         const fraction = Math.abs(monthAverages[mm]) / seasonDenom;
         const predictedMonth = predictedYearTotal * fraction;
-        // if monthAverage is 0 (no seasonality), fallback to yearAvg/12
         const fallback = yearAvg / 12;
         const finalPred = (monthAverages[mm] === 0) ? fallback : predictedMonth;
-        // build label (next calendar year)
         const nextYearLabel = lastYear + 1;
         predictions.push({ month: `${nextYearLabel}-${mm}`, predicted: finalPred });
-    }
+      }
 
-    // 組 HTML 呈現
-    let html = `<div><b>料號 ${part} 的分析 (最近最多 10 年範圍)</b></div>`;
-    html += `<div style="margin-top:8px">資料年份範圍: ${years[0]} - ${years[years.length-1]} (共 ${yearCount} 年)</div>`;
-    html += `<div style="margin-top:8px">年度淨用量平均 (年平均): <b>${yearAvg.toFixed(2)}</b></div>`;
-
-    html += `<div style="margin-top:10px"><b>每月同月平均 (十年內同月平均)</b><table style="width:100%; border-collapse:collapse; margin-top:6px;">`;
-    html += `<tr style="background:#f4f6f8;"><th style="padding:6px;">月份</th><th style="padding:6px;">平均用量</th></tr>`;
-    for(let m=1; m<=12; m++){
-        const mm = m.toString().padStart(2,'0');
+      let html = `<div><b>料號 ${part} 的分析 (最近最多 ${maxYears} 年範圍)</b></div>`;
+      html += `<div style="margin-top:8px">資料年份範圍: ${years[0]} - ${years[years.length - 1]} (共 ${yearCount} 年)</div>`;
+      html += `<div style="margin-top:8px">年度淨用量平均 (年平均): <b>${yearAvg.toFixed(2)}</b></div>`;
+      html += `<div style="margin-top:10px"><b>每月同月平均 (十年內同月平均)</b><table style="width:100%; border-collapse:collapse; margin-top:6px;">`;
+      html += `<tr style="background:#f4f6f8;"><th style="padding:6px;">月份</th><th style="padding:6px;">平均用量</th></tr>`;
+      for (let m = 1; m <= 12; m++) {
+        const mm = m.toString().padStart(2, '0');
         html += `<tr><td style="padding:6px;">${m}月</td><td style="padding:6px;">${monthAverages[mm].toFixed(2)}</td></tr>`;
-    }
-    html += `</table></div>`;
+      }
+      html += `</table></div>`;
 
-    // 顯示未來 12 個月預測
-    html += `<div style="margin-top:10px"><b>簡易預測 (未來 12 個月需求估計)</b><ol>`;
-    predictions.forEach(p => {
-        html += `<li>${p.month}: ${p.predicted.toFixed(2)}</li>`;
-    });
-    html += `</ol></div>`;
+      html += `<div style="margin-top:10px"><b>簡易預測 (未來 12 個月需求估計)</b><ol>`;
+      predictions.forEach(p => { html += `<li>${p.month}: ${p.predicted.toFixed(2)}</li>`; });
+      html += `</ol></div>`;
 
-    // 顯示原始逐年資料
-    html += `<div style="margin-top:10px"><b>逐年淨用量</b><ul>`;
-    years.forEach(y => html += `<li>${y}: ${usageByYear[y].toFixed(2)}</li>`);
-    html += `</ul></div>`;
+      html += `<div style="margin-top:10px"><b>逐年淨用量</b><ul>`;
+      years.forEach(y => html += `<li>${y}: ${usageByYear[y].toFixed(2)}</li>`);
+      html += `</ul></div>`;
 
-    // 另外顯示目前庫存與預警（若已設定）
-    const invInfo = computeInventory(part);
-    html += `<div style="margin-top:8px"><b>即時庫存參考：</b> 初始: ${invInfo.baseline}, 目前: ${invInfo.inventory}</div>`;
-    const th = thresholds[part];
-    if(th) {
-        if(invInfo.inventory < th.safetyStock && th.lowAlert) html += `<div class="warn">⚠️ 庫存低於安全庫存 (已啟用低於提醒)</div>`;
-        if(invInfo.inventory > th.safetyStock && th.highAlert) html += `<div class="warn">⚠️ 庫存高於安全庫存 (已啟用高於提醒)</div>`;
+      const invInfo = computeInventory(part);
+      html += `<div style="margin-top:8px"><b>即時庫存參考：</b> 初始: ${invInfo.baseline}, 目前: ${invInfo.inventory}</div>`;
+      const th = thresholds[part];
+      if (th) {
+        if (invInfo.inventory < th.safetyStock && th.lowAlert) html += `<div class="warn">⚠️ 庫存低於安全庫存 (已啟用低於提醒)</div>`;
+        if (invInfo.inventory > th.safetyStock && th.highAlert) html += `<div class="warn">⚠️ 庫存高於安全庫存 (已啟用高於提醒)</div>`;
+      }
+
+      out.innerHTML = html;
     }
 
-    out.innerHTML = html;
-}
+    /* 工具：載入 localStorage（debug / init） */
+    function loadAllFromStorage() {
+      records = JSON.parse(localStorage.getItem("ukiyo_db_v5") || "[]");
+      baselineStocks = JSON.parse(localStorage.getItem("ukiyo_baseline_v1") || "{}");
+      thresholds = JSON.parse(localStorage.getItem("ukiyo_thresholds_v1") || "{}");
+    }
+    loadAllFromStorage();
 
-/* ======= 工具：重設/讀取 localStorage (for debug) ======= */
-function loadAllFromStorage() {
-    records = JSON.parse(localStorage.getItem("ukiyo_db_v5") || "[]");
-    baselineStocks = JSON.parse(localStorage.getItem("ukiyo_baseline_v1") || "{}");
-    thresholds = JSON.parse(localStorage.getItem("ukiyo_thresholds_v1") || "{}");
-}
-loadAllFromStorage();
-
-</script>
+    /* 初始化月份下拉（避免 document.write 語法錯誤）*/
+    (function initMonths() {
+      const sel = document.getElementById("searchMonth");
+      for (let i = 1; i <= 12; i++) {
+        const opt = document.createElement("option");
+        opt.value = i.toString().padStart(2, '0');
+        opt.textContent = `${i}月`;
+        sel.appendChild(opt);
+      }
+    })();
+  </script>
 </body>
 </html>
