@@ -1,11 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>材料管理系統 </title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Orbitron:wght@600;900&display=swap" rel="stylesheet" />
+  <title>材料管理系統 - 完整版</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
   <style>
     :root {
       --ukiyo-deep-blue: #1D3B56;
@@ -19,6 +20,7 @@
       --danger-red: #d64545;
       --safe-green: #2ecc71;
       --warning-orange: #f39c12;
+      --excel-green: #217346;
     }
     
     body {
@@ -30,7 +32,7 @@
       min-height: 100vh;
     }
 
-    /* 背景動畫層 (保持原樣) */
+    /* 背景動畫層 */
     .ukiyo-scene {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       z-index: 1; overflow: hidden;
@@ -48,6 +50,82 @@
     .wave-mid { z-index: 3; height: 40%; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 180' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C200,60 350,140 600,80 C750,40 800,100 800,100 L800,180 L0,180 Z' fill='%236B93B8' opacity='0.9'/%3E%3C/svg%3E"); animation: moveWave 15s linear infinite reverse; }
     .wave-front { z-index: 4; height: 35%; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%231D3B56' fill-opacity='1' d='M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E"); animation: moveWave 10s linear infinite; }
     @keyframes moveWave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    /* Excel 匯出按鈕 */
+    .excel-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      background-color: var(--excel-green);
+      color: white;
+      border: 2px solid white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+    .excel-btn:hover {
+      transform: scale(1.05);
+      background-color: #1e6b40;
+    }
+
+    /* Modal (彈窗) 樣式 */
+    .modal-overlay {
+      display: none;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .modal-header {
+      font-size: 1.2rem;
+      font-weight: 900;
+      margin-bottom: 15px;
+      color: var(--ukiyo-deep-blue);
+      border-bottom: 2px solid var(--ukiyo-sky);
+      padding-bottom: 10px;
+    }
+    .modal-body {
+      margin-bottom: 20px;
+    }
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 5px;
+    }
+    .checkbox-item:hover { background: #f0f0f0; }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .btn-modal-cancel { background: #ccc; color: #333; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .btn-modal-confirm { background: var(--excel-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
     /* UI 內容層 */
     .content-wrapper { 
@@ -69,11 +147,15 @@
       flex: 1; padding: 12px; border: none; border-radius: 8px;
       background: rgba(255,255,255,0.6); font-weight: 700; color: var(--ukiyo-deep-blue);
       cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      min-width: 120px;
+      min-width: 110px;
     }
     .nav-btn.active {
       background: var(--ukiyo-deep-blue); color: #fff;
       transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    /* 特別標註進貨調撥按鈕 */
+    .nav-btn-transfer {
+      border-bottom: 3px solid var(--warning-orange);
     }
 
     .container-3d { 
@@ -81,7 +163,7 @@
       border-radius: 20px; padding: 30px; 
       box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
       border: 1px solid var(--glass-border); margin-bottom: 30px;
-      display: none; /* 預設隱藏，透過 Tab 切換顯示 */
+      display: none; 
     }
     .container-3d.active { display: block; animation: fadeIn 0.5s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -90,8 +172,7 @@
     input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
     .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 15px; margin-bottom: 15px; }
-    .form-row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; align-items: end; }
-
+    
     /* 按鈕樣式 */
     .btn-save { 
       width: 100%; padding: 15px; border: none; border-radius: 12px; 
@@ -140,6 +221,15 @@
     .status-low { background-color: var(--danger-red); }
     .status-warn { background-color: var(--warning-orange); }
 
+    /* 模式切換 Toggle (Updated for 3 items) */
+    .mode-toggle {
+      display: flex; background: #ddd; border-radius: 10px; padding: 5px; margin-bottom: 20px;
+    }
+    .mode-btn {
+      flex: 1; padding: 10px; text-align: center; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 0.9rem;
+    }
+    .mode-btn.active { background: white; color: var(--ukiyo-deep-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
     /* 簽名檔 */
     .ukiyo-signature {
       position: fixed; left: 20px; bottom: 20px; z-index: 100; font-weight: 900; padding: 10px;
@@ -148,13 +238,54 @@
     }
 
     @media (max-width: 600px) { 
-      .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; } 
+      .form-row, .form-row-3 { grid-template-columns: 1fr; } 
       .nav-tabs { gap: 5px; }
       .nav-btn { font-size: 0.9rem; padding: 8px; }
+      .excel-btn span { display: none; }
+      .checkbox-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+
+  <button class="excel-btn" onclick="openExportModal()">
+    📊 <span>匯出資料選擇</span>
+  </button>
+
+  <div id="exportModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">匯出選項設定</div>
+      <div class="modal-body">
+        <div style="margin-bottom: 15px; padding: 10px; background: #f9f9f9; border-radius: 8px;">
+           <label style="font-weight:bold; display:block; margin-bottom:5px;">📅 日期範圍 (留空則匯出全部)</label>
+           <div style="display:flex; gap:10px;">
+             <input type="date" id="exportStart">
+             <span style="align-self:center;">~</span>
+             <input type="date" id="exportEnd">
+           </div>
+        </div>
+        
+        <label style="font-weight:bold; display:block; margin-bottom:10px;">📝 選擇要匯出的欄位：</label>
+        <div class="checkbox-grid">
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="date" checked> 異動日期</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="type" checked> 作業類型</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="orderNo" checked> 單號</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="partNo" checked> 料號</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="name" checked> 品名/規格</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="qty" checked> 數量</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="unit" checked> 單位</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="person" checked> 對象(人/單位/倉庫)</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="staff" checked> 經辦人</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="evalType"> 評價類型</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="timestamp"> 紀錄時間戳記</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" onclick="closeExportModal()">取消</button>
+        <button class="btn-modal-confirm" onclick="confirmExport()">確認匯出 Excel</button>
+      </div>
+    </div>
+  </div>
 
   <div class="ukiyo-scene">
     <div class="mt-fuji"></div>
@@ -166,7 +297,6 @@
   <div class="content-wrapper">
     <header>
       <div style="font-weight:900; font-size: 1.5rem; letter-spacing: 2px;">材料管理系統</div>
-      <div style="font-size:0.9rem; opacity:0.9; margin-top:5px;"></div>
     </header>
 
     <div class="nav-tabs">
@@ -174,6 +304,7 @@
       <button class="nav-btn" onclick="switchTab('search')">🔍 歷史查詢</button>
       <button class="nav-btn" onclick="switchTab('inventory')">📦 即時庫存</button>
       <button class="nav-btn" onclick="switchTab('analysis')">📊 分析與預測</button>
+      <button class="nav-btn nav-btn-transfer" onclick="switchTab('transfer')">🚚 進貨/調撥/移轉</button>
     </div>
 
     <div id="tab-input" class="container-3d active">
@@ -197,7 +328,7 @@
         
         <div class="form-row">
           <div><label>發/收料經辦人</label><input type="text" id="staffName" required /></div>
-          <div><label>10位料號搜尋 (帶出材料)</label><input type="text" id="partNoInput" maxlength="10" placeholder="輸入料號自動帶出" oninput="handlePartNoInput(this.value)" /></div>
+          <div><label>10位料號搜尋 (帶出材料)</label><input type="text" id="partNoInput" maxlength="10" placeholder="輸入料號自動帶出" oninput="handlePartNoInput(this.value, 'normal')" /></div>
         </div>
 
         <h3 class="section-title">貳、材料選擇</h3>
@@ -267,7 +398,7 @@
               <th>料號</th>
               <th>品名</th>
               <th>初始</th>
-              <th>異動</th>
+              <th>異動總計</th>
               <th>目前庫存</th>
             </tr>
           </thead>
@@ -288,6 +419,79 @@
       <div id="analysisReport"></div>
     </div>
 
+    <div id="tab-transfer" class="container-3d">
+      <h3 class="section-title">🚚 進貨 / 調撥 / 移轉</h3>
+      
+      <div class="mode-toggle">
+        <div id="modeStockIn" class="mode-btn active" onclick="setTransferMode('stockin')">📥 進貨入庫 (廠商/總處)</div>
+        <div id="modeTransfer" class="mode-btn" onclick="setTransferMode('transfer')">⇆ 單位間調撥</div>
+        <div id="modeWarehouse" class="mode-btn" onclick="setTransferMode('warehouse')">🏭 倉庫間移轉</div>
+      </div>
+
+      <div style="background: #eef2f5; padding: 20px; border-radius: 12px; border: 1px solid #ccc;">
+        <div class="form-row">
+            <div><label>異動日期</label><input type="date" id="transferDate"></div>
+            <div><label>單號</label><input type="text" id="transferOrderNo" placeholder="請輸入單號"></div>
+        </div>
+
+        <div class="form-row">
+            <div><label>10位料號搜尋 (必填)</label><input type="text" id="transferPartNo" maxlength="10" placeholder="輸入料號帶出名稱" oninput="handlePartNoInput(this.value, 'transfer')"></div>
+            <div><label>品名規格 (自動顯示)</label><input type="text" id="transferItemName" disabled style="background: #e0e0e0; font-weight:bold;"></div>
+        </div>
+
+        <div id="stockInFields">
+            <div class="form-row">
+                <div><label>入庫數量</label><input type="number" id="stockInQty" min="1" placeholder="例如: 10"></div>
+                <div><label>經辦人</label><input type="text" id="stockInStaff" placeholder="您的姓名"></div>
+            </div>
+            <button class="btn-save" style="background: linear-gradient(45deg, #11998e, #38ef7d);" onclick="processStockIn()">📥 確認入庫 (入帳)</button>
+        </div>
+
+        <div id="transferFields" style="display:none;">
+            <div class="form-row">
+                <div><label>對方單位名稱</label><input type="text" id="transferTargetUnit" placeholder="例: 台北西區營業處"></div>
+                <div><label>調撥類型</label>
+                    <select id="transferType">
+                        <option value="transfer_in">調入 (本單位增加 +)</option>
+                        <option value="transfer_out">調出 (本單位減少 -)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div><label>調撥數量</label><input type="number" id="transferQty" min="1"></div>
+                <div><label>經辦人</label><input type="text" id="transferStaff"></div>
+            </div>
+            <button class="btn-save" style="background: linear-gradient(45deg, #f7971e, #ffd200);" onclick="processTransfer()">⇆ 確認調撥</button>
+        </div>
+
+        <div id="warehouseFields" style="display:none;">
+            <div class="form-row">
+                <div><label>目標/來源 倉庫名稱</label>
+                    <select id="warehouseTarget">
+                        <option value="21M1本庫倉">21M1本庫倉</option>
+                        <option value="21M6待修驗倉">21M6待修驗倉</option>
+                        <option value="21M2廢料倉">21M2廢料倉</option>
+                        <option value="21M3保留倉">21M3保留倉</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div><label>移轉類型</label>
+                    <select id="warehouseType">
+                        <option value="transfer_out">移出 (移至該倉 -)</option>
+                        <option value="transfer_in">移入 (從該倉移入 +)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div><label>移轉數量</label><input type="number" id="warehouseQty" min="1"></div>
+                <div><label>經辦人</label><input type="text" id="warehouseStaff"></div>
+            </div>
+            <button class="btn-save" style="background: linear-gradient(45deg, #4b6cb7, #182848);" onclick="processWarehouseTransfer()">🏭 確認移轉</button>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 
   <div class="ukiyo-signature" onclick="toggleSignature(this)">
@@ -295,1406 +499,364 @@
   </div>
 
 <script>
- // 資料庫與初始化
-
+// --- 資料庫 (完整資料) ---
 const rawData = {
-
-    A: `1030420013 懸垂礙子 C型 10000磅 6"φ 灰色
-
-
-
+  A: `1030420013 懸垂礙子 C型 10000磅 6"φ 灰色
 1030420014 懸垂礙子 C型 15000磅 φ10" 灰色
-
-
-
 1030480000 聚合裝腳礙子 11.4KV 夾線型
-
-
-
 1030480007 防盬裝腳礙子 11.4KV 無腳
-
-
-
 1030500000 聚合柱型礙子 11.4kV
-
-
-
 1030520001 拉線礙子 低壓 大型 L139.7㎜
-
-
-
 1030520006 軸型礙子 低壓 軸型`,
-
-
-
-
-
-
-
-    B: `1006000006 路燈開關 1P 240Vac 135A 非水銀式
-
-
-
+  B: `1006000006 路燈開關 1P 240Vac 135A 非水銀式
 1006000011 路燈開關 1P 240Vac 135A 電磁式
-
-
-
 1006060005 點滅器 220Vac 5A 5~100lux
-
-
-
 1012020037 電力保險絲 25kV 65E 12.5kA
-
-
-
 1012020038 電力保險絲 25kV 125E 12.5kA
-
-
-
 1012020054 限流熔絲 15.5kV 40A 25kA 附抑弧開關
-
-
-
 1012030005 電力保險絲組消音器 25KV 200A
-
-
-
 1012060002 熔絲鏈 3A H型 SURGE PROOF
-
-
-
 1012060004 熔絲鏈 6A K型
-
-
-
 1012060007 熔絲鏈 10A K型
-
-
-
 1012060010 熔絲鏈 15A K型
-
-
-
 1012060015 熔絲鏈 25A T型
-
-
-
 1012060019 熔絲鏈 40A T型
-
-
-
 1012060023 熔絲鏈 65A T型
-
-
-
 1016000000 螺栓鎖 鎖鉤:5㎜φ 鎖鉤:鋁 螺栓:SS400 栓涵:鎂鋁矽合金
-
-
-
 1016050113 開關箱 屋外型 不鏽鋼 600x400x230㎜ T2㎜
-
-
-
 1028500019 配電線路電桿反光標語片 CNS 4345感壓型第1級 33x12㎝自黏式Y193
-
-
-
 1028500025 配電線路電桿反反光貼紙 PVC 40x10㎝ 蜂巢狀/黃色 自黏式
-
-
-
 1028500186 配電線路電桿反光貼紙 非鍍層立方角錐之微稜鏡反射材料 90x100㎝ 黃黑相間色
-
-
-
 1028500187 配電線路電桿反光貼紙 非鍍層立方角錐之微稜鏡反射材料 90x60㎝ 黃黑相間色
-
-
-
 1028600042 電桿牌 鋁 220×90×T0.511㎜ 藍底白字
-
-
-
 1028600062 電桿牌 鋁 220×90×T0.6㎜ 藍底白字
-
-
-
 1030020030 被覆瓷罩 陶瓷 11.4KV桿上變壓器用 90φx95φxH95㎜
-
-
-
 1104000184 壓接端子 銅 AWG #1 閉口型 短型 1孔 13㎜φ
-
-
-
 1104000197 壓接端子 銅 250MCM 閉口型 短型 1孔 13㎜φ
-
-
-
 1104000198 壓接端子 銅 250MCM 閉口型 短型 2孔 13㎜φ
-
-
-
 1104000201 壓接端子 銅 500MCM 閉口型 長型 2孔 15㎜φ 屋外終端用
-
-
-
 1104000202 壓接端子 銅 AWG 2/0 閉口型 短型 1孔 13㎜φ
-
-
-
 1104000203 壓接端子 銅 AWG 2/0 閉口型 短型 2孔 13㎜φ
-
-
-
 1104030022 壓接套管 銅 22㎜² 銅製
-
-
-
 1104030025 壓接套管 銅 60㎜² 銅製
-
-
-
 1104030026 壓接套管 銅 100㎜2 銅製
-
-
-
 1104030037 壓接套管 銅 AWG 2/0 銅鍍錫
-
-
-
 1104030038 壓接套管 銅 250MCM 銅鍍錫
-
-
-
 1104030044 壓接套管 AAC AWG #2 鋁製
-
-
-
 1104030045 壓接套管 AWG 4/0 鋁製
-
-
-
 1104030046 壓接套管 AAC 300MCM 鋁製
-
-
-
 1104030047 壓接套管 AAC 477MCM 鋁製
-
-
-
 1104030072 跳線套管 AAC 477MCM(19) 鋁製
-
-
-
 1104060000 C型壓接套管 銅製 銅14-22×8 α型
-
-
-
 1104060001 C型壓接套管 銅製 銅14-38×14-38 β型
-
-
-
 1104060002 C型壓接套管 銅製 銅60×8-38 α型
-
-
-
 1104060003 C型壓接套管 銅製 銅60-100×60-100 β型
-
-
-
 1104060004 C型壓接套管 銅製 銅60-125×22-60 β型
-
-
-
 1104060005 C型壓接套管 銅製 銅2/0-250MCM×#4-2/0 β型
-
-
-
 1104060007 H型壓接套管 鋁製 A#2-6,C38-14×A#2-#6,C38-14
-
-
-
 1104060008 H型壓接套管 鋁製 A#2,C60-38×A#2-#6,C38-14
-
-
-
 1104060014 H型壓接套管 鋁製 A4/0,C100×A4/0,C100
-
-
-
 1104060015 H型壓接套管 鋁製 A4774/0,C200-125×A2/0#6,C60-14
-
-
-
 1104060017 H型壓接套管 鋁製 A4774/0C200-125×A4/02/0C100-60
-
-
-
 1104060018 H型壓接套管 鋁製 A477300C250150×A477300C250150
-
-
-
 1104060022 C型壓接套管 銅製 銅250-250 β型
-
-
-
 1104060023 C型壓接套管 銅製 銅125-125 β型
-
-
-
 1104090000 接線環 銅線 6.5㎜φ
-
-
-
 1104090002 接線環 AAC AWG #2-#6
-
-
-
 1104090005 接線環 AAC 477MCM-AWG 4/0
-
-
-
 1112120016 電桿綁帶 複合電桿用B型 φ235×75×6㎜
-
-
-
 1112160000 電桿樁木固定帶 鐵製
-
-
-
 1112160003 四路檔拉帶 φ340㎜ 鐵製 雙桿合併用
-
-
-
 1120100010 互連器 間接型A / 477MCM XLPE
-
-
-
 1120100011 互連器 間接型B / AWG #2 XLPE
-
-
-
 1120100012 互連繩 B型/ 112㎝
-
-
-
 1120100013 互連繩 A型 / 52㎝
-
-
-
 1120100014 互連器 夾條型A / 477MCM XLPE
-
-
-
 1120100015 互連器 夾條型B / AWG #2 XLPE
-
-
-
 1120120024 活線線夾 銅線 M8-60㎜2,T8-50㎜2
-
-
-
 1120140002 拉線夾板 銅線 22-38㎜²
-
-
-
 1120140004 拉線夾板 銅線 50-80㎜2
-
-
-
 1120140007 拉線夾板 銅線 100-150㎜²
-
-
-
 1120140014 拉線夾板 鋁線 AWG 2/0-#2
-
-
-
 1120140020 拉線夾板 鋁線 477MCM-300MCM-AWG 4/0
-
-
-
 1120240000 V型掛鐵 A型無縫 SS400
-
-
-
 1120240003 電容器組鐵架 單相 100KVAR 6台用 鍍鋅鋼
-
-
-
 1120240007 低壓線架 單線式 鍍鋅鋼 附鐵閂
-
-
-
 1120240009 低壓線架 三線式 鍍鋅鋼 附鐵閂
-
-
-
 1120240011 低壓線架 五線式 鍍鋅鋼 附鐵閂
-
-
-
 1120240015 伸出鐵架 標準式 鍍鋅鋼
-
-
-
 1120260003 二孔鐵片 B型 220×38×T4.5㎜ 鍍鋅鐵
-
-
-
 1120260021 鐵閂 單眼 φ5/8"×1800㎜ 鐵鍍鋅
-
-
-
 1120280001 頂梢 11kV 防盬裝腳礙子 SS400
-
-
-
 1120280002 橫擔梢 11kV 防盬裝腳礙子 SS400
-
-
-
 1120320003 成型支線夾條 GSW 55㎜2 襯圈型 L890㎜
-
-
-
 1120340014 橫擔押 L800㎜
-
-
-
 1120340019 角型橫擔押 L1000㎜
-
-
-
 1120340021 角型橫擔押 L1420㎜
-
-
-
 1120340023 角型橫擔押 L1745㎜
-
-
-
 1122260057 支架 #1電纜固定帶用 L型 135×92.5×72×T3㎜ 304SST
-
-
-
 1122260058 支架 500MCM電纜固定帶用 L型140x92.5x87xT3㎜ 304SST
-
-
-
 1210000000 孔蓋定位標示器 66.3kHz 測深50㎝ H050型
-
-
-
 1210000001 孔蓋定位標示器 169.8kHz 測深50㎝ H050型
-
-
-
 1404010030 鍍鋅方頭螺栓 SGD30 M16×P2.0×140㎜ 附單螺帽
-
-
-
 1404010032 鍍鋅方頭螺栓 SGD30 M16×P2.0×210㎜ 附單螺帽
-
-
-
 1404010033 鍍鋅方頭螺栓 SGD30 M16×P2.0×240㎜ 附單螺帽
-
-
-
 1404010034 鍍鋅方頭螺栓 SGD290-D M16×P2.0×270㎜ 附單螺帽
-
-
-
 1404010035 鍍鋅方頭螺栓 SGD30 M16×P2.0×300㎜ 附單螺帽
-
-
-
 1404010036 鍍鋅方頭螺栓 SGD30 M16×P2.0×350㎜ 附單螺帽
-
-
-
 1404010038 鍍鋅方頭螺栓 SGD290-D M16×P2.0×450㎜ 附單螺帽
-
-
-
 1404050083 鍍鋅方頭螺栓 SS400 5/8"-11UNCx40㎜ 附單螺帽
-
-
-
 1404140000 鍍鋅全牙螺栓 SGD290-D M16xP2.0x450㎜ 附4只方螺帽
-
-
-
 1404230039 碳鋼擴張螺栓 S45C H內牙外迫式 5/8"φx2-1/2"
-
-
-
 1404310021 碳鋼單眼螺栓 SGD290-D M16xP2.0x270㎜ 附雙螺帽
-
-
-
 1404310023 碳鋼單眼螺栓 SGD290-D M16xP2.0x450㎜ 附三螺帽
-
-
-
 1404310026 碳鋼支線螺栓 SGD290-D M16xP2.0x500㎜ 附四螺帽
-
-
-
 1404310028 碳鋼支線螺栓 SGD290-D M16xP2.0x300㎜ 附雙螺帽
-
-
-
 1406010030 鍍鋅方墊圈 SS400 M16 18㎜φx4.5㎜ L52xW52㎜
-
-
-
 1808360000 鉻酸鋅糊 1磅裝 材規Y413
-
-
-
 1818050011 棉紗手套 棉紗含棉量100％ L250㎜ 電工用
-
-
-
 1900000069 過載保護熔絲 13.8kV 25kVA 單相亭置式變壓器
-
-
-
 1900000070 過載保護熔絲 6.9kV 25kVA/13.8kV 50kVA 單相亭置式變壓器
-
-
-
 1900000071 過載保護熔絲 6.9kV 50kVA/13.8kV 100kVA單相亭置式變壓器
-
-
-
 1900000072 過載保護熔絲 6.9kV100kVA/13.8kV167kVA單相亭置式變壓器
-
-
-
 1900000073 過載保護熔絲 6.9kV 167kVA 單相亭置式變壓器`,
-
-
-
-
-
-
-
-    C: `1028560003 支線標示管 PE 34φxT2㎜xL1.8M
-
-
-
+  C: `1028560003 支線標示管 PE 34φxT2㎜xL1.8M
 1030060071 電纜用塑膠帶 T0.178㎜xW19㎜xL20M
-
-
-
 1030060072 電纜用塑膠帶 T0.178㎜xW38㎜xL20M
-
-
-
 1030060074 自融性防水膠帶 T1.7㎜xW38㎜xL305㎝
-
-
-
 1030060077 電纜用絕緣膠膏帶 T3.175㎜xW38.1㎜xL152㎝
-
-
-
 1100010005 硬銅絞線(一般用) 22㎜²
-
-
-
 1100010011 硬銅絞線(一般用) 60㎜²
-
-
-
 1100010015 硬銅絞線(一般用) 100㎜²
-
-
-
 1100010027 全鋁線 300MCM 19股
-
-
-
 1100040000 鋼心鋁線 AWG #2 6/1
-
-
-
 1102000000 15kV交連PE風雨線 1C AAC 477MCM 交連PE被覆 黑色
-
-
-
 1102000001 15kV交連PE風雨線 1C ACSR AWG #2 交連PE被覆 黑色
-
-
-
 1102000019 25KV交連PE電力電纜 1C 銅 AWG #1 銅線遮蔽 黑色PVC被覆
-
-
-
 1102000021 25KV交連PE電力電纜 1C 銅 500MCM 銅線遮蔽 黑色PVC被覆
-
-
-
 1102000024 25KV交連PE電力電纜 1C銅AWG #1 銅線遮蔽 黑色PVC被覆加尼龍被覆
-
-
-
 1102000025 25KV交連PE電力電纜 1C銅500MCM 銅線遮蔽 黑色PVC被覆加尼龍被覆
-
-
-
 1102000035 25kV交連PE風雨線 1C ACSR AWG #2 交連PE被覆黑色
-
-
-
 1102000043 25KV交連PE引接線 1C 銅 22㎜2 交連PE被覆 被覆顏色黑色
-
-
-
 1102050055 600V PVC電線 1C 銅 22㎜2 黑色
-
-
-
 1102050067 600V PVC電線 1C 銅 60㎜2 黑色
-
-
-
 1102050089 600V PVC鋁風雨線 1C 鋁 AWG #2 灰色
-
-
-
 1102050090 600V PVC鋁風雨線 1C 鋁 AWG #2 藍色
-
-
-
 1102050093 600V PVC鋁風雨線 1C 鋁 AWG 4/0 藍色
-
-
-
 1102050095 600V PVC風雨線 1C 銅 8㎜2 黑色
-
-
-
 1102050097 600V PVC風雨線 1C 銅 22㎜2 黑色
-
-
-
 1102050099 600V PVC風雨線 1C 銅 60㎜2 黑色
-
-
-
 1102050101 600V PVC風雨線 1C 銅 125㎜2 黑色
-
-
-
 1102050204 600V PVC接戶電纜 2C 銅 8㎜2
-
-
-
 1102050206 600V PVC接戶電纜 2C 銅 22㎜2
-
-
-
 1102050209 600V PVC接戶電纜 3C 銅 8㎜2
-
-
-
 1102050211 600V PVC接戶電纜 3C 銅 22㎜2
-
-
-
 1102100007 600V交連PE電纜 1C 銅 AWG 2/0 黑色
-
-
-
 1102100008 600V交連PE電纜 1C 銅 AWG 2/0 黃色
-
-
-
 1102100009 600V交連PE電纜 1C 銅 250MCM 黑色
-
-
-
 1102100010 600V交連PE電纜 1C 銅 250MCM 黃色
-
-
-
 1102100038 600V交連PE電纜 1C 鋁 250MCM 黑色
-
-
-
 1108000001 軟銅紮線 2.6㎜φ 軟銅
-
-
-
 1108000002 軟銅紮線 3.2㎜φ 軟銅
-
-
-
 1108000005 PVC鋁紮線 AWG #4 鋁 PVC被覆
-
-
-
 1108000006 PVC鋁紮線 AWG #6 鋁 PVC被覆
-
-
-
 1108000007 鋁紮線 AWG #4 鋁
-
-
-
 1108000008 鋁紮線 AWG #6 鋁
-
-
-
 1114000022 預張式電纜終端接頭 屋外型 25kV 1C 銅 AWG #1
-
-
-
 1114000024 預鑄型電纜終端接頭 屋外型 25kV 1C 銅 500MCM
-
-
-
 1114000026 預張式電纜終端接頭 屋外型 25kV 1C 銅 500MCM
-
-
-
 1114030000 預張式電纜直線接頭 600V 1C 銅 AWG 2/0
-
-
-
 1114030001 預張式電纜直線接頭 600V 1C 銅 250MCM
-
-
-
 1114030012 預鑄型電纜直線接頭 25kV 1C 銅 AWG #1
-
-
-
 1114030014 預鑄型電纜直線接頭 25kV 1C 銅 500MCM
-
-
-
 1114030018 預張式電纜分歧接頭 600V 1C 銅 AWG 2/0~250MCM
-
-
-
 1114030019 灌膠式電纜分歧接頭 600V 1C 銅 AWG 2/0~250MCM
-
-
-
 1114030039 預鑄型電纜直線接頭 25kV 1C 銅 AWG #1 套管免壓縮式
-
-
-
 1114060001 套管插頭 25kV 200A AWG #1
-
-
-
 1114060008 負載可切肘型端頭 25kV 200A AWG #1 有電壓測試點
-
-
-
 1114060011 負載不可切肘型端頭 25kV 600A 500MCM 有電壓測試點
-
-
-
 1114060015 插頭封套 25kV 200A AWG #1
-
-
-
 1114060017 插頭封套 25kV 600A 500MCM
-
-
-
 1114060019 雙通插頭 25kV 200A AWG #1
-
-
-
 1114060021 雙通套管插頭 25kV 200A AWG #1
-
-
-
 1114060025 四路分歧插頭 25kV 200A AWG #1
-
-
-
 1114060026 四路分歧插頭 25kV 200A AWG #1 A類配電箱用
-
-
-
 1114060028 隔離插頭 25kV 200A AWG #1
-
-
-
 1120340001 素材木橫擔 L1200×90×90㎜
-
-
-
 1120340002 素材木橫擔 L1800×90×90㎜
-
-
-
 1120340008 接戶橫木 60×60㎜
-
-
-
 1120340010 輕鋼橫擔 L1800×75×75×T2.3㎜
-
-
-
 1120340011 輕鋼橫擔 L2400×75×75×T2.3㎜
-
-
-
 1122050001 電纜保護鐵 小型 SS400 3"φ L2500㎜
-
-
-
 1122200007 電纜固定帶 #1 AWG 鋁合金 25KV AWG #1 單條
-
-
-
 1122200014 電纜固定帶 500MCM 鋁合金 25KV 500MCM 單條
-
-
-
 1124140000 管路封塞 RP-03型 80㎜φ 一般用
-
-
-
 1124140002 管路封塞 RP-05型 125㎜φ 一般用
-
-
-
 1124140003 管路封塞 PP-05型 125㎜φ 空管防水用
-
-
-
 1124140004 管路封塞 RP-06型 150㎜φ 一般用
-
-
-
 1124140005 管路封塞 PP-06型 150㎜φ 空管防水用
-
-
-
 1124140006 管路封塞 PP-21型 150㎜φ 25KV AWG #1電纜防水用
-
-
-
 1124140007 管路封塞 PP-25型 150㎜φ 25KV 500MCM電纜防水用
-
-
-
 1124140008 管路封塞 PS-21型 150㎜φ 25KV AWG #1電纜防潛動用
-
-
-
 1124140009 管路封塞 PS-25型 150㎜φ 25KV 500MCM電纜防潛動用
-
-
-
 1124140032 管路封塞 PSN-25型 150㎜φ 25kV 500MCM 電纜防潛動用
-
-
-
 1124140033 管路封塞 PSN-21型 150㎜φ 25kV AWG #1 電纜防潛動用
-
-
-
 1400530108 鍍鋅等邊角鋼 SS400 90×90×T10㎜
-
-
-
 1400530151 鍍鋅等邊角鋼 SS400 90×90×T10×L1800㎜
-
-
-
 1402010026 鍍鋅鐵線 SWM BWG#8 (φ4.19㎜)
-
-
-
 1402030003 鍍鋅鋼絞線 55㎜² (φ3.2㎜×7股) 支線用 S撚
-
-
-
 1600030012 PVC硬管 E52(2")
-
-
-
 1600030035 PVC硬管 ES-1 80(3")
-
-
-
 1610380004 UPVC管帽(管塞頭) 3"(80㎜)φ T2.7㎜ ES-1管
-
-
-
 1610380005 UPVC管帽(管塞頭) 5"(125㎜)φ T4.1㎜ ES-1管
-
-
-
 1610380006 UPVC管帽(管塞頭) 6"(150㎜)φ T5.1㎜ ES-1管
-
-
-
 1804090005 石油醚 工業級 無色透明液 450mL裝
-
-
-
 1808140035 電纜潤滑膏 5加侖裝 0~60℃ 材規Y221
-
-
-
 1822810000 不鏽鋼束緊帶 304SST 0.2~0.3㎜×20㎜×1500㎜
-
-
-
 1822810001 不鏽鋼束緊帶 304SST 0.2~0.3㎜×20㎜×1700㎜
-
-
-
 1895020025 白細布 W3FT 12磅`,
-
-
-
-
-
-
-
-    F: `1000010059 桿上變壓器 單相 6.9kV 240/120V 10kVA
-
-
-
+  F: `1000010059 桿上變壓器 單相 6.9kV 240/120V 10kVA
 1000010064 桿上變壓器 單相 6.9kV 240/120V 25kVA
-
-
-
 1000010066 改良套管型桿上變壓器 單相 6.9kV 240/120V 25kVA
-
-
-
 1000010067 密封型桿上變壓器 單相 6.9kV 240/120V 25kVA 不鏽鋼
-
-
-
 1000010068 非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 25kVA
-
-
-
 1000010074 改良套管型桿上變壓器 單相 6.9kV 240/120V 50kVA
-
-
-
 1000010075 密封型桿上變壓器 單相 6.9kV 240/120V 50kVA 不鏽鋼
-
-
-
 1000010076 非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 50kVA
-
-
-
 1000010079 桿上變壓器 單相 6.9kV 240/120V 100kVA
-
-
-
 1000010080 改良套管型桿上變壓器 單相 6.9kV 240/120V 100kVA
-
-
-
 1000010081 密封型桿上變壓器 單相 6.9kV 240/120V 100kVA 不鏽鋼
-
-
-
 1000010082 非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 100kVA
-
-
-
 1000010083 改良套管型桿上變壓器 單相 6.9kV 240/120V 167kVA
-
-
-
 1000010127 亭置式變壓器 單相 6.9/13.8kV 25kVA 直式高燃點一般型附分接頭
-
-
-
 1000010131 亭置式變壓器 單相 6.9/13.8kV 25kVA 直式附分接頭
-
-
-
 1000010133 亭置式變壓器 單相 6.9/13.8kV 50kVA 直式高燃點一般型附分接頭
-
-
-
 1000010139 亭置式變壓器 單相 6.9/13.8kV 100kVA直式高燃點一般型附分接頭
-
-
-
 1000010171 亭置式變壓器 三相 12/24kV 500kVA 高燃點一般型附分接頭
-
-
-
 1000010217 桿上變壓器 單相 6.9kV 240/120V 100kVA 不鏽鋼
-
-
-
 1000010218 桿上變壓器 單相 6.9kV 240/120V 50kVA 不鏽鋼
-
-
-
 1000010222 桿上變壓器 單相 6.9/13.8kV 240/120V 25kVA 不銹鋼
-
-
-
 1000010225 桿上變壓器 單相 6.9/13.8kV 240/120V 167kVA 不銹鋼
-
-
-
 1004030005 高壓電容器 單相 6.9kV 100kVAR 屋外型
-
-
-
 1004030006 高壓電容器 單相 6.9kV 200kVAR 屋外型
-
-
-
 1008010002 電容器用油開關 單相 14.4kV 200A 手動/電動 115Vac
-
-
-
 1008040003 地下四路自動線路開關 三相 24kV 600A 2S2F 24V簡易型(I量測)
-
-
-
 1008040009 地下四路自動線路開關 三相24kV600A 2S2F 24V標準型(V、I量測)
-
-
-
 1008080005 亭置式氣封開關 三相 24kV 四路 2-600A 2-200A SF6絕緣
-
-
-
 1008080013 亭置式開關 3相 24kV 二路 2-200A SF6絕緣 低碳鋼型
-
-
-
 1008080016 亭置式氣封開關 三相 24kV 四路 3-600A 1-200A SF6絕緣
-
-
-
 1016030015 高壓配電箱 屋外型 鐵 A類x1 單具組
-
-
-
 1016030040 高壓配電箱 屋外型 不鏽鋼 A類x1 單具組
-
-
-
 1016030042 高壓配電箱 屋外型 不鏽鋼 B類J型
-
-
-
 1016030043 高壓配電箱 屋外型 不鏽鋼 B類P型
-
-
-
 1030240010 變壓器絕緣油 35kV以上/2±0.03㎜ 145℃
-
-
-
 1112000015 預力電桿 9m 配電 圓型 B級
-
-
-
 1112000016 預力電桿 10.5m 配電 圓型 B級
-
-
-
 1112000018 預力電桿 12m 配電 圓型 C級
-
-
-
 1112000019 預力電桿 14m 配電 圓型 C級
-
-
-
 1112000035 預力電桿 12m 配電 圓型 E級
-
-
-
 1112100000 水泥腳木 空心圓形G3 φ150×1000㎜ 支線用
-
-
-
 1124020001 人孔蓋(含外蓋及蓋座)MC-150型外蓋φ908×80㎜蓋座φ1200×150㎜
-
-
-
 1124020059 手孔蓋墊座 方型 1210x810x200㎜ 混凝土
-
-
-
 1124060002 預力混凝土基樁 6000x250x50㎜
-
-
-
 3008240007 空油桶 <各種規格> R-1301`,
-
-
-
-
-
-
-
-    H: `1008040010 架空自動線路開關 三相 15kV 600A 24Vdc 標準型 閂鎖型無控制箱
-
-
-
+  H: `1008040010 架空自動線路開關 三相 15kV 600A 24Vdc 標準型 閂鎖型無控制箱
 1008040014 架空自動線路開關 三相 25.8kV 600A 24Vdc 標準型閂鎖型無控制箱
-
-
-
 1008060002 手動型線路負載啟斷開關 三相 15kV 600A 屋外型 SF6
-
-
-
 1008060022 負載啟斷開關 三相 25.8kV 600A 屋外型 SF6 手動型
-
-
-
 1012010011 熔絲鏈開關 7.8/15kV 100A 10kA 屋外型 不鏽鋼固定架附被覆罩型
-
-
-
 1012010013 聚合型熔絲鏈開關 15/27kV 100A 12kA 屋外型 附被覆罩
-
-
-
 1012030002 電力保險絲座 25KV 200A 端子式
-
-
-
 1012030003 電力保險絲座 25KV 200A 套管式
-
-
-
 1012030013 限流熔絲座 15.5KV 200A 套管式
-
-
-
 1012030015 限流熔絲座 15.5KV 200A 端子式
-
-
-
 1014030008 配電級瓷套管避雷器 9KV 10KA 氧化鋅 無雷擊計數器 防鹽型
-
-
-
 1014030027 配電級瓷套管避雷器 9kV 10kA 氧化鋅 無雷擊計數器 一般型
-
-
-
 1014030028 配電級聚合套管避雷器 9KV 10KA 氧化鋅 無雷擊計數器
-
-
-
 1030020003 高壓被覆罩 PE 11.4kV #2 H壓接型接線環用
-
-
-
 1030020005 高壓被覆罩 PE 11.4kV #2 拉線夾板用(圓形開口)
-
-
-
 1030020007 高壓被覆罩 PE 11.4kV 477MCM H壓接型接線環用
-
-
-
 1030020009 高壓被覆罩 PE 11.4kV 477MCM 拉線夾板用(圓形開口)
-
-
-
 1030020039 高壓被覆罩 PE 22.8kV 477C圓形開口 477MCM導線、拉線夾板用
-
-
-
 1030020040 高壓被覆罩 PE 22.8kV 477H 477MCM導線、H壓接型接線環用
-
-
-
 1030020041 高壓被覆罩 PE 22.8kV #2圓形開口 #2AWG導線、拉線夾板用
-
-
-
 1030020042 高壓被覆罩 PE 22.8kV #2H #2AWG線、H壓接型接線環用
-
-
-
 1030020045 被覆罩 矽橡膠 11.4/22.8kV 避雷器用
-
-
-
 1100160003 接地銅棒 φ5/8"×L8' 附線夾
-
-
-
 1120000009 U型軋頭 UC-501
-
-
-
 1204100003 線路故障指示器 單相 280A(600A) 1a 2指示燈 電池
-
-
-
 1204100004 線路故障指示器 單相 800A(1000A) 1a 2指示燈 電池
-
-
-
 1204100006 線路故障指示器 單相 800A 1指示燈 電池 FIC OV-A 架空線路
-
-
-
 1404360028 碳鋼單眼螺帽 SGD290-D M16-N/A`,
-
-
-
-
-
-
-
-    D: `1002010000 低壓貫穿式比流器 0.3S級 600V 200:5A 15VA 乾式
-
-
-
+  D: `1002010000 低壓貫穿式比流器 0.3S級 600V 200:5A 15VA 乾式
 1002010002 低壓貫穿式比流器 0.3S級 600V 400:5A 15VA 乾式
-
-
-
 1002010003 低壓貫穿式比流器 0.3S級 600V 600:5A 15VA 乾式
-
-
-
 1002010004 低壓貫穿式比流器 0.3S級 600V 800:5A 15VA 乾式
-
-
-
 1002010015 高壓計費用比流器 0.3S級 12kV 20:5A 15VA 乾式
-
-
-
 1002010016 高壓計費用比流器 0.3S級 12kV 30:5A 15VA 乾式
-
-
-
 1002010017 高壓計費用比流器 0.3S級 12kV 50:5A 15VA 乾式
-
-
-
 1002010018 高壓計費用比流器 0.3S級 12kV 100:5A 15VA 乾式
-
-
-
 1002010019 高壓計費用比流器 0.3S級 12kV 200:5A 15VA 乾式
-
-
-
 1002010020 高壓計費用比流器 0.3S級 12kV 400:5A 15VA 乾式
-
-
-
 1002010025 高壓計費用比流器 0.3S級 24kV 20:5A 15VA 乾式
-
-
-
 1002010027 高壓計費用比流器 0.3S級 24kV 30:5A 15VA 乾式
-
-
-
 1002010028 高壓計費用比流器 0.3S級 24kV 50:5A 15VA 乾式
-
-
-
 1002010029 高壓計費用比流器 0.3S級 24kV 100:5A 15VA 乾式
-
-
-
 1002010030 高壓計費用比流器 0.3S級 24kV 200:5A 15VA 乾式
-
-
-
 1002030000 高壓計費用比壓器(非接地型) 0.3S級 12k:110V 25VA 乾式
-
-
-
 1002030002 高壓計費用比壓器(非接地型) 0.3S級 24k:110V 25VA 乾式
-
-
-
 1002050001 整套型變比器 單相二線0.3級92kV:115/65.7V 200×400:5A
-
-
-
 1002050004 整套型變比器 三相三線 0.3S級 69kV:115V 50×100:5A O型
-
-
-
 1002050005 整套型變比器 三相三線 0.3S級69kV:115V 100×200:5A O型
-
-
-
 1002050007 整套型變比器 三相三線 0.3S級69kV:115V 200×400:5A O型
-
-
-
 1002050008 整套型變比器 三相三線 0.3S級69kV:115V 400×800:5A O型
-
-
-
 1006010012 時控開關 單相 120Vac 10~40A 7天 24時 15分
-
-
-
 1310000008 瓦時計(用戶) 單相三線 110/220V 30A 指針型 附插座(100A)
-
-
-
 1310000010 瓦時計(用戶) 三相三線 220V 2.5A 指針型
-
-
-
 1310000013 瓦時計(用戶) 三相三線 220V 15A 指針型
-
-
-
 1310000022 瓦時計(用戶) 三相四線 220V 15A 指針型
-
-
-
 1310040000 電子式電表(用戶) 0.5級 單相三線 110/220V 30A
-
-
-
 1310040001 電子式電表(用戶) 0.5級 三相四線 120~480V 2.5A
-
-
-
 1310040002 電子式電表(用戶) 0.5級 三相四線 120~480V 2.5A 附記錄型
-
-
-
 1310040003 電子式電表(用戶) 0.5級三相四線120~480V 2.5A雙向計量附記錄型
-
-
-
-1310040005 電子式電表(用戶) 0.5級 三相四線120~480V 2.5A雙向計量智慧型
-
-
-
+1310040005 電子式電表(用戶) 0.5級 三相四線 120~480V 2.5A雙向計量智慧型
 1310040006 電子式電表(用戶) 0.5級 三相四線 120~480V 30A
-
-
-
 1310040007 電子式電表(用戶) 0.5級 三相四線 120~480V 30A 附記錄型
-
-
-
 1310040011 電子式電表(用戶) 0.5級單相三線110~220V 30A 雙向計量附記錄型
-
-
-
 1310040012 電子式電表(用戶) 0.5級三相四線120~480V 30A 雙向計量附記錄型
-
-
-
 1310040022 電子式電表(用戶) 0.5級 單相三線 110/220V 30A單向計量附記錄型
-
-
-
 1310040027 模組化智慧型電表 0.5級 三相四線 110~480V 30A 雙向計量 斷復電
-
-
-
 1310040028 模組化智慧型電表 0.5級 三相四線 110~480V 2.5A 雙向計量
-
-
-
 1310040029 模組化智慧型電表 0.5級 三相四線 110~480V 30A 雙向計量
-
-
-
 1310040030 模組化智慧型電表 0.5級 單相三線 110/220V 30A 雙向計量 附底座
-
-
-
 1310040032 模組化智慧型電表 0.5級 單相三線 110/220V 30A 雙向計量
-
-
-
 1310070000 光學通訊埠 RS-232或USB 9600bps 無線裝置
-
-
-
 1310080003 讀表介面單元 4G通訊模式(可向下相容3G/GPRS) 4具/日
-
-
-
 1310240001 PCR封印鎖 A型 紅色字體 附鋼絲扣
-
-
-
 1310240002 PCR封印鎖 B型 黑色字體 附鋼絲扣
-
-
-
 1310300000 電表測試開關 600V 20A 7P
-
-
-
 1310300001 電表測試開關 600V 20A 10P
-
-
-
 1915000093 扣環 1AMB20008160 單相瓦時計 I-70S 中興`
-
-
-
-  };
-
-
-
-
-
-
+};
 
   const materialDict = {};
 
-
-
   Object.keys(rawData).forEach(key => {
-
-
-
     materialDict[key] = rawData[key].split('\n').map(i => i.trim()).filter(i => i !== "");
-
-
-
   });
 
-  // 2. 初始化資料 (LocalStorage)
-  let records = JSON.parse(localStorage.getItem("taipower_v1") || "[]");
-  // 存庫存設定: { "料號": { initial: 100, safety: 10 } }
-  let stockSettings = JSON.parse(localStorage.getItem("taipower_stock_settings") || "{}");
+  // --- 初始化與資料儲存 ---
+  let records = JSON.parse(localStorage.getItem("taipower_v3") || "[]");
+  let stockSettings = JSON.parse(localStorage.getItem("taipower_stock_settings_v3") || "{}");
+  let safetyStockSettings = JSON.parse(localStorage.getItem("taipower_safety_stock_v3") || "{}");
   
   let selectedItem = "";
   let selectedPartNo = "";
-
-  // 設置當天日期
-  document.getElementById("mainDate").valueAsDate = new Date();
+  
+  // 設定預設日期為今日
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById("mainDate").value = today;
+  document.getElementById("transferDate").value = today;
 
   // --- 頁面切換邏輯 ---
   function switchTab(tabName) {
@@ -1702,262 +864,538 @@ const rawData = {
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
     
     document.getElementById('tab-' + tabName).classList.add('active');
-    // 找出對應按鈕加 active (這裡簡單用索引或遍歷)
+    
+    // 按鈕對應
     const btns = document.querySelectorAll('.nav-btn');
     if(tabName === 'input') btns[0].classList.add('active');
     if(tabName === 'search') { btns[1].classList.add('active'); filterRecords(); }
     if(tabName === 'inventory') { btns[2].classList.add('active'); renderInventoryTable(); }
     if(tabName === 'analysis') { btns[3].classList.add('active'); renderAnalysisReport(); }
+    if(tabName === 'transfer') btns[4].classList.add('active');
   }
 
-  // --- 資料輸入邏輯 ---
-  function handlePartNoInput(val) {
-    if (val.length === 10) {
-      for (const cat in materialDict) {
-        const match = materialDict[cat].find(i => i.startsWith(val));
-        if (match) {
-          document.getElementById("category").value = cat;
-          renderMaterials();
-          selectMaterial(match);
-          return;
+  // --- 料號輸入處理 ---
+  function handlePartNoInput(val, mode) {
+    if(val.length >= 8) {
+      let found = null;
+      Object.values(materialDict).flat().forEach(item => {
+        if(item.startsWith(val)) found = item;
+      });
+      
+      if(found) {
+        if(mode === 'normal') {
+            selectMaterial(found);
+            // 自動切換到該類別
+            Object.keys(materialDict).forEach(key => {
+              if(materialDict[key].includes(found)) {
+                document.getElementById('category').value = key;
+                renderMaterials();
+              }
+            });
+        } else if (mode === 'transfer') {
+            document.getElementById('transferItemName').value = found.substring(11);
         }
+      } else {
+        if(mode === 'transfer') document.getElementById('transferItemName').value = "查無此料號";
       }
     }
   }
 
+  // --- 渲染材料列表 ---
   function renderMaterials() {
     const cat = document.getElementById("category").value;
-    const box = document.getElementById("materialsContainer");
-    box.innerHTML = "";
-    if (!cat) return;
+    const container = document.getElementById("materialsContainer");
+    container.innerHTML = "";
     
-    materialDict[cat].forEach(m => {
-      const btn = document.createElement("button");
-      btn.className = "material-btn";
-      btn.innerText = m;
-      btn.type = "button";
-      btn.onclick = () => selectMaterial(m);
-      if (selectedItem === m) btn.classList.add("active");
-      box.appendChild(btn);
-    });
-  }
-
-  function selectMaterial(item) {
-    selectedItem = item;
-    selectedPartNo = item.split(" ")[0];
-    document.getElementById("partNoInput").value = selectedPartNo;
-    document.getElementById("qtySection").style.display = "block";
-    document.getElementById("unit").value = (item.includes("線") || item.includes("電纜")) ? "M" : "PC";
-    renderMaterials();
-  }
-
-  document.getElementById("materialForm").onsubmit = function(e) {
-    e.preventDefault();
-    const data = {
-      id: Date.now(),
-      date: document.getElementById("mainDate").value, // YYYY-MM-DD
-      type: document.getElementById("transType").value,
-      orderNo: document.getElementById("orderNo").value,
-      item: selectedItem,
-      partNo: selectedPartNo,
-      qty: parseInt(document.getElementById("qty").value),
-      unit: document.getElementById("unit").value,
-      person: document.getElementById("personName").value,
-      staff: document.getElementById("staffName").value,
-      eval: document.getElementById("evalType").value
-    };
-    records.unshift(data);
-    localStorage.setItem("taipower_v1", JSON.stringify(records));
-    alert("✅ 紀錄已儲存！");
-    // 重置表單
-    this.reset();
-    document.getElementById("qtySection").style.display = "none";
-    document.getElementById("materialsContainer").innerHTML = '<div style="color:#888; text-align:center; padding:20px;">請先選擇類別或輸入料號</div>';
-  };
-
-  // --- 歷史查詢與刪除邏輯 ---
-  function filterRecords() {
-    const qPerson = document.getElementById("searchPerson").value.toLowerCase();
-    const qStaff = document.getElementById("searchStaff").value.toLowerCase();
-    const qPart = document.getElementById("searchPartNo").value;
-    const qMonth = document.getElementById("searchMonth").value; // YYYY-MM
-
-    const list = document.getElementById("logList");
-    list.innerHTML = "";
-
-    const filtered = records.filter(r => {
-      const matchPerson = !qPerson || r.person.toLowerCase().includes(qPerson);
-      const matchStaff = !qStaff || r.staff.toLowerCase().includes(qStaff);
-      const matchPart = !qPart || r.item.includes(qPart);
-      const matchDate = !qMonth || r.date.startsWith(qMonth);
-      return matchPerson && matchStaff && matchPart && matchDate;
-    });
-
-    if (filtered.length === 0) {
-      list.innerHTML = "<p style='text-align:center; color:#666;'>查無資料</p>";
+    if(!cat) {
+      container.innerHTML = `<div style="color:#888; text-align:center; padding:20px;">請選擇類別</div>`;
       return;
     }
 
-    filtered.forEach(r => {
-      list.innerHTML += `
-        <div class="record-li">
-          <div style="font-size:0.85rem; color:#666;">${r.date} | 單號: ${r.orderNo} | 經辦: ${r.staff}</div>
-          <strong style="font-size:1.1rem; color:var(--ukiyo-deep-blue);">${r.type} - ${r.person}</strong><br>
-          <div style="margin-top:5px; font-weight:bold;">${r.item}</div>
-          <div style="margin-top:5px; color:#d35400;">數量: ${r.qty} ${r.unit} (${r.eval})</div>
-          <button class="btn-delete" onclick="deleteRec(${r.id})">刪除</button>
-        </div>
-      `;
+    materialDict[cat].forEach(item => {
+      const div = document.createElement("div");
+      div.className = "material-btn";
+      div.innerText = item;
+      div.onclick = () => selectMaterial(item, div);
+      container.appendChild(div);
     });
   }
 
-  function clearFilters() {
-    document.getElementById("searchPerson").value = "";
-    document.getElementById("searchStaff").value = "";
-    document.getElementById("searchPartNo").value = "";
-    document.getElementById("searchMonth").value = "";
-    filterRecords();
+  function selectMaterial(itemText, element = null) {
+    selectedItem = itemText;
+    selectedPartNo = itemText.split(" ")[0]; // 擷取料號
+    
+    // 更新 UI
+    if(element) {
+        document.querySelectorAll(".material-btn").forEach(b => b.classList.remove("active"));
+        element.classList.add("active");
+    }
+    
+    document.getElementById("qtySection").style.display = "block";
+    document.getElementById("partNoInput").value = selectedPartNo;
+    
+    // 自動判斷單位
+    let unit = "個";
+    if(itemText.includes("線") || itemText.includes("電纜")) unit = "公尺";
+    if(itemText.includes("油")) unit = "公升";
+    document.getElementById("unit").value = unit;
   }
 
-  function deleteRec(id) {
-    if(confirm("⚠️ 確定要永久刪除這筆紀錄嗎？此操作無法復原。")) {
-      records = records.filter(r => r.id !== id);
-      localStorage.setItem("taipower_v1", JSON.stringify(records));
-      filterRecords(); // 重新渲染列表
-      alert("已刪除紀錄。");
+  // --- 表單提交 (領退料) ---
+  document.getElementById("materialForm").onsubmit = function(e) {
+    e.preventDefault();
+    if(!selectedItem) { alert("請選擇材料！"); return; }
+    
+    const record = {
+      date: document.getElementById("mainDate").value,
+      type: document.getElementById("transType").value,
+      orderNo: document.getElementById("orderNo").value,
+      person: document.getElementById("personName").value,
+      staff: document.getElementById("staffName").value,
+      partNo: selectedPartNo,
+      name: selectedItem.substring(11), // 去掉料號
+      qty: parseInt(document.getElementById("qty").value),
+      unit: document.getElementById("unit").value,
+      evalType: document.getElementById("evalType").value,
+      timestamp: new Date().getTime()
+    };
+    
+    saveRecord(record);
+    this.reset();
+    document.getElementById("qtySection").style.display = "none";
+    document.getElementById("category").value = "";
+    document.getElementById("materialsContainer").innerHTML = '<div style="color:#888; text-align:center; padding:20px;">請先選擇類別或輸入料號</div>';
+    alert("✅ 紀錄已儲存！");
+  };
+
+  function saveRecord(record) {
+    records.push(record);
+    localStorage.setItem("taipower_v3", JSON.stringify(records));
+  }
+
+  // --- 搜尋功能 ---
+  function filterRecords() {
+    const pName = document.getElementById("searchPerson").value.toLowerCase();
+    const sStaff = document.getElementById("searchStaff").value.toLowerCase();
+    const sPart = document.getElementById("searchPartNo").value;
+    const sMonth = document.getElementById("searchMonth").value;
+    
+    const list = document.getElementById("logList");
+    list.innerHTML = "";
+    
+    let filtered = records.filter(r => {
+      let match = true;
+      if(pName && !r.person.toLowerCase().includes(pName)) match = false;
+      if(sStaff && (!r.staff || !r.staff.toLowerCase().includes(sStaff))) match = false;
+      if(sPart && !r.partNo.includes(sPart)) match = false;
+      if(sMonth && !r.date.startsWith(sMonth)) match = false;
+      return match;
+    });
+
+    // 排序：新到舊
+    filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    if(filtered.length === 0) {
+        list.innerHTML = "<div style='text-align:center; padding:20px; color:#666;'>查無資料</div>";
+        return;
+    }
+
+    filtered.forEach((r, index) => {
+      const div = document.createElement("div");
+      div.className = "record-li";
+      // 根據類型顯示不同顏色標籤
+      let typeColor = "#666";
+      if(r.type === '領料') typeColor = "#d64545"; // 紅
+      else if(r.type === '退料' || r.type === '進貨') typeColor = "#2ecc71"; // 綠
+      else if(r.type === '單位調撥' || r.type === '倉庫移轉') typeColor = "#f39c12"; // 橘
+      
+      div.innerHTML = `
+        <div style="font-weight:bold; color:var(--ukiyo-deep-blue); margin-bottom:5px;">
+           <span style="background:${typeColor}; color:white; padding:2px 6px; border-radius:4px; font-size:0.8rem;">${r.type}</span> 
+           ${r.date} - ${r.partNo}
+        </div>
+        <div style="font-size:0.95rem; color:#333;">${r.name}</div>
+        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.9rem; color:#555;">
+           <span>數量: <strong>${r.qty}</strong> ${r.unit || ''}</span>
+           <span>對象: ${r.person}</span>
+        </div>
+        <div style="font-size:0.85rem; color:#888; margin-top:4px;">單號: ${r.orderNo} | 經辦: ${r.staff || '-'}</div>
+        <button class="btn-delete" onclick="deleteRecord(${r.timestamp})">刪除</button>
+      `;
+      list.appendChild(div);
+    });
+  }
+  
+  function clearFilters() {
+      document.getElementById("searchPerson").value = "";
+      document.getElementById("searchStaff").value = "";
+      document.getElementById("searchPartNo").value = "";
+      document.getElementById("searchMonth").value = "";
+      filterRecords();
+  }
+
+  function deleteRecord(ts) {
+    if(confirm("確定要刪除此筆紀錄嗎？(刪除後無法復原，會影響庫存)")) {
+      records = records.filter(r => r.timestamp !== ts);
+      localStorage.setItem("taipower_v3", JSON.stringify(records));
+      filterRecords();
+      renderInventoryTable(); // 若在庫存頁面也要更新
     }
   }
 
-  // --- 庫存計算核心邏輯 ---
-  function calculateInventoryData() {
-    // 1. 取得所有料號清單 (包含設定過的和有紀錄的)
-    let allPartNos = new Set();
-    records.forEach(r => allPartNos.add(r.partNo));
-    Object.keys(stockSettings).forEach(k => allPartNos.add(k));
-
-    let inventoryMap = {};
-
-    allPartNos.forEach(pNo => {
-      // 找出該料號的名稱 (從設定或紀錄中找)
-      let name = "";
-      const rec = records.find(r => r.partNo === pNo);
-      if(rec) name = rec.item;
-      
-      const settings = stockSettings[pNo] || { initial: 0, safety: 0 };
-      let currentQty = settings.initial;
-      let historyDelta = 0;
-
-      // 計算異動
-      records.filter(r => r.partNo === pNo).forEach(r => {
-        if (r.type === "領料") historyDelta -= r.qty;
-        if (r.type === "借用") historyDelta -= r.qty; // 借用視為庫存減少
-        if (r.type === "退料") historyDelta += r.qty;
-      });
-
-      inventoryMap[pNo] = {
-        name: name || pNo, // 若沒名稱顯示料號
-        initial: settings.initial,
-        delta: historyDelta,
-        current: currentQty + historyDelta,
-        safety: settings.safety
-      };
+  // --- 庫存計算與渲染 ---
+  function calculateStock(partNo) {
+    let current = stockSettings[partNo] || 0;
+    records.forEach(r => {
+      if(r.partNo === partNo) {
+        if(r.type === '領料' || r.type === '借用') {
+            current -= r.qty;
+        } else if (r.type === '退料' || r.type === '進貨') {
+            current += r.qty;
+        } else if (r.type === '單位調撥' || r.type === '倉庫移轉') {
+            // 調撥/移轉 需看 action
+            if(r.action === 'transfer_in') current += r.qty;
+            else if(r.action === 'transfer_out') current -= r.qty;
+        }
+      }
     });
-    return inventoryMap;
+    return current;
   }
 
-  // --- 即時庫存頁面邏輯 ---
   function setInitialStock() {
-    const pNo = document.getElementById("stockPartNo").value;
-    const val = parseInt(document.getElementById("stockInitQty").value);
-    if (!pNo || isNaN(val)) { alert("請輸入完整料號與數量"); return; }
-    
-    if (!stockSettings[pNo]) stockSettings[pNo] = { initial: 0, safety: 0 };
-    stockSettings[pNo].initial = val;
-    localStorage.setItem("taipower_stock_settings", JSON.stringify(stockSettings));
-    alert(`料號 ${pNo} 初始庫存已設定為 ${val}`);
-    renderInventoryTable();
+    const pn = document.getElementById("stockPartNo").value;
+    const q = parseInt(document.getElementById("stockInitQty").value);
+    if(pn && !isNaN(q)) {
+        stockSettings[pn] = q;
+        localStorage.setItem("taipower_stock_settings_v3", JSON.stringify(stockSettings));
+        alert(`已設定料號 ${pn} 初始庫存為 ${q}`);
+        document.getElementById("stockPartNo").value = "";
+        document.getElementById("stockInitQty").value = "";
+        renderInventoryTable();
+    } else {
+        alert("請輸入完整料號與數量");
+    }
   }
 
   function renderInventoryTable() {
-    const filter = document.getElementById("filterStockInput").value.toLowerCase();
-    const data = calculateInventoryData();
     const tbody = document.getElementById("inventoryBody");
     tbody.innerHTML = "";
+    
+    // 找出所有出現過的料號 (包含設定過初始值的，與交易紀錄中的)
+    const allParts = new Set([...Object.keys(stockSettings), ...records.map(r => r.partNo)]);
+    const filterTxt = document.getElementById("filterStockInput").value.toLowerCase();
 
-    Object.keys(data).forEach(pNo => {
-      const item = data[pNo];
-      if (filter && !item.name.toLowerCase().includes(filter) && !pNo.includes(filter)) return;
+    allParts.forEach(pn => {
+        // 查找品名
+        let name = "未知品名";
+        Object.values(materialDict).flat().forEach(item => {
+            if(item.startsWith(pn)) name = item.substring(11);
+        });
 
-      tbody.innerHTML += `
-        <tr>
-          <td>${pNo}</td>
-          <td>${item.name}</td>
-          <td>${item.initial}</td>
-          <td style="color:${item.delta < 0 ? 'red' : 'green'}">${item.delta > 0 ? '+'+item.delta : item.delta}</td>
-          <td style="font-weight:900; font-size:1.1rem;">${item.current}</td>
-        </tr>
-      `;
+        if(filterTxt && !pn.includes(filterTxt) && !name.includes(filterTxt)) return;
+
+        const init = stockSettings[pn] || 0;
+        let change = 0;
+        records.forEach(r => {
+            if(r.partNo === pn) {
+                if(r.type === '領料' || r.type === '借用') change -= r.qty;
+                else if(r.type === '退料' || r.type === '進貨') change += r.qty;
+                else if(r.type === '單位調撥' || r.type === '倉庫移轉') {
+                    if(r.action === 'transfer_in') change += r.qty;
+                    else change -= r.qty;
+                }
+            }
+        });
+
+        const current = init + change;
+        
+        // 庫存狀態燈號
+        let statusHtml = `<span class="status-badge status-ok">充足</span>`;
+        if(current <= 0) statusHtml = `<span class="status-badge status-low">缺料</span>`;
+        else if(current < 5) statusHtml = `<span class="status-badge status-warn">偏低</span>`;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${pn}</td>
+            <td>${name}</td>
+            <td>${init}</td>
+            <td style="color:${change >=0 ? 'green':'red'}">${change >0?'+':''}${change}</td>
+            <td style="font-weight:bold; font-size:1.1rem;">${current} ${statusHtml}</td>
+        `;
+        tbody.appendChild(tr);
     });
   }
 
-  // --- 分析報告邏輯 ---
+  // --- 分析報告 (存貨預警) ---
   function setSafetyStock() {
-    const pNo = document.getElementById("safePartNo").value;
-    const val = parseInt(document.getElementById("safeQty").value);
-    if (!pNo || isNaN(val)) { alert("請輸入完整料號與數量"); return; }
-
-    if (!stockSettings[pNo]) stockSettings[pNo] = { initial: 0, safety: 0 };
-    stockSettings[pNo].safety = val;
-    localStorage.setItem("taipower_stock_settings", JSON.stringify(stockSettings));
-    alert(`料號 ${pNo} 安全存量警示值已設定為 ${val}`);
-    renderAnalysisReport();
+      const pn = document.getElementById("safePartNo").value;
+      const q = parseInt(document.getElementById("safeQty").value);
+      if(pn && !isNaN(q)) {
+          safetyStockSettings[pn] = q;
+          localStorage.setItem("taipower_safety_stock_v3", JSON.stringify(safetyStockSettings));
+          alert(`已設定料號 ${pn} 安全存量為 ${q}`);
+          renderAnalysisReport();
+      } else {
+          alert("請輸入正確料號與數值");
+      }
   }
 
   function renderAnalysisReport() {
-    const data = calculateInventoryData();
-    const container = document.getElementById("analysisReport");
-    container.innerHTML = "";
+      const div = document.getElementById("analysisReport");
+      div.innerHTML = "";
+      
+      // 計算所有庫存
+      const allParts = new Set([...Object.keys(stockSettings), ...records.map(r => r.partNo)]);
+      let warnings = [];
 
-    let hasData = false;
-    Object.keys(data).forEach(pNo => {
-      const item = data[pNo];
-      // 只顯示有設定安全存量的，或者庫存為負的
-      if (item.safety > 0 || item.current < 0) {
-        hasData = true;
-        let statusHtml = "";
-        if (item.current < 0) {
-          statusHtml = `<span class="status-badge status-low">庫存異常 (負數)</span>`;
-        } else if (item.current < item.safety) {
-          statusHtml = `<span class="status-badge status-low">庫存告急 (低於 ${item.safety})</span>`;
-        } else if (item.current < item.safety * 1.5) {
-          statusHtml = `<span class="status-badge status-warn">庫存偏低</span>`;
-        } else {
-          statusHtml = `<span class="status-badge status-ok">庫存充足</span>`;
-        }
+      allParts.forEach(pn => {
+          const current = calculateStock(pn);
+          const safe = safetyStockSettings[pn] || 0; // 預設0表示未設定
+          
+          if(safe > 0 && current < safe) {
+              // 查找品名
+              let name = "未知品名";
+              Object.values(materialDict).flat().forEach(item => {
+                  if(item.startsWith(pn)) name = item.substring(11);
+              });
+              
+              warnings.push({ pn, name, current, safe });
+          }
+      });
 
-        container.innerHTML += `
-          <div class="record-li" style="border-left-color: ${item.current < item.safety ? '#d64545' : '#2ecc71'};">
-            <strong>${item.name}</strong> (${pNo})<br>
-            目前庫存: ${item.current} / 安全存量: ${item.safety}<br>
-            <div style="margin-top:8px;">${statusHtml}</div>
-          </div>
-        `;
+      if(warnings.length === 0) {
+          div.innerHTML = `<div style="text-align:center; padding:30px; color:green; font-weight:bold;">✅ 目前無低於安全存量之物料</div>`;
+      } else {
+          warnings.forEach(w => {
+              const itemDiv = document.createElement("div");
+              itemDiv.style.background = "#fff";
+              itemDiv.style.borderLeft = "5px solid red";
+              itemDiv.style.padding = "15px";
+              itemDiv.style.marginBottom = "10px";
+              itemDiv.style.borderRadius = "8px";
+              itemDiv.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
+              
+              itemDiv.innerHTML = `
+                  <div style="font-weight:bold; color:#d64545; font-size:1.1rem;">🚨 庫存不足警報</div>
+                  <div style="margin:5px 0;">料號：${w.pn}</div>
+                  <div style="margin:5px 0;">品名：${w.name}</div>
+                  <div style="display:flex; gap:15px; margin-top:10px;">
+                      <span style="background:#eee; padding:5px 10px; border-radius:5px;">目前庫存: <strong>${w.current}</strong></span>
+                      <span style="background:#ffeaea; color:red; padding:5px 10px; border-radius:5px;">安全存量: <strong>${w.safe}</strong></span>
+                  </div>
+              `;
+              div.appendChild(itemDiv);
+          });
       }
+  }
+
+  // --- 進貨/調撥/移轉 邏輯 ---
+  let transferMode = 'stockin'; // 'stockin', 'transfer', 'warehouse'
+
+  function setTransferMode(mode) {
+      transferMode = mode;
+      
+      // 切換按鈕樣式
+      document.getElementById("modeStockIn").classList.remove("active");
+      document.getElementById("modeTransfer").classList.remove("active");
+      document.getElementById("modeWarehouse").classList.remove("active");
+      
+      if(mode === 'stockin') document.getElementById("modeStockIn").classList.add("active");
+      if(mode === 'transfer') document.getElementById("modeTransfer").classList.add("active");
+      if(mode === 'warehouse') document.getElementById("modeWarehouse").classList.add("active");
+      
+      // 切換顯示區域
+      document.getElementById("stockInFields").style.display = (mode === 'stockin') ? "block" : "none";
+      document.getElementById("transferFields").style.display = (mode === 'transfer') ? "block" : "none";
+      document.getElementById("warehouseFields").style.display = (mode === 'warehouse') ? "block" : "none";
+  }
+
+  // 1. 進貨入庫處理
+  function processStockIn() {
+      const orderNo = document.getElementById("transferOrderNo").value;
+      const partNo = document.getElementById("transferPartNo").value;
+      const name = document.getElementById("transferItemName").value;
+      const qty = document.getElementById("stockInQty").value;
+      const staff = document.getElementById("stockInStaff").value;
+      const date = document.getElementById("transferDate").value;
+
+      if(!orderNo || !partNo || !qty || !staff) { alert("請填寫所有欄位"); return; }
+      if(name === "查無此料號" || name === "") { alert("料號錯誤"); return; }
+
+      const record = {
+          date: date,
+          type: '進貨',
+          action: 'stockin', // 識別碼
+          orderNo: orderNo,
+          person: '廠商/總處',
+          staff: staff,
+          partNo: partNo,
+          name: name,
+          qty: parseInt(qty),
+          unit: '個', // 簡化處理
+          evalType: '0新', // 進貨預設為新
+          timestamp: new Date().getTime()
+      };
+      
+      saveRecord(record);
+      alert("✅ 進貨入庫成功！");
+      document.getElementById("stockInQty").value = "";
+      document.getElementById("transferPartNo").value = "";
+      document.getElementById("transferItemName").value = "";
+  }
+
+  // 2. 單位調撥處理
+  function processTransfer() {
+      const orderNo = document.getElementById("transferOrderNo").value;
+      const partNo = document.getElementById("transferPartNo").value;
+      const name = document.getElementById("transferItemName").value;
+      const targetUnit = document.getElementById("transferTargetUnit").value;
+      const type = document.getElementById("transferType").value; // transfer_in or transfer_out
+      const qty = document.getElementById("transferQty").value;
+      const staff = document.getElementById("transferStaff").value;
+      const date = document.getElementById("transferDate").value;
+
+      if(!orderNo || !partNo || !qty || !staff || !targetUnit) { alert("請填寫所有欄位"); return; }
+      
+      const record = {
+          date: date,
+          type: '單位調撥',
+          action: type, // 重要：用於計算庫存加減
+          orderNo: orderNo,
+          person: targetUnit, // 對象變成單位
+          staff: staff,
+          partNo: partNo,
+          name: name,
+          qty: parseInt(qty),
+          unit: '個',
+          evalType: '調撥',
+          timestamp: new Date().getTime()
+      };
+
+      saveRecord(record);
+      alert("✅ 單位調撥單已建立！");
+      document.getElementById("transferQty").value = "";
+  }
+
+  // 3. 倉庫移轉處理 (新增功能)
+  function processWarehouseTransfer() {
+      const orderNo = document.getElementById("transferOrderNo").value;
+      const partNo = document.getElementById("transferPartNo").value;
+      const name = document.getElementById("transferItemName").value;
+      const warehouse = document.getElementById("warehouseTarget").value;
+      const type = document.getElementById("warehouseType").value; // transfer_in or transfer_out
+      const qty = document.getElementById("warehouseQty").value;
+      const staff = document.getElementById("warehouseStaff").value;
+      const date = document.getElementById("transferDate").value;
+
+      if(!orderNo || !partNo || !qty || !staff) { alert("請填寫所有欄位"); return; }
+      
+      const record = {
+          date: date,
+          type: '倉庫移轉',
+          action: type, // 用於計算庫存加減
+          orderNo: orderNo,
+          person: warehouse, // 對象變成倉庫名稱
+          staff: staff,
+          partNo: partNo,
+          name: name,
+          qty: parseInt(qty),
+          unit: '個',
+          evalType: '移轉',
+          timestamp: new Date().getTime()
+      };
+
+      saveRecord(record);
+      alert("✅ 倉庫移轉單已建立！");
+      document.getElementById("warehouseQty").value = "";
+  }
+
+  // --- Excel 匯出相關功能 (Modal & Selection) ---
+  function openExportModal() {
+    document.getElementById("exportModal").style.display = "flex";
+  }
+
+  function closeExportModal() {
+    document.getElementById("exportModal").style.display = "none";
+  }
+
+  function confirmExport() {
+    // 1. 取得勾選的欄位
+    const checkboxes = document.querySelectorAll('.export-col:checked');
+    const selectedFields = Array.from(checkboxes).map(cb => cb.value);
+    
+    if(selectedFields.length === 0) {
+      alert("請至少選擇一個匯出欄位！");
+      return;
+    }
+
+    // 2. 取得日期範圍
+    const startDate = document.getElementById("exportStart").value;
+    const endDate = document.getElementById("exportEnd").value;
+
+    // 3. 欄位標題對照表 (Key -> 中文標題)
+    const headerMap = {
+      date: "異動日期",
+      type: "作業類型",
+      orderNo: "單號",
+      partNo: "料號",
+      name: "品名/規格",
+      qty: "數量",
+      unit: "單位",
+      person: "對象",
+      staff: "經辦人",
+      evalType: "評價類型",
+      timestamp: "系統時間戳"
+    };
+
+    // 4. 篩選資料
+    let dataToExport = records;
+
+    // 4a. 日期篩選
+    if (startDate || endDate) {
+        dataToExport = dataToExport.filter(r => {
+            const rDate = new Date(r.date);
+            const start = startDate ? new Date(startDate) : new Date('1900-01-01');
+            const end = endDate ? new Date(endDate) : new Date('2100-12-31');
+            return rDate >= start && rDate <= end;
+        });
+    }
+
+    if(dataToExport.length === 0) {
+        alert("此條件範圍內無資料可匯出");
+        return;
+    }
+
+    // 5. 轉換資料格式 (只保留選取的欄位)
+    const finalData = dataToExport.map(record => {
+      let newRow = {};
+      selectedFields.forEach(field => {
+        newRow[headerMap[field]] = record[field] || "";
+      });
+      return newRow;
     });
 
-    if(!hasData) {
-      container.innerHTML = "<p style='text-align:center; color:#666;'>目前沒有設定安全存量的項目，或庫存皆正常。<br>請在上放設定預警值。</p>";
+    // 6. 執行匯出
+    const ws = XLSX.utils.json_to_sheet(finalData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "材料紀錄");
+    XLSX.writeFile(wb, `材料管理報表_${new Date().toISOString().slice(0,10)}.xlsx`);
+    
+    closeExportModal();
+  }
+
+  // 點擊 Modal 外部關閉
+  window.onclick = function(event) {
+    const modal = document.getElementById("exportModal");
+    if (event.target == modal) {
+      closeExportModal();
     }
   }
 
-  // --- 簽名檔切換 ---
   function toggleSignature(el) {
     const span = document.getElementById('sigName');
     span.hidden = !span.hidden;
   }
-
 </script>
 </body>
 </html>
-
-
