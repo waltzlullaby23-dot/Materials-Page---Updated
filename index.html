@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>材料管理系統 v2.2 (增強版)</title>
+  <title>材料管理系統</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
    
@@ -53,38 +53,6 @@
     .wave-front { z-index: 4; height: 35%; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%231D3B56' fill-opacity='1' d='M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E"); animation: moveWave 10s linear infinite; }
     @keyframes moveWave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-    /* Excel 匯出按鈕 */
-    .excel-btn {
-      position: fixed;
-      top: 20px; left: 20px; z-index: 1000;
-      background-color: var(--excel-green); color: white; border: 2px solid white;
-      padding: 10px 20px; border-radius: 30px;
-      font-weight: 900; cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
-    }
-    .excel-btn:hover { transform: scale(1.05); background-color: #1e6b40; }
-
-    /* Modal */
-    .modal-overlay {
-      display: none;
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6); z-index: 2000; justify-content: center;
-      align-items: center; backdrop-filter: blur(5px); padding: 10px; box-sizing: border-box;
-    }
-    .modal-content {
-      background: white;
-      padding: 25px; border-radius: 15px; width: 100%; max-width: 500px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto;
-    }
-    .modal-header { font-size: 1.2rem; font-weight: 900; margin-bottom: 15px; color: var(--ukiyo-deep-blue); border-bottom: 2px solid var(--ukiyo-sky); padding-bottom: 10px; }
-    .modal-body { margin-bottom: 20px; }
-    .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .checkbox-item { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 5px; border-radius: 5px; }
-    .checkbox-item:hover { background: #f0f0f0; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
-    .btn-modal-cancel { background: #ccc; color: #333; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    .btn-modal-confirm { background: var(--excel-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-
     /* UI 內容層 */
     .content-wrapper { position: relative; z-index: 10; padding: 20px 16px 80px; max-width: 950px; margin: 0 auto; }
     header { background: var(--ukiyo-deep-blue); color: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(29, 59, 86, 0.5); border: 2px solid #D4AF37; margin-bottom: 25px; }
@@ -109,7 +77,7 @@
     .btn-save:hover { background: var(--danger-red); transform: translateY(-2px); }
     .btn-search { background: var(--ukiyo-mid-blue); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
     
-    /* 紅色按鈕樣式 (刪除用) */
+    /* 紅色按鈕樣式 */
     .btn-danger-action { background: var(--danger-red); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; }
     .btn-danger-action:hover { background: #b93b3b; }
 
@@ -130,7 +98,6 @@
     .status-low { background-color: var(--danger-red); }
     .status-warn { background-color: var(--warning-orange); }
     
-    /* 表格中的小刪除按鈕 */
     .btn-table-del { background: #ffeaea; color: red; border: 1px solid red; border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 0.8rem; }
     .btn-table-del:hover { background: red; color: white; }
 
@@ -145,6 +112,16 @@
     .mode-btn.active { background: white; color: var(--ukiyo-deep-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
     .ukiyo-signature { position: fixed; left: 20px; bottom: 20px; z-index: 100; font-weight: 900; padding: 10px; background: #F2E6D9; border: 2px solid #1D3B56; border-radius: 5px; transform: rotate(-5deg); cursor: pointer; box-shadow: 3px 3px 0px #1D3B56; }
+
+    /* Excel 匯出按鈕 & Modal 樣式 */
+    .excel-btn { position: fixed; top: 20px; left: 20px; z-index: 1000; background-color: var(--excel-green); color: white; border: 2px solid white; padding: 10px 20px; border-radius: 30px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; }
+    .excel-btn:hover { transform: scale(1.05); background-color: #1e6b40; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 10px; box-sizing: border-box; }
+    .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto; }
+    .modal-header { font-size: 1.2rem; font-weight: 900; margin-bottom: 15px; color: var(--ukiyo-deep-blue); border-bottom: 2px solid var(--ukiyo-sky); padding-bottom: 10px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+    .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .checkbox-item { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 5px; border-radius: 5px; }
 
     @media (max-width: 600px) { 
       .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; } 
@@ -167,34 +144,30 @@
   <div id="exportModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">匯出選項設定</div>
-      <div class="modal-body">
+      <div style="margin-bottom: 20px;">
         <div style="margin-bottom: 15px; padding: 10px; background: #f9f9f9; border-radius: 8px;">
-           <label style="font-weight:bold; display:block; margin-bottom:5px;">📅 日期範圍 (留空則匯出全部)</label>
+           <label style="font-weight:bold; display:block; margin-bottom:5px;">📅 日期範圍</label>
            <div style="display:flex; gap:10px;">
              <input type="date" id="exportStart">
              <span style="align-self:center;">~</span>
              <input type="date" id="exportEnd">
            </div>
         </div>
-        
-        <label style="font-weight:bold; display:block; margin-bottom:10px;">📝 選擇要匯出的欄位：</label>
+        <label style="font-weight:bold; display:block; margin-bottom:10px;">📝 選擇欄位：</label>
         <div class="checkbox-grid">
-          <label class="checkbox-item"><input type="checkbox" class="export-col" value="date" checked> 異動日期</label>
-          <label class="checkbox-item"><input type="checkbox" class="export-col" value="type" checked> 作業類型</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="date" checked> 日期</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="type" checked> 類型</label>
           <label class="checkbox-item"><input type="checkbox" class="export-col" value="orderNo" checked> 單號</label>
           <label class="checkbox-item"><input type="checkbox" class="export-col" value="partNo" checked> 料號</label>
-          <label class="checkbox-item"><input type="checkbox" class="export-col" value="name" checked> 品名/規格</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="name" checked> 品名</label>
           <label class="checkbox-item"><input type="checkbox" class="export-col" value="qty" checked> 數量</label>
-          <label class="checkbox-item"><input type="checkbox" class="export-col" value="unit" checked> 單位</label>
-          <label class="checkbox-item"><input type="checkbox" class="export-col" value="person" checked> 對象(人/單位)</label>
-          <label class="checkbox-item"><input type="checkbox" class="export-col" value="staff" checked> 經辦人</label>
-          <label class="checkbox-item"><input type="checkbox" class="export-col" value="evalType" checked> 評價類型</label>
-          <label class="checkbox-item"><input type="checkbox" class="export-col" value="timestamp"> 紀錄時間戳記</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="person" checked> 對象</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="evalType" checked> 評價</label>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-modal-cancel" onclick="closeExportModal()">取消</button>
-        <button class="btn-modal-confirm" onclick="confirmExport()">確認匯出</button>
+        <button onclick="closeExportModal()" style="padding:10px; border-radius:8px; border:none;">取消</button>
+        <button onclick="confirmExport()" style="padding:10px; border-radius:8px; border:none; background:var(--excel-green); color:white;">確認匯出</button>
       </div>
     </div>
   </div>
@@ -208,7 +181,7 @@
 
   <div class="content-wrapper">
     <header>
-      <div style="font-weight:900; font-size: 1.5rem; letter-spacing: 2px;">材料管理系統 v2.2</div>
+      <div style="font-weight:900; font-size: 1.5rem; letter-spacing: 2px;">材料管理系統 v2.3</div>
     </header>
 
     <div class="nav-tabs">
@@ -241,7 +214,7 @@
         
         <div class="form-row">
           <div><label>發/收料經辦人</label><input type="text" id="staffName" required /></div>
-          <div><label>10位料號搜尋 (帶出材料)</label><input type="text" id="partNoInput" maxlength="10" placeholder="輸入料號自動帶出" oninput="handlePartNoInput(this.value, 'normal')" /></div>
+          <div><label>10位料號搜尋 (自動帶出類別)</label><input type="text" id="partNoInput" maxlength="10" placeholder="輸入料號自動帶出" oninput="handlePartNoInput(this.value, 'normal')" /></div>
         </div>
 
         <h3 class="section-title">貳、材料選擇</h3>
@@ -273,7 +246,6 @@
               </select>
             </div>
           </div>
-        
           <button type="submit" class="btn-save">💾 儲存物料紀錄</button>
         </div>
       </form>
@@ -299,11 +271,11 @@
     <div id="tab-inventory" class="container-3d">
       <h3 class="section-title">📦 庫存設定與查詢</h3>
       <div class="form-row-4" style="background: var(--ukiyo-foam); padding:15px; border-radius:10px; margin-bottom:20px;">
-        <div style="grid-column: 1 / -1;"><strong>🔧 設定初始庫存 (分評價類型設定)</strong></div>
+        <div style="grid-column: 1 / -1;"><strong>🔧 設定初始庫存</strong></div>
         
         <div style="grid-column: 1 / -1;">
            <label>料號 (輸入自動帶出類別)</label>
-           <input type="text" id="stockPartNo" placeholder="輸入料號自動帶出..." oninput="handleStockPartNoInput(this.value)">
+           <input type="text" id="stockPartNo" placeholder="輸入料號自動帶出..." oninput="handlePartNoInput(this.value, 'stock')">
         </div>
 
         <div style="grid-column: 1 / -1; margin-bottom: 10px;">
@@ -360,9 +332,8 @@
 
     <div id="tab-transfer" class="container-3d">
       <h3 class="section-title">🚚 進貨 / 調撥 / 移轉</h3>
-      
       <div class="mode-toggle">
-        <div id="modeStockIn" class="mode-btn active" onclick="setTransferMode('stockin')">📥 進貨入庫 (廠商/總處)</div>
+        <div id="modeStockIn" class="mode-btn active" onclick="setTransferMode('stockin')">📥 進貨入庫</div>
         <div id="modeTransfer" class="mode-btn" onclick="setTransferMode('transfer')">⇆ 單位間調撥</div>
         <div id="modeWarehouse" class="mode-btn" onclick="setTransferMode('warehouse')">🏭 倉庫間移轉</div>
       </div>
@@ -372,12 +343,10 @@
             <div><label>異動日期</label><input type="date" id="transferDate"></div>
             <div><label>單號</label><input type="text" id="transferOrderNo" placeholder="請輸入單號"></div>
         </div>
-
         <div class="form-row">
-            <div><label>10位料號搜尋 (必填)</label><input type="text" id="transferPartNo" maxlength="10" placeholder="輸入料號帶出名稱" oninput="handlePartNoInput(this.value, 'transfer')"></div>
-            <div><label>品名規格 (自動顯示)</label><input type="text" id="transferItemName" disabled style="background: #e0e0e0; font-weight:bold;"></div>
+            <div><label>10位料號搜尋 (自動帶出)</label><input type="text" id="transferPartNo" maxlength="10" placeholder="輸入料號帶出名稱" oninput="handlePartNoInput(this.value, 'transfer')"></div>
+            <div><label>品名規格</label><input type="text" id="transferItemName" disabled style="background: #e0e0e0; font-weight:bold;"></div>
         </div>
-        
         <div style="margin-bottom: 15px;">
            <label>評價類型</label>
            <select id="transferEvalType" style="background:#fff3cd; border:1px solid #e67e22;">
@@ -396,7 +365,6 @@
             </div>
             <button class="btn-save" style="background: linear-gradient(45deg, #11998e, #38ef7d);" onclick="processStockIn()">📥 確認入庫 (入帳)</button>
         </div>
-
         <div id="transferFields" style="display:none;">
             <div class="form-row">
                 <div><label>對方單位名稱</label><input type="text" id="transferTargetUnit" placeholder="例: 台北西區營業處"></div>
@@ -413,7 +381,6 @@
             </div>
             <button class="btn-save" style="background: linear-gradient(45deg, #f7971e, #ffd200);" onclick="processTransfer()">⇆ 確認調撥</button>
         </div>
-
         <div id="warehouseFields" style="display:none;">
              <div class="form-row">
                 <div><label>目標/來源 倉庫名稱</label>
@@ -438,7 +405,6 @@
             </div>
             <button class="btn-save" style="background: linear-gradient(45deg, #4b6cb7, #182848);" onclick="processWarehouseTransfer()">🏭 確認移轉</button>
         </div>
-
       </div>
     </div>
 
@@ -446,10 +412,7 @@
         <h3 class="section-title">📜 歷史用料紀錄與分析</h3>
         <div style="background: #fff; padding:15px; border-radius:10px; margin-bottom:20px; border:1px solid #ddd;">
             <div class="form-row">
-                <div>
-                    <label>搜尋料號或品名</label>
-                    <input type="text" id="historySearchInput" placeholder="輸入後Enter搜尋..." onchange="searchHistoryByInput()">
-                </div>
+                <div><label>搜尋料號或品名</label><input type="text" id="historySearchInput" placeholder="輸入後Enter搜尋..." onchange="searchHistoryByInput()"></div>
                 <div>
                     <label>或選擇類別</label>
                     <select id="category_history" onchange="renderMaterials('history')">
@@ -464,15 +427,10 @@
                 </div>
             </div>
             <div id="materialsContainer_history" class="materials-container" style="display:none; margin-bottom:10px;"></div>
-            
             <button class="btn-search" style="width:100%; margin-top:10px;" onclick="calculateUsageHistory()">📊 開始計算用料統計</button>
         </div>
-
         <div id="historyResult" style="display:none;">
-            <div style="padding:10px; background:var(--ukiyo-mid-blue); color:white; border-radius:8px; margin-bottom:15px;">
-                <h4 style="margin:0; text-align:center;" id="historyItemTitle">品名規格</h4>
-            </div>
-
+            <div style="padding:10px; background:var(--ukiyo-mid-blue); color:white; border-radius:8px; margin-bottom:15px;"><h4 style="margin:0; text-align:center;" id="historyItemTitle">品名規格</h4></div>
             <div class="history-card">
                 <div style="text-align:center; margin-bottom:10px; font-weight:bold; color:#d35400;">🏆 總體用料概況</div>
                 <div class="history-stat-grid">
@@ -480,21 +438,9 @@
                     <div class="stat-box"><div class="stat-val" id="avgYearly">0</div><div class="stat-label">歷年平均</div></div>
                 </div>
             </div>
-
             <div class="history-card">
-                <div style="text-align:center; margin-bottom:10px; font-weight:bold; color:#2980b9;">📅 歷月用料總計 (1-12月)</div>
-                <div id="monthlyStats" style="display:grid; grid-template-columns: repeat(6, 1fr); gap:5px; font-size:0.8rem; text-align:center;">
-                </div>
-            </div>
-
-            <div class="history-card">
-                <div style="text-align:center; margin-bottom:10px; font-weight:bold; color:#27ae60;">🍂 歷季用料總計</div>
-                <div class="history-stat-grid">
-                    <div class="stat-box"><div class="stat-val" id="season1">0</div><div class="stat-label">Q1 (1-3月)</div></div>
-                    <div class="stat-box"><div class="stat-val" id="season2">0</div><div class="stat-label">Q2 (4-6月)</div></div>
-                    <div class="stat-box"><div class="stat-val" id="season3">0</div><div class="stat-label">Q3 (7-9月)</div></div>
-                    <div class="stat-box"><div class="stat-val" id="season4">0</div><div class="stat-label">Q4 (10-12月)</div></div>
-                </div>
+                <div style="text-align:center; margin-bottom:10px; font-weight:bold; color:#2980b9;">📅 歷月用料總計</div>
+                <div id="monthlyStats" style="display:grid; grid-template-columns: repeat(6, 1fr); gap:5px; font-size:0.8rem; text-align:center;"></div>
             </div>
         </div>
     </div>
@@ -502,23 +448,20 @@
     <div id="tab-analysis" class="container-3d">
       <h3 class="section-title">📊 存貨預警分析報告</h3>
       <div class="form-row-3" style="background: #fff3cd; padding:15px; border-radius:10px; margin-bottom:20px;">
-        <div style="grid-column: 1 / -1;"><strong>⚠️ 設定安全存量 (預警值)</strong></div>
+        <div style="grid-column: 1 / -1;"><strong>⚠️ 設定安全存量</strong></div>
         <div><label>料號</label><input type="text" id="safePartNo" placeholder="輸入完整料號"></div>
         <div><label>安全存量</label><input type="number" id="safeQty" placeholder="例如: 10"></div>
         <div><label>動作</label><button class="btn-search" style="background:#e67e22; width:100%" onclick="setSafetyStock()">設定預警</button></div>
       </div>
-
       <div id="analysisReport"></div>
     </div>
 
   </div>
 
-  <div class="ukiyo-signature" onclick="toggleSignature(this)">
-    設計人：<span id="sigName" hidden>三木</span>
-  </div>
+  <div class="ukiyo-signature" onclick="toggleSignature(this)">設計人：<span id="sigName" hidden>三木</span></div>
 
 <script>
- // --- 資料庫 (完整資料) ---
+// --- 資料庫 (完整資料) ---
 const rawData = {
  A: `1030420013	懸垂礙子 C型 10000磅 6"φ 灰色
 1030420014	懸垂礙子 C型 15000磅 φ10" 灰色
@@ -867,20 +810,25 @@ let materials = {};
 let selectedPartNo = "";
 let selectedName = "";
 
-// 初始化解析資料
+// 初始化解析資料 (增強版: 支援 tab 和多空白)
 function initMaterials() {
   for (let cat in rawData) {
     let lines = rawData[cat].split('\n');
     lines.forEach(line => {
-      let parts = line.split(' ');
+      line = line.trim();
+      if(!line) return;
+      // 使用 regex 分割：以一個或多個空白/Tab 符號作為分隔
+      let parts = line.split(/\s+(.*)/); 
+      // parts[0] 是料號, parts[1] 是剩下的所有內容(品名)
       let pNo = parts[0];
-      let name = parts.slice(1).join(' ');
-      materials[pNo] = { name: name, category: cat };
+      let name = parts[1] || "";
+      if (pNo) {
+        materials[pNo] = { name: name, category: cat };
+      }
     });
   }
 }
 
-// 頁面載入
 window.onload = function() {
   initMaterials();
   document.getElementById('mainDate').valueAsDate = new Date();
@@ -910,8 +858,15 @@ function setTransferMode(mode) {
 }
 
 function renderMaterials(context) {
-  const cat = document.getElementById(context === 'stock' ? 'category_stock' : (context === 'history' ? 'category_history' : 'category')).value;
-  const container = document.getElementById(context === 'stock' ? 'materialsContainer_stock' : (context === 'history' ? 'materialsContainer_history' : 'materialsContainer_input'));
+  let catSelectId = "";
+  let containerId = "";
+  
+  if(context === 'normal' || context === 'input') { catSelectId = 'category'; containerId = 'materialsContainer_input'; }
+  else if(context === 'stock') { catSelectId = 'category_stock'; containerId = 'materialsContainer_stock'; }
+  else if(context === 'history') { catSelectId = 'category_history'; containerId = 'materialsContainer_history'; }
+
+  const cat = document.getElementById(catSelectId).value;
+  const container = document.getElementById(containerId);
   
   container.innerHTML = "";
   container.style.display = "flex";
@@ -936,7 +891,8 @@ function renderMaterials(context) {
 function selectMaterial(pNo, context) {
   selectedPartNo = pNo;
   selectedName = materials[pNo].name;
-  if (context === 'input') {
+  
+  if (context === 'normal' || context === 'input') {
     document.getElementById('partNoInput').value = pNo;
     document.getElementById('qtySection').style.display = "block";
   } else if (context === 'stock') {
@@ -951,49 +907,55 @@ function selectMaterial(pNo, context) {
   }
 }
 
-// 萬用料號輸入處理 (自動帶出)
+// ---------------------- 核心：萬用料號輸入自動帶出 ----------------------
+// 包含自動切換下拉選單的功能
 function handlePartNoInput(val, context) {
+    val = val.trim(); // 去除前後空白
+    
+    // 如果長度符合且資料庫有此料號
     if (val.length === 10 && materials[val]) {
+        // 1. 設定選中狀態
         selectMaterial(val, context);
-        if(context === 'transfer') {
-             document.getElementById('transferItemName').value = materials[val].name;
+
+        // 2. 自動切換類別 (Auto-switch Category)
+        const cat = materials[val].category;
+        
+        let targetSelect = null;
+        let targetRenderContext = "";
+
+        if (context === 'normal') {
+            targetSelect = document.getElementById('category');
+            targetRenderContext = 'input';
+        } else if (context === 'stock') {
+            targetSelect = document.getElementById('category_stock');
+            targetRenderContext = 'stock';
+        }
+        // Transfer 模式通常不需要切換類別下拉選單，只需要帶出品名 (已在selectMaterial處理)
+
+        if (targetSelect) {
+            targetSelect.value = cat;
+            // 重新渲染該類別的按鈕列表
+            renderMaterials(targetRenderContext);
+            
+            // 3. 高亮該按鈕
+            setTimeout(() => {
+                let container = document.getElementById(context === 'normal' ? 'materialsContainer_input' : 'materialsContainer_stock');
+                let btns = container.querySelectorAll('.material-btn');
+                btns.forEach(b => {
+                    if(b.innerHTML.includes(val)) {
+                        b.classList.add('active');
+                        b.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                });
+            }, 100);
         }
     }
 }
 
-// --- 修改點：庫存設定自動帶出類別 ---
-function handleStockPartNoInput(val) {
-    if (val.length === 10 && materials[val]) {
-        // 1. 選取該料號
-        selectMaterial(val, 'stock');
-        
-        // 2. 自動帶出類別
-        const cat = materials[val].category;
-        document.getElementById('category_stock').value = cat;
-        
-        // 3. 渲染該類別的所有材料 (方便使用者查看)
-        renderMaterials('stock');
+// ---------------------- 儲存/刪除/庫存 ----------------------
 
-        // 4. 高亮顯示目前選中的材料按鈕
-        setTimeout(() => {
-            const container = document.getElementById('materialsContainer_stock');
-            const btns = container.querySelectorAll('.material-btn');
-            btns.forEach(b => {
-               if(b.innerHTML.includes(val)) {
-                   b.classList.add('active');
-                   b.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-               }
-            });
-        }, 100);
-    }
-}
-
-// ---------------------- 核心功能 ----------------------
-
-// 儲存一般紀錄 (領/退/借)
 document.getElementById('materialForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  
   const record = {
     id: Date.now(),
     date: document.getElementById('mainDate').value,
@@ -1008,9 +970,7 @@ document.getElementById('materialForm').addEventListener('submit', function(e) {
     evalType: document.getElementById('evalType').value,
     timestamp: new Date().toISOString()
   };
-
   if(!record.partNo) { alert("請輸入正確料號"); return; }
-  
   saveRecordToLS(record);
   alert("✅ 紀錄已儲存！");
   document.getElementById('materialForm').reset();
@@ -1019,7 +979,6 @@ document.getElementById('materialForm').addEventListener('submit', function(e) {
   renderLog();
 });
 
-// 處理入庫 (進貨)
 function processStockIn() {
     const pNo = document.getElementById('transferPartNo').value;
     const qty = parseInt(document.getElementById('stockInQty').value);
@@ -1027,30 +986,13 @@ function processStockIn() {
     const date = document.getElementById('transferDate').value;
     const orderNo = document.getElementById('transferOrderNo').value;
     const evalType = document.getElementById('transferEvalType').value;
-
     if(!pNo || !qty || !staff) { alert("請填寫完整入庫資訊"); return; }
     if(!materials[pNo]) { alert("料號不存在"); return; }
-
-    const record = {
-        id: Date.now(),
-        date: date,
-        type: "進貨入庫",
-        orderNo: orderNo || "N/A",
-        person: "廠商/總處",
-        staff: staff,
-        partNo: pNo,
-        name: materials[pNo].name,
-        qty: qty, 
-        unit: "式",
-        evalType: evalType,
-        timestamp: new Date().toISOString()
-    };
+    const record = { id: Date.now(), date: date, type: "進貨入庫", orderNo: orderNo || "N/A", person: "廠商/總處", staff: staff, partNo: pNo, name: materials[pNo].name, qty: qty, unit: "式", evalType: evalType, timestamp: new Date().toISOString() };
     saveRecordToLS(record);
-    alert("✅ 入庫成功！");
-    renderLog();
+    alert("✅ 入庫成功！"); renderLog();
 }
 
-// 處理調撥
 function processTransfer() {
     const pNo = document.getElementById('transferPartNo').value;
     const qty = parseInt(document.getElementById('transferQty').value);
@@ -1060,29 +1002,12 @@ function processTransfer() {
     const date = document.getElementById('transferDate').value;
     const orderNo = document.getElementById('transferOrderNo').value;
     const evalType = document.getElementById('transferEvalType').value;
-
     if(!pNo || !qty || !staff || !target) { alert("請填寫完整調撥資訊"); return; }
-
-    const record = {
-        id: Date.now(),
-        date: date,
-        type: (type === 'transfer_in' ? "調撥移入" : "調撥移出"),
-        orderNo: orderNo || "N/A",
-        person: target,
-        staff: staff,
-        partNo: pNo,
-        name: materials[pNo] ? materials[pNo].name : "",
-        qty: qty,
-        unit: "式",
-        evalType: evalType,
-        timestamp: new Date().toISOString()
-    };
+    const record = { id: Date.now(), date: date, type: (type === 'transfer_in' ? "調撥移入" : "調撥移出"), orderNo: orderNo || "N/A", person: target, staff: staff, partNo: pNo, name: materials[pNo] ? materials[pNo].name : "", qty: qty, unit: "式", evalType: evalType, timestamp: new Date().toISOString() };
     saveRecordToLS(record);
-    alert("✅ 調撥紀錄已建立！");
-    renderLog();
+    alert("✅ 調撥紀錄已建立！"); renderLog();
 }
 
-// 處理倉庫移轉
 function processWarehouseTransfer() {
     const pNo = document.getElementById('transferPartNo').value;
     const qty = parseInt(document.getElementById('warehouseQty').value);
@@ -1091,26 +1016,10 @@ function processWarehouseTransfer() {
     const type = document.getElementById('warehouseType').value;
     const date = document.getElementById('transferDate').value;
     const evalType = document.getElementById('transferEvalType').value;
-
     if(!pNo || !qty) { alert("請填寫移轉資訊"); return; }
-
-    const record = {
-        id: Date.now(),
-        date: date,
-        type: (type === 'transfer_in' ? "倉庫移入" : "倉庫移出"),
-        orderNo: "內部移轉",
-        person: warehouse,
-        staff: staff,
-        partNo: pNo,
-        name: materials[pNo] ? materials[pNo].name : "",
-        qty: qty,
-        unit: "式",
-        evalType: evalType,
-        timestamp: new Date().toISOString()
-    };
+    const record = { id: Date.now(), date: date, type: (type === 'transfer_in' ? "倉庫移入" : "倉庫移出"), orderNo: "內部移轉", person: warehouse, staff: staff, partNo: pNo, name: materials[pNo] ? materials[pNo].name : "", qty: qty, unit: "式", evalType: evalType, timestamp: new Date().toISOString() };
     saveRecordToLS(record);
-    alert("✅ 移轉成功！");
-    renderLog();
+    alert("✅ 移轉成功！"); renderLog();
 }
 
 function saveRecordToLS(record) {
@@ -1119,26 +1028,20 @@ function saveRecordToLS(record) {
   localStorage.setItem('materialRecords', JSON.stringify(records));
 }
 
-// --- 庫存計算核心 ---
-
-// 1. 設定初始庫存
+// --- 庫存計算 (含刪除設定) ---
 function setInitialStock() {
   const pNo = document.getElementById('stockPartNo').value;
   const qty = parseInt(document.getElementById('stockInitQty').value);
   const evalType = document.getElementById('stockEvalType').value;
-
   if(!pNo || isNaN(qty)) { alert("請輸入正確料號與數量"); return; }
-
   let stockSettings = JSON.parse(localStorage.getItem('initialStock')) || {};
   let key = `${pNo}_${evalType}`;
   stockSettings[key] = qty;
-  
   localStorage.setItem('initialStock', JSON.stringify(stockSettings));
   alert(`✅ 已設定 ${pNo} (${evalType}) 初始庫存為 ${qty}`);
   renderInventoryTable();
 }
 
-// --- 修改點：新增刪除庫存設定的功能 ---
 function deleteStockSetting(key) {
     if(!confirm("確定刪除此初始庫存設定？")) return;
     let stockSettings = JSON.parse(localStorage.getItem('initialStock')) || {};
@@ -1153,122 +1056,57 @@ function clearAllStockSettings() {
     renderInventoryTable();
 }
 
-// 2. 取得目前庫存表
 function getInventoryMap() {
   let stock = {};
   let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
   let initials = JSON.parse(localStorage.getItem('initialStock')) || {};
-
-  // 載入初始庫存
   for (let key in initials) {
     let [pNo, ...rest] = key.split('_');
     let eType = rest.join('_') || "0新";
-
-    stock[key] = {
-      key: key, // 儲存key方便刪除
-      pNo: pNo,
-      evalType: eType,
-      name: materials[pNo] ? materials[pNo].name : "未知",
-      init: initials[key],
-      change: 0,
-      total: initials[key]
-    };
+    stock[key] = { key: key, pNo: pNo, evalType: eType, name: materials[pNo] ? materials[pNo].name : "未知", init: initials[key], change: 0, total: initials[key] };
   }
-
-  // 計算歷史異動
   records.forEach(r => {
     let rEvalType = r.evalType || "0新";
     let key = `${r.partNo}_${rEvalType}`;
-
-    if (!stock[key]) {
-      stock[key] = {
-        key: key,
-        pNo: r.partNo,
-        evalType: rEvalType,
-        name: materials[r.partNo] ? materials[r.partNo].name : "未知",
-        init: 0,
-        change: 0,
-        total: 0
-      };
-    }
-
-    if (["退料", "進貨入庫", "調撥移入", "倉庫移入"].includes(r.type)) {
-      stock[key].change += r.qty;
-      stock[key].total += r.qty;
-    } else if (["領料", "借用", "調撥移出", "倉庫移出"].includes(r.type)) {
-      stock[key].change -= r.qty;
-      stock[key].total -= r.qty;
-    }
+    if (!stock[key]) { stock[key] = { key: key, pNo: r.partNo, evalType: rEvalType, name: materials[r.partNo] ? materials[r.partNo].name : "未知", init: 0, change: 0, total: 0 }; }
+    if (["退料", "進貨入庫", "調撥移入", "倉庫移入"].includes(r.type)) { stock[key].change += r.qty; stock[key].total += r.qty; } 
+    else if (["領料", "借用", "調撥移出", "倉庫移出"].includes(r.type)) { stock[key].change -= r.qty; stock[key].total -= r.qty; }
   });
   return stock;
 }
 
-// 3. 渲染庫存表格
 function renderInventoryTable() {
   const tbody = document.getElementById('inventoryBody');
   const filter = document.getElementById('filterStockInput').value.toLowerCase();
   const inventory = getInventoryMap();
   tbody.innerHTML = "";
-
   let list = Object.values(inventory).sort((a, b) => {
       if (a.pNo !== b.pNo) return a.pNo.localeCompare(b.pNo);
       return a.evalType.localeCompare(b.evalType);
   });
-
   list.forEach(item => {
     if (filter && !item.pNo.includes(filter) && !item.name.includes(filter)) return;
-
-    let statusClass = "status-ok";
-    let statusText = "充足";
-    if (item.total <= 0) { statusClass = "status-low"; statusText = "缺料"; }
-    else if (item.total < 3) { statusClass = "status-warn"; statusText = "偏低"; }
-
-    // 只有當「初始庫存」有設定時，才顯示刪除按鈕 (因為我們只能刪除初始設定，無法直接刪除計算結果)
-    let delBtn = (item.init > 0 || item.init < 0) 
-                 ? `<button class="btn-table-del" onclick="deleteStockSetting('${item.key}')">🗑️</button>` 
-                 : `<small style='color:#ccc'>異動產生</small>`;
-
+    let statusClass = "status-ok"; let statusText = "充足";
+    if (item.total <= 0) { statusClass = "status-low"; statusText = "缺料"; } else if (item.total < 3) { statusClass = "status-warn"; statusText = "偏低"; }
+    let delBtn = (item.init > 0 || item.init < 0) ? `<button class="btn-table-del" onclick="deleteStockSetting('${item.key}')">🗑️</button>` : `<small style='color:#ccc'>異動產生</small>`;
     let tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${item.pNo}</td>
-      <td style="color:#2980b9; font-weight:bold;">${item.evalType}</td>
-      <td>${item.name}</td>
-      <td>${item.init}</td>
-      <td style="color:${item.change >= 0 ? 'green':'red'}">${item.change > 0 ? '+'+item.change : item.change}</td>
-      <td style="font-weight:900; font-size:1.1rem;">
-        ${item.total} <span class="status-badge ${statusClass}">${statusText}</span>
-      </td>
-      <td style="text-align:center;">${delBtn}</td>
-    `;
+    tr.innerHTML = `<td>${item.pNo}</td><td style="color:#2980b9; font-weight:bold;">${item.evalType}</td><td>${item.name}</td><td>${item.init}</td><td style="color:${item.change >= 0 ? 'green':'red'}">${item.change > 0 ? '+'+item.change : item.change}</td><td style="font-weight:900; font-size:1.1rem;">${item.total} <span class="status-badge ${statusClass}">${statusText}</span></td><td style="text-align:center;">${delBtn}</td>`;
     tbody.appendChild(tr);
   });
 }
 
-// --- 歷史紀錄列表 ---
+// --- 歷史紀錄 (含全部刪除) ---
 function renderLog() {
   const list = document.getElementById('logList');
   let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
   records.sort((a, b) => b.id - a.id);
-  
   list.innerHTML = "";
   records.forEach((r, index) => {
     let evalDisplay = r.evalType ? `<span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:0.8em; margin-left:5px;">${r.evalType}</span>` : "";
-
     let item = document.createElement('div');
     item.className = "record-li";
     item.dataset.search = (r.person + r.staff + r.partNo + r.date).toLowerCase();
-    
-    // index 是基於排序後的，刪除時要對應
-    item.innerHTML = `
-      <button class="btn-delete" onclick="deleteRecord(${r.id})">刪除</button>
-      <div style="font-weight:900; color:var(--ukiyo-deep-blue)">
-        ${r.date} | 【${r.type}】 ${r.partNo} ${r.name} 
-      </div>
-      <div style="margin-top:5px; color:#555;">
-        數量: <span style="color:#d35400; font-weight:bold;">${r.qty} ${r.unit}</span> ${evalDisplay} | 
-        對象: ${r.person} | 經辦: ${r.staff} | 單號: ${r.orderNo}
-      </div>
-    `;
+    item.innerHTML = `<button class="btn-delete" onclick="deleteRecord(${r.id})">刪除</button><div style="font-weight:900; color:var(--ukiyo-deep-blue)">${r.date} | 【${r.type}】 ${r.partNo} ${r.name} </div><div style="margin-top:5px; color:#555;">數量: <span style="color:#d35400; font-weight:bold;">${r.qty} ${r.unit}</span> ${evalDisplay} | 對象: ${r.person} | 經辦: ${r.staff} | 單號: ${r.orderNo}</div>`;
     list.appendChild(item);
   });
 }
@@ -1276,25 +1114,16 @@ function renderLog() {
 function deleteRecord(id) {
   if(!confirm("確定刪除此紀錄？將影響庫存計算。")) return;
   let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
-  
-  // 透過 ID 過濾刪除
   records = records.filter(r => r.id !== id);
-  
   localStorage.setItem('materialRecords', JSON.stringify(records));
-  renderLog();
-  renderInventoryTable();
+  renderLog(); renderInventoryTable();
 }
 
-// --- 修改點：新增清空所有紀錄功能 ---
 function clearAllRecords() {
     if(!confirm("警告：此操作將刪除「所有」歷史紀錄（包含領退料、進貨、調撥），庫存計算將會改變且無法復原！\n\n確定執行？")) return;
-    
-    // 清空
     localStorage.removeItem('materialRecords');
-    
     alert("所有異動紀錄已清空。");
-    renderLog();
-    renderInventoryTable();
+    renderLog(); renderInventoryTable();
 }
 
 function filterRecords() {
@@ -1302,16 +1131,13 @@ function filterRecords() {
   const sName = document.getElementById('searchStaff').value.toLowerCase();
   const pNo = document.getElementById('searchPartNo').value.toLowerCase();
   const month = document.getElementById('searchMonth').value;
-
   document.querySelectorAll('.record-li').forEach(item => {
     let txt = item.innerText.toLowerCase();
     let dateTxt = item.querySelector('div').innerText;
-    
     let matchPerson = !pName || txt.includes(pName);
     let matchStaff = !sName || txt.includes(sName);
     let matchPart = !pNo || txt.includes(pNo);
     let matchDate = !month || dateTxt.includes(month);
-
     item.style.display = (matchPerson && matchStaff && matchPart && matchDate) ? 'block' : 'none';
   });
 }
@@ -1324,44 +1150,24 @@ function clearFilters() {
   filterRecords();
 }
 
-// --- Excel 匯出 ---
 function openExportModal() { document.getElementById('exportModal').style.display = 'flex'; }
 function closeExportModal() { document.getElementById('exportModal').style.display = 'none'; }
-
 function confirmExport() {
   let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
   const start = document.getElementById('exportStart').value;
   const end = document.getElementById('exportEnd').value;
-  if(start && end) {
-     const sDate = new Date(start);
-     const eDate = new Date(end);
-     records = records.filter(r => {
-        let rDate = new Date(r.date);
-        return rDate >= sDate && rDate <= eDate;
-     });
-  }
-
+  if(start && end) { const sDate = new Date(start); const eDate = new Date(end); records = records.filter(r => { let rDate = new Date(r.date); return rDate >= sDate && rDate <= eDate; }); }
   const checkboxes = document.querySelectorAll('.export-col:checked');
   const cols = Array.from(checkboxes).map(cb => cb.value);
-  const colMap = {
-    date: "日期", type: "類型", orderNo: "單號", partNo: "料號",
-    name: "品名", qty: "數量", unit: "單位", person: "對象",
-    staff: "經辦", evalType: "評價類型", timestamp: "時間戳記"
-  };
-  let data = records.map(r => {
-    let row = {};
-    cols.forEach(col => { row[colMap[col]] = r[col] || ""; });
-    return row;
-  });
+  const colMap = { date: "日期", type: "類型", orderNo: "單號", partNo: "料號", name: "品名", qty: "數量", unit: "單位", person: "對象", staff: "經辦", evalType: "評價類型", timestamp: "時間戳記" };
+  let data = records.map(r => { let row = {}; cols.forEach(col => { row[colMap[col]] = r[col] || ""; }); return row; });
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "MaterialData");
   XLSX.writeFile(wb, `Material_Export_${new Date().toISOString().slice(0,10)}.xlsx`);
-  
   closeExportModal();
 }
 
-// --- 預警與分析 ---
 function setSafetyStock() {
   const pNo = document.getElementById('safePartNo').value;
   const qty = document.getElementById('safeQty').value;
@@ -1378,7 +1184,6 @@ function runAnalysis() {
   const safe = JSON.parse(localStorage.getItem('safeStock')) || {};
   const inventory = getInventoryMap();
   let html = "";
-  
   let totalValidStock = {};
   for(let key in inventory) {
       let item = inventory[key];
@@ -1387,87 +1192,38 @@ function runAnalysis() {
           totalValidStock[item.pNo] += item.total;
       }
   }
-
   for(let pNo in safe) {
     let current = totalValidStock[pNo] || 0;
     let limit = safe[pNo];
     let name = materials[pNo] ? materials[pNo].name : pNo;
-    if(current < limit) {
-       html += `
-         <div style="background:#fff; border-left:5px solid red; padding:15px; margin-bottom:10px; border-radius:5px;">
-            <div style="font-weight:bold; color:#c0392b;">⚠️ 庫存不足警報</div>
-            <div>${pNo} ${name}</div>
-            <div>目前新品庫存: <strong>${current}</strong> (安全存量: ${limit})</div>
-            <div style="font-size:0.8rem; color:#666;">建議盡快請購或調撥</div>
-         </div>
-       `;
-    }
+    if(current < limit) { html += `<div style="background:#fff; border-left:5px solid red; padding:15px; margin-bottom:10px; border-radius:5px;"><div style="font-weight:bold; color:#c0392b;">⚠️ 庫存不足警報</div><div>${pNo} ${name}</div><div>目前新品庫存: <strong>${current}</strong> (安全存量: ${limit})</div><div style="font-size:0.8rem; color:#666;">建議盡快請購或調撥</div></div>`; }
   }
-  
   if(html === "") html = "<div style='text-align:center; color:green; padding:20px;'>✅ 目前所有新品庫存皆在安全水位之上</div>";
   report.innerHTML = html;
 }
 
-// --- 歷史統計 ---
 function searchHistoryByInput() {
     let input = document.getElementById('historySearchInput').value;
     if(!input) return;
-    for(let pNo in materials) {
-        if(pNo.includes(input) || materials[pNo].name.includes(input)) {
-            selectMaterial(pNo, 'history');
-            return;
-        }
-    }
+    for(let pNo in materials) { if(pNo.includes(input) || materials[pNo].name.includes(input)) { selectMaterial(pNo, 'history'); return; } }
     alert("找不到相關料號");
 }
 
 function calculateUsageHistory() {
     if(!selectedPartNo) { alert("請先搜尋或選擇料號"); return; }
-    
     document.getElementById('historyResult').style.display = "block";
     let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
     let targets = records.filter(r => r.partNo === selectedPartNo && r.type === "領料");
-    let total = 0;
-    let monthly = new Array(12).fill(0);
-    let quarterly = new Array(4).fill(0);
-    let years = new Set();
-    targets.forEach(r => {
-        let d = new Date(r.date);
-        let qty = parseInt(r.qty);
-        total += qty;
-        monthly[d.getMonth()] += qty;
-        quarterly[Math.floor(d.getMonth() / 3)] += qty;
-        years.add(d.getFullYear());
-    });
+    let total = 0; let monthly = new Array(12).fill(0); let quarterly = new Array(4).fill(0); let years = new Set();
+    targets.forEach(r => { let d = new Date(r.date); let qty = parseInt(r.qty); total += qty; monthly[d.getMonth()] += qty; quarterly[Math.floor(d.getMonth() / 3)] += qty; years.add(d.getFullYear()); });
     document.getElementById('totalUsage').innerText = total;
     document.getElementById('avgYearly').innerText = years.size > 0 ? (total / years.size).toFixed(1) : total;
-    
-    document.getElementById('season1').innerText = quarterly[0];
-    document.getElementById('season2').innerText = quarterly[1];
-    document.getElementById('season3').innerText = quarterly[2];
-    document.getElementById('season4').innerText = quarterly[3];
-    
     let mHtml = "";
-    ["一","二","三","四","五","六","七","八","九","十","十一","十二"].forEach((m, i) => {
-        let val = monthly[i];
-        let barH = total > 0 ? (val/total)*50 : 0;
-        mHtml += `
-            <div>
-                <div style="height:30px; display:flex; align-items:flex-end; justify-content:center;">
-                    <div style="width:10px; background:#3498db; height:${Math.max(barH, 2)}px;"></div>
-                </div>
-                <div style="font-weight:bold;">${val}</div>
-                <div style="color:#888;">${m}月</div>
-            </div>
-        `;
-    });
+    ["一","二","三","四","五","六","七","八","九","十","十一","十二"].forEach((m, i) => { let val = monthly[i]; let barH = total > 0 ? (val/total)*50 : 0; mHtml += `<div><div style="height:30px; display:flex; align-items:flex-end; justify-content:center;"><div style="width:10px; background:#3498db; height:${Math.max(barH, 2)}px;"></div></div><div style="font-weight:bold;">${val}</div><div style="color:#888;">${m}月</div></div>`; });
     document.getElementById('monthlyStats').innerHTML = mHtml;
 }
 
-function toggleSignature(el) {
-    let span = document.getElementById('sigName');
-    span.hidden = !span.hidden;
-}
+function toggleSignature(el) { let span = document.getElementById('sigName'); span.hidden = !span.hidden; }
 </script>
 </body>
 </html>
