@@ -2,8 +2,8 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>材料管理系統 </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>材料管理系統 v2.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
@@ -30,6 +30,7 @@
       color: #1a202c;
       background-color: var(--ukiyo-sky);
       min-height: 100vh;
+      overflow-x: hidden; /* 防止手機橫向滾動 */
     }
 
     /* 背景動畫層 */
@@ -51,7 +52,7 @@
     .wave-front { z-index: 4; height: 35%; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%231D3B56' fill-opacity='1' d='M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E"); animation: moveWave 10s linear infinite; }
     @keyframes moveWave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-    /* Excel 匯出按鈕 */
+    /* Excel 匯出按鈕 (修正手機版位置) */
     .excel-btn {
       position: fixed;
       top: 20px;
@@ -75,7 +76,7 @@
       background-color: #1e6b40;
     }
 
-    /* Modal (彈窗) 樣式 */
+    /* Modal (彈窗) 樣式 (修正手機版寬度) */
     .modal-overlay {
       display: none;
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -84,15 +85,19 @@
       justify-content: center;
       align-items: center;
       backdrop-filter: blur(5px);
+      padding: 10px; /* 增加邊距 */
+      box-sizing: border-box;
     }
     .modal-content {
       background: white;
       padding: 25px;
       border-radius: 15px;
-      width: 90%;
+      width: 100%;
       max-width: 500px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
       position: relative;
+      max-height: 90vh; /* 防止超出高度 */
+      overflow-y: auto; /* 內容過長可捲動 */
     }
     .modal-header {
       font-size: 1.2rem;
@@ -139,24 +144,29 @@
       border: 2px solid #D4AF37; margin-bottom: 25px;
     }
 
-    /* Tab 導航列 */
+    /* Tab 導航列 (修正手機可滑動) */
     .nav-tabs {
-      display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+      display: flex; gap: 10px; margin-bottom: 20px; 
+      overflow-x: auto; /* 允許橫向滑動 */
+      padding-bottom: 5px; /* 預留捲軸空間 */
+      -webkit-overflow-scrolling: touch;
+      flex-wrap: nowrap; /* 不換行 */
     }
     .nav-btn {
-      flex: 1; padding: 12px; border: none; border-radius: 8px;
+      flex: 0 0 auto; /* 不壓縮 */
+      padding: 12px; border: none; border-radius: 8px;
       background: rgba(255,255,255,0.6); font-weight: 700; color: var(--ukiyo-deep-blue);
       cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      min-width: 110px;
+      white-space: nowrap; /* 文字不換行 */
     }
     .nav-btn.active {
       background: var(--ukiyo-deep-blue); color: #fff;
       transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2);
     }
     /* 特別標註進貨調撥按鈕 */
-    .nav-btn-transfer {
-      border-bottom: 3px solid var(--warning-orange);
-    }
+    .nav-btn-transfer { border-bottom: 3px solid var(--warning-orange); }
+    /* 新功能按鈕 */
+    .nav-btn-history { border-bottom: 3px solid #8e44ad; }
 
     .container-3d { 
       background: var(--glass-bg); backdrop-filter: blur(10px); 
@@ -188,7 +198,7 @@
     }
 
     /* 列表與表格樣式 */
-    #materialsContainer { 
+    .materials-container { 
       display: flex; flex-direction: column; gap: 8px; 
       max-height: 200px; overflow-y: auto; 
       padding: 10px; border: 1px solid #ddd; border-radius: 8px; 
@@ -215,13 +225,28 @@
     /* 庫存表格 */
     .stock-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     .stock-table th, .stock-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-    .stock-table th { background-color: var(--ukiyo-foam); color: var(--ukiyo-deep-blue); }
-    .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; color: white; }
+    .stock-table th { background-color: var(--ukiyo-foam); color: var(--ukiyo-deep-blue); white-space: nowrap; }
+    .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; color: white; white-space: nowrap; }
     .status-ok { background-color: var(--safe-green); }
     .status-low { background-color: var(--danger-red); }
     .status-warn { background-color: var(--warning-orange); }
 
-    /* 模式切換 Toggle (Updated for 3 items) */
+    /* 歷史紀錄分析卡片 */
+    .history-card {
+        background: #fff; border-radius: 12px; padding: 15px;
+        margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+    }
+    .history-stat-grid {
+        display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px;
+    }
+    .stat-box {
+        background: var(--ukiyo-foam); padding: 10px; border-radius: 8px; text-align: center;
+    }
+    .stat-val { font-size: 1.2rem; font-weight: 900; color: var(--ukiyo-deep-blue); }
+    .stat-label { font-size: 0.8rem; color: #666; }
+
+    /* 模式切換 Toggle */
     .mode-toggle {
       display: flex; background: #ddd; border-radius: 10px; padding: 5px; margin-bottom: 20px;
     }
@@ -239,17 +264,20 @@
 
     @media (max-width: 600px) { 
       .form-row, .form-row-3 { grid-template-columns: 1fr; } 
-      .nav-tabs { gap: 5px; }
-      .nav-btn { font-size: 0.9rem; padding: 8px; }
+      .nav-btn { font-size: 0.9rem; padding: 8px 12px; }
+      .excel-btn { top: auto; bottom: 80px; right: 20px; left: auto; border-radius: 50%; width: 50px; height: 50px; padding: 0; justify-content: center; }
       .excel-btn span { display: none; }
+      .excel-btn::after { content: "📊"; font-size: 1.5rem; }
       .checkbox-grid { grid-template-columns: 1fr; }
+      .container-3d { padding: 20px; }
+      .stock-table th, .stock-table td { font-size: 0.85rem; padding: 8px; }
     }
   </style>
 </head>
 <body>
 
   <button class="excel-btn" onclick="openExportModal()">
-    📊 <span>匯出資料選擇</span>
+    <span>📊 匯出資料</span>
   </button>
 
   <div id="exportModal" class="modal-overlay">
@@ -274,7 +302,7 @@
           <label class="checkbox-item"><input type="checkbox" class="export-col" value="name" checked> 品名/規格</label>
           <label class="checkbox-item"><input type="checkbox" class="export-col" value="qty" checked> 數量</label>
           <label class="checkbox-item"><input type="checkbox" class="export-col" value="unit" checked> 單位</label>
-          <label class="checkbox-item"><input type="checkbox" class="export-col" value="person" checked> 對象(人/單位/倉庫)</label>
+          <label class="checkbox-item"><input type="checkbox" class="export-col" value="person" checked> 對象(人/單位)</label>
           <label class="checkbox-item"><input type="checkbox" class="export-col" value="staff" checked> 經辦人</label>
           <label class="checkbox-item"><input type="checkbox" class="export-col" value="evalType"> 評價類型</label>
           <label class="checkbox-item"><input type="checkbox" class="export-col" value="timestamp"> 紀錄時間戳記</label>
@@ -282,7 +310,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn-modal-cancel" onclick="closeExportModal()">取消</button>
-        <button class="btn-modal-confirm" onclick="confirmExport()">確認匯出 Excel</button>
+        <button class="btn-modal-confirm" onclick="confirmExport()">確認匯出</button>
       </div>
     </div>
   </div>
@@ -303,8 +331,9 @@
       <button class="nav-btn active" onclick="switchTab('input')">📝 資料輸入</button>
       <button class="nav-btn" onclick="switchTab('search')">🔍 歷史查詢</button>
       <button class="nav-btn" onclick="switchTab('inventory')">📦 即時庫存</button>
+      <button class="nav-btn nav-btn-transfer" onclick="switchTab('transfer')">🚚 進貨/調撥</button>
+      <button class="nav-btn nav-btn-history" onclick="switchTab('history')">📜 歷史用料紀錄</button>
       <button class="nav-btn" onclick="switchTab('analysis')">📊 分析與預測</button>
-      <button class="nav-btn nav-btn-transfer" onclick="switchTab('transfer')">🚚 進貨/調撥/移轉</button>
     </div>
 
     <div id="tab-input" class="container-3d active">
@@ -332,7 +361,7 @@
         </div>
 
         <h3 class="section-title">貳、材料選擇</h3>
-        <select id="category" onchange="renderMaterials()">
+        <select id="category" onchange="renderMaterials('input')">
           <option value="">-- 請選擇材料類別 --</option>
           <option value="A">A 類 (礙子)</option>
           <option value="B">B 類 (鐵件)</option>
@@ -342,7 +371,7 @@
           <option value="D">D 類 (電表)</option>
         </select>
 
-        <div id="materialsContainer">
+        <div id="materialsContainer_input" class="materials-container">
           <div style="color:#888; text-align:center; padding:20px;">請先選擇類別或輸入料號</div>
         </div>
 
@@ -384,9 +413,25 @@
       <h3 class="section-title">📦 庫存設定與查詢</h3>
       <div class="form-row-3" style="background: var(--ukiyo-foam); padding:15px; border-radius:10px; margin-bottom:20px;">
         <div style="grid-column: 1 / -1;"><strong>🔧 設定初始庫存</strong></div>
-        <div><label>料號</label><input type="text" id="stockPartNo" placeholder="輸入完整料號"></div>
+        
+        <div style="grid-column: 1 / -1; margin-bottom: 10px;">
+             <label>選擇類別 (輔助帶入)</label>
+             <select id="category_stock" onchange="renderMaterials('stock')">
+              <option value="">-- 請選擇材料類別 --</option>
+              <option value="A">A 類 (礙子)</option>
+              <option value="B">B 類 (鐵件)</option>
+              <option value="C">C 類 (線材)</option>
+              <option value="F">F 類 (變壓器)</option>
+              <option value="H">H 類 (開關)</option>
+              <option value="D">D 類 (電表)</option>
+            </select>
+            <div id="materialsContainer_stock" class="materials-container" style="display:none; margin-bottom:10px;"></div>
+        </div>
+
+        <div><label>料號</label><input type="text" id="stockPartNo" placeholder="輸入或選擇..." oninput="handleStockPartNoInput(this.value)"></div>
         <div><label>初始數量</label><input type="number" id="stockInitQty" placeholder="0"></div>
         <div><label>動作</label><button class="btn-search" style="width:100%" onclick="setInitialStock()">設定/更新</button></div>
+        <div style="grid-column: 1 / -1;"><small style="color:#666">目前選擇: <span id="stockSelectedName">無</span></small></div>
       </div>
       
       <div><label>🔍 快速過濾庫存表</label><input type="text" id="filterStockInput" placeholder="輸入料號或品名..." oninput="renderInventoryTable()"></div>
@@ -405,18 +450,6 @@
           <tbody id="inventoryBody"></tbody>
         </table>
       </div>
-    </div>
-
-    <div id="tab-analysis" class="container-3d">
-      <h3 class="section-title">📊 存貨預警分析報告</h3>
-      <div class="form-row-3" style="background: #fff3cd; padding:15px; border-radius:10px; margin-bottom:20px;">
-        <div style="grid-column: 1 / -1;"><strong>⚠️ 設定安全存量 (預警值)</strong></div>
-        <div><label>料號</label><input type="text" id="safePartNo" placeholder="輸入完整料號"></div>
-        <div><label>安全存量</label><input type="number" id="safeQty" placeholder="例如: 10"></div>
-        <div><label>動作</label><button class="btn-search" style="background:#e67e22; width:100%" onclick="setSafetyStock()">設定預警</button></div>
-      </div>
-
-      <div id="analysisReport"></div>
     </div>
 
     <div id="tab-transfer" class="container-3d">
@@ -490,6 +523,75 @@
         </div>
 
       </div>
+    </div>
+
+    <div id="tab-history" class="container-3d">
+        <h3 class="section-title">📜 歷史用料紀錄與分析</h3>
+        <div style="background: #fff; padding:15px; border-radius:10px; margin-bottom:20px; border:1px solid #ddd;">
+            <div class="form-row">
+                <div>
+                    <label>搜尋料號或品名</label>
+                    <input type="text" id="historySearchInput" placeholder="輸入後Enter搜尋..." onchange="searchHistoryByInput()">
+                </div>
+                <div>
+                    <label>或選擇類別</label>
+                    <select id="category_history" onchange="renderMaterials('history')">
+                        <option value="">-- 類別 --</option>
+                        <option value="A">A 類</option>
+                        <option value="B">B 類</option>
+                        <option value="C">C 類</option>
+                        <option value="F">F 類</option>
+                        <option value="H">H 類</option>
+                        <option value="D">D 類</option>
+                    </select>
+                </div>
+            </div>
+            <div id="materialsContainer_history" class="materials-container" style="display:none; margin-bottom:10px;"></div>
+            
+            <button class="btn-search" style="width:100%; margin-top:10px;" onclick="calculateUsageHistory()">📊 開始計算用料統計</button>
+        </div>
+
+        <div id="historyResult" style="display:none;">
+            <div style="padding:10px; background:var(--ukiyo-mid-blue); color:white; border-radius:8px; margin-bottom:15px;">
+                <h4 style="margin:0; text-align:center;" id="historyItemTitle">品名規格</h4>
+            </div>
+
+            <div class="history-card">
+                <div style="text-align:center; margin-bottom:10px; font-weight:bold; color:#d35400;">🏆 總體用料概況</div>
+                <div class="history-stat-grid">
+                    <div class="stat-box"><div class="stat-val" id="totalUsage">0</div><div class="stat-label">歷史總用量</div></div>
+                    <div class="stat-box"><div class="stat-val" id="avgYearly">0</div><div class="stat-label">歷年平均</div></div>
+                </div>
+            </div>
+
+            <div class="history-card">
+                <div style="text-align:center; margin-bottom:10px; font-weight:bold; color:#2980b9;">📅 歷月用料總計 (1-12月)</div>
+                <div id="monthlyStats" style="display:grid; grid-template-columns: repeat(6, 1fr); gap:5px; font-size:0.8rem; text-align:center;">
+                    </div>
+            </div>
+
+            <div class="history-card">
+                <div style="text-align:center; margin-bottom:10px; font-weight:bold; color:#27ae60;">🍂 歷季用料總計</div>
+                <div class="history-stat-grid">
+                    <div class="stat-box"><div class="stat-val" id="season1">0</div><div class="stat-label">Q1 (1-3月)</div></div>
+                    <div class="stat-box"><div class="stat-val" id="season2">0</div><div class="stat-label">Q2 (4-6月)</div></div>
+                    <div class="stat-box"><div class="stat-val" id="season3">0</div><div class="stat-label">Q3 (7-9月)</div></div>
+                    <div class="stat-box"><div class="stat-val" id="season4">0</div><div class="stat-label">Q4 (10-12月)</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-analysis" class="container-3d">
+      <h3 class="section-title">📊 存貨預警分析報告</h3>
+      <div class="form-row-3" style="background: #fff3cd; padding:15px; border-radius:10px; margin-bottom:20px;">
+        <div style="grid-column: 1 / -1;"><strong>⚠️ 設定安全存量 (預警值)</strong></div>
+        <div><label>料號</label><input type="text" id="safePartNo" placeholder="輸入完整料號"></div>
+        <div><label>安全存量</label><input type="number" id="safeQty" placeholder="例如: 10"></div>
+        <div><label>動作</label><button class="btn-search" style="background:#e67e22; width:100%" onclick="setSafetyStock()">設定預警</button></div>
+      </div>
+
+      <div id="analysisReport"></div>
     </div>
 
   </div>
@@ -741,661 +843,663 @@ const rawData = {
 1004030006 高壓電容器 單相 6.9kV 200kVAR 屋外型
 1008010002 電容器用油開關 單相 14.4kV 200A 手動/電動 115Vac
 1008040003 地下四路自動線路開關 三相 24kV 600A 2S2F 24V簡易型(I量測)
-1008040009 地下四路自動線路開關 三相24kV600A 2S2F 24V標準型(V、I量測)
-1008080005 亭置式氣封開關 三相 24kV 四路 2-600A 2-200A SF6絕緣
-1008080013 亭置式開關 3相 24kV 二路 2-200A SF6絕緣 低碳鋼型
-1008080016 亭置式氣封開關 三相 24kV 四路 3-600A 1-200A SF6絕緣
-1016030015 高壓配電箱 屋外型 鐵 A類x1 單具組
-1016030040 高壓配電箱 屋外型 不鏽鋼 A類x1 單具組
-1016030042 高壓配電箱 屋外型 不鏽鋼 B類J型
-1016030043 高壓配電箱 屋外型 不鏽鋼 B類P型
-1030240010 變壓器絕緣油 35kV以上/2±0.03㎜ 145℃
-1112000015 預力電桿 9m 配電 圓型 B級
-1112000016 預力電桿 10.5m 配電 圓型 B級
-1112000018 預力電桿 12m 配電 圓型 C級
-1112000019 預力電桿 14m 配電 圓型 C級
-1112000035 預力電桿 12m 配電 圓型 E級
-1112100000 水泥腳木 空心圓形G3 φ150×1000㎜ 支線用
-1124020001 人孔蓋(含外蓋及蓋座)MC-150型外蓋φ908×80㎜蓋座φ1200×150㎜
-1124020059 手孔蓋墊座 方型 1210x810x200㎜ 混凝土
-1124060002 預力混凝土基樁 6000x250x50㎜
-3008240007 空油桶 <各種規格> R-1301`,
-  H: `1008040010 架空自動線路開關 三相 15kV 600A 24Vdc 標準型 閂鎖型無控制箱
-1008040014 架空自動線路開關 三相 25.8kV 600A 24Vdc 標準型閂鎖型無控制箱
-1008060002 手動型線路負載啟斷開關 三相 15kV 600A 屋外型 SF6
-1008060022 負載啟斷開關 三相 25.8kV 600A 屋外型 SF6 手動型
-1012010011 熔絲鏈開關 7.8/15kV 100A 10kA 屋外型 不鏽鋼固定架附被覆罩型
-1012010013 聚合型熔絲鏈開關 15/27kV 100A 12kA 屋外型 附被覆罩
-1012030002 電力保險絲座 25KV 200A 端子式
-1012030003 電力保險絲座 25KV 200A 套管式
-1012030013 限流熔絲座 15.5KV 200A 套管式
-1012030015 限流熔絲座 15.5KV 200A 端子式
-1014030008 配電級瓷套管避雷器 9KV 10KA 氧化鋅 無雷擊計數器 防鹽型
-1014030027 配電級瓷套管避雷器 9kV 10kA 氧化鋅 無雷擊計數器 一般型
-1014030028 配電級聚合套管避雷器 9KV 10KA 氧化鋅 無雷擊計數器
-1030020003 高壓被覆罩 PE 11.4kV #2 H壓接型接線環用
-1030020005 高壓被覆罩 PE 11.4kV #2 拉線夾板用(圓形開口)
-1030020007 高壓被覆罩 PE 11.4kV 477MCM H壓接型接線環用
-1030020009 高壓被覆罩 PE 11.4kV 477MCM 拉線夾板用(圓形開口)
-1030020039 高壓被覆罩 PE 22.8kV 477C圓形開口 477MCM導線、拉線夾板用
-1030020040 高壓被覆罩 PE 22.8kV 477H 477MCM導線、H壓接型接線環用
-1030020041 高壓被覆罩 PE 22.8kV #2圓形開口 #2AWG導線、拉線夾板用
-1030020042 高壓被覆罩 PE 22.8kV #2H #2AWG線、H壓接型接線環用
-1030020045 被覆罩 矽橡膠 11.4/22.8kV 避雷器用
-1100160003 接地銅棒 φ5/8"×L8' 附線夾
-1120000009 U型軋頭 UC-501
-1204100003 線路故障指示器 單相 280A(600A) 1a 2指示燈 電池
-1204100004 線路故障指示器 單相 800A(1000A) 1a 2指示燈 電池
-1204100006 線路故障指示器 單相 800A 1指示燈 電池 FIC OV-A 架空線路
-1404360028 碳鋼單眼螺帽 SGD290-D M16-N/A`,
-  D: `1002010000 低壓貫穿式比流器 0.3S級 600V 200:5A 15VA 乾式
-1002010002 低壓貫穿式比流器 0.3S級 600V 400:5A 15VA 乾式
-1002010003 低壓貫穿式比流器 0.3S級 600V 600:5A 15VA 乾式
-1002010004 低壓貫穿式比流器 0.3S級 600V 800:5A 15VA 乾式
-1002010015 高壓計費用比流器 0.3S級 12kV 20:5A 15VA 乾式
-1002010016 高壓計費用比流器 0.3S級 12kV 30:5A 15VA 乾式
-1002010017 高壓計費用比流器 0.3S級 12kV 50:5A 15VA 乾式
-1002010018 高壓計費用比流器 0.3S級 12kV 100:5A 15VA 乾式
-1002010019 高壓計費用比流器 0.3S級 12kV 200:5A 15VA 乾式
-1002010020 高壓計費用比流器 0.3S級 12kV 400:5A 15VA 乾式
-1002010025 高壓計費用比流器 0.3S級 24kV 20:5A 15VA 乾式
-1002010027 高壓計費用比流器 0.3S級 24kV 30:5A 15VA 乾式
-1002010028 高壓計費用比流器 0.3S級 24kV 50:5A 15VA 乾式
-1002010029 高壓計費用比流器 0.3S級 24kV 100:5A 15VA 乾式
-1002010030 高壓計費用比流器 0.3S級 24kV 200:5A 15VA 乾式
-1002030000 高壓計費用比壓器(非接地型) 0.3S級 12k:110V 25VA 乾式
-1002030002 高壓計費用比壓器(非接地型) 0.3S級 24k:110V 25VA 乾式
-1002050001 整套型變比器 單相二線0.3級92kV:115/65.7V 200×400:5A
-1002050004 整套型變比器 三相三線 0.3S級 69kV:115V 50×100:5A O型
-1002050005 整套型變比器 三相三線 0.3S級69kV:115V 100×200:5A O型
-1002050007 整套型變比器 三相三線 0.3S級69kV:115V 200×400:5A O型
-1002050008 整套型變比器 三相三線 0.3S級69kV:115V 400×800:5A O型
-1006010012 時控開關 單相 120Vac 10~40A 7天 24時 15分
-1310000008 瓦時計(用戶) 單相三線 110/220V 30A 指針型 附插座(100A)
-1310000010 瓦時計(用戶) 三相三線 220V 2.5A 指針型
-1310000013 瓦時計(用戶) 三相三線 220V 15A 指針型
-1310000022 瓦時計(用戶) 三相四線 220V 15A 指針型
-1310040000 電子式電表(用戶) 0.5級 單相三線 110/220V 30A
-1310040001 電子式電表(用戶) 0.5級 三相四線 120~480V 2.5A
-1310040002 電子式電表(用戶) 0.5級 三相四線 120~480V 2.5A 附記錄型
-1310040003 電子式電表(用戶) 0.5級三相四線120~480V 2.5A雙向計量附記錄型
-1310040005 電子式電表(用戶) 0.5級 三相四線 120~480V 2.5A雙向計量智慧型
-1310040006 電子式電表(用戶) 0.5級 三相四線 120~480V 30A
-1310040007 電子式電表(用戶) 0.5級 三相四線 120~480V 30A 附記錄型
-1310040011 電子式電表(用戶) 0.5級單相三線110~220V 30A 雙向計量附記錄型
-1310040012 電子式電表(用戶) 0.5級三相四線120~480V 30A 雙向計量附記錄型
-1310040022 電子式電表(用戶) 0.5級 單相三線 110/220V 30A單向計量附記錄型
-1310040027 模組化智慧型電表 0.5級 三相四線 110~480V 30A 雙向計量 斷復電
-1310040028 模組化智慧型電表 0.5級 三相四線 110~480V 2.5A 雙向計量
-1310040029 模組化智慧型電表 0.5級 三相四線 110~480V 30A 雙向計量
-1310040030 模組化智慧型電表 0.5級 單相三線 110/220V 30A 雙向計量 附底座
-1310040032 模組化智慧型電表 0.5級 單相三線 110/220V 30A 雙向計量
-1310070000 光學通訊埠 RS-232或USB 9600bps 無線裝置
-1310080003 讀表介面單元 4G通訊模式(可向下相容3G/GPRS) 4具/日
-1310240001 PCR封印鎖 A型 紅色字體 附鋼絲扣
-1310240002 PCR封印鎖 B型 黑色字體 附鋼絲扣
-1310300000 電表測試開關 600V 20A 7P
-1310300001 電表測試開關 600V 20A 10P
-1915000093 扣環 1AMB20008160 單相瓦時計 I-70S 中興`
+1008040009 地下四路自動線路開關 三相24kV600A 2S2F 24V簡易型(I+V量測)
+1008040011 地下四路自動線路開關 三相24kV600A 2S2F 24VRTU型(I+V量測)
+1008040013 架空自動線路開關 三相 24kV 600A 24V RTU型
+1008040014 架空自動線路開關 三相 24kV 600A 24V 簡易型(I+V量測)
+1008040015 地下二路自動線路開關 三相 24kV 600A 24V 簡易型(I+V量測)
+1016050117 變壓器箱體 亭置式變壓器用 玻璃纖維`,
+  H: `1006000012 線路開關 1P 14.4KV 600A 氣封式
+1006000016 熔絲鏈開關 14.4kV 100A
+1006000021 熔絲鏈開關 25kV 100A
+1006000025 負載啟斷開關 3P 14.4KV 600A 氣封式 自動型
+1006030018 斷路器 3P 600V 225A 屋外型
+1006030019 斷路器 3P 600V 400A 屋外型
+1006030030 斷路器 3P 600V 100A 啟斷容量10KA`,
+  D: `1016050116 電表箱 單相 320x340x190㎜
+1016050119 電表箱 三相 450x370x205㎜
+1200000001 瓦時單相插座型電表 單相三線式 110/220V 30(200)A 60Hz
+1200000003 瓦時三相插座型電表 三相三線式 110-220V 30(200)A 60Hz
+1200000005 瓦時三相插座型電表 三相四線式 220/380V 30(200)A 60Hz
+1200020001 瓦時單相底座型電表 單相三線式 110/220V 30(200)A 60Hz
+1200020003 瓦時三相底座型電表 三相三線式 110-220V 30(200)A 60Hz
+1200020005 瓦時三相底座型電表 三相四線式 220/380V 30(200)A 60Hz`
 };
 
-  const materialDict = {};
+// --- 全域變數與初始化 ---
+const materials = {};
+let selectedMaterial = null;
+let currentMode = 'stockin';
 
-  Object.keys(rawData).forEach(key => {
-    materialDict[key] = rawData[key].split('\n').map(i => i.trim()).filter(i => i !== "");
+window.onload = function() {
+  parseRawData();
+  document.getElementById('mainDate').valueAsDate = new Date();
+  document.getElementById('transferDate').valueAsDate = new Date();
+  loadLogs();
+  renderInventoryTable();
+  updateAnalysis();
+};
+
+function parseRawData() {
+  for (const cat in rawData) {
+    const lines = rawData[cat].split('\n');
+    materials[cat] = lines.map(line => {
+      const parts = line.trim().split(' ');
+      const partNo = parts[0];
+      const name = parts.slice(1).join(' ');
+      return { partNo, name };
+    }).filter(item => item.partNo);
+  }
+}
+
+// --- 切換 Tab ---
+function switchTab(tabName) {
+  document.querySelectorAll('.container-3d').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+  
+  document.getElementById(`tab-${tabName}`).classList.add('active');
+  // 找出對應按鈕並 active (這裡簡化處理，直接根據 onclick 內容)
+  const btns = document.querySelectorAll('.nav-btn');
+  btns.forEach(btn => {
+    if(btn.onclick.toString().includes(tabName)) btn.classList.add('active');
   });
 
-  // --- 初始化與資料儲存 ---
-  let records = JSON.parse(localStorage.getItem("taipower_v3") || "[]");
-  let stockSettings = JSON.parse(localStorage.getItem("taipower_stock_settings_v3") || "{}");
-  let safetyStockSettings = JSON.parse(localStorage.getItem("taipower_safety_stock_v3") || "{}");
-  
-  let selectedItem = "";
-  let selectedPartNo = "";
-  
-  // 設定預設日期為今日
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById("mainDate").value = today;
-  document.getElementById("transferDate").value = today;
+  if (tabName === 'search') loadLogs();
+  if (tabName === 'inventory') renderInventoryTable();
+  if (tabName === 'analysis') updateAnalysis();
+}
 
-  // --- 頁面切換邏輯 ---
-  function switchTab(tabName) {
-    document.querySelectorAll('.container-3d').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-    
-    document.getElementById('tab-' + tabName).classList.add('active');
-    
-    // 按鈕對應
-    const btns = document.querySelectorAll('.nav-btn');
-    if(tabName === 'input') btns[0].classList.add('active');
-    if(tabName === 'search') { btns[1].classList.add('active'); filterRecords(); }
-    if(tabName === 'inventory') { btns[2].classList.add('active'); renderInventoryTable(); }
-    if(tabName === 'analysis') { btns[3].classList.add('active'); renderAnalysisReport(); }
-    if(tabName === 'transfer') btns[4].classList.add('active');
+// --- 顯示材料列表 (通用) ---
+// usageContext: 'input' (Tab1), 'stock' (Tab3), 'history' (Tab5)
+function renderMaterials(usageContext) {
+  let catSelectId, containerId;
+  
+  if (usageContext === 'input') {
+      catSelectId = 'category';
+      containerId = 'materialsContainer_input';
+  } else if (usageContext === 'stock') {
+      catSelectId = 'category_stock';
+      containerId = 'materialsContainer_stock';
+  } else if (usageContext === 'history') {
+      catSelectId = 'category_history';
+      containerId = 'materialsContainer_history';
   }
 
-  // --- 料號輸入處理 ---
-  function handlePartNoInput(val, mode) {
-    if(val.length >= 8) {
-      let found = null;
-      Object.values(materialDict).flat().forEach(item => {
-        if(item.startsWith(val)) found = item;
-      });
-      
-      if(found) {
-        if(mode === 'normal') {
-            selectMaterial(found);
-            // 自動切換到該類別
-            Object.keys(materialDict).forEach(key => {
-              if(materialDict[key].includes(found)) {
-                document.getElementById('category').value = key;
-                renderMaterials();
-              }
-            });
-        } else if (mode === 'transfer') {
-            document.getElementById('transferItemName').value = found.substring(11);
-        }
-      } else {
-        if(mode === 'transfer') document.getElementById('transferItemName').value = "查無此料號";
+  const cat = document.getElementById(catSelectId).value;
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  container.style.display = 'flex'; // 確保顯示
+
+  if (!cat) {
+    container.innerHTML = '<div style="color:#888; text-align:center;">請選擇材料類別</div>';
+    return;
+  }
+
+  materials[cat].forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'material-btn';
+    div.textContent = `${m.partNo} - ${m.name}`;
+    div.onclick = () => selectMaterial(m, div, usageContext);
+    container.appendChild(div);
+  });
+}
+
+function selectMaterial(m, element, usageContext) {
+  // UI Highlight
+  const containerId = (usageContext === 'input') ? 'materialsContainer_input' : 
+                      (usageContext === 'stock') ? 'materialsContainer_stock' : 'materialsContainer_history';
+  
+  document.querySelectorAll(`#${containerId} .material-btn`).forEach(b => b.classList.remove('active'));
+  element.classList.add('active');
+  
+  selectedMaterial = m;
+
+  if (usageContext === 'input') {
+      document.getElementById('partNoInput').value = m.partNo;
+      document.getElementById('qtySection').style.display = 'block';
+  } else if (usageContext === 'stock') {
+      document.getElementById('stockPartNo').value = m.partNo;
+      document.getElementById('stockSelectedName').textContent = m.name;
+      // 隱藏列表讓畫面更乾淨
+      document.getElementById('materialsContainer_stock').style.display = 'none';
+  } else if (usageContext === 'history') {
+      document.getElementById('historySearchInput').value = m.partNo;
+      // 隱藏列表
+      document.getElementById('materialsContainer_history').style.display = 'none';
+      calculateUsageHistory(); // 自動觸發計算
+  }
+}
+
+// --- 料號輸入處理 ---
+function handlePartNoInput(val, mode) {
+  if (val.length < 4) return;
+  // 尋找對應材料
+  let found = null;
+  for (const cat in materials) {
+    const match = materials[cat].find(m => m.partNo === val);
+    if (match) {
+      found = match;
+      if (mode === 'normal') {
+          document.getElementById('category').value = cat;
+          renderMaterials('input'); // 重新渲染列表
+          // 自動選中
+          setTimeout(() => {
+             const btns = document.querySelectorAll('#materialsContainer_input .material-btn');
+             btns.forEach(btn => {
+               if(btn.textContent.includes(val)) {
+                 btn.click();
+                 btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+               }
+             });
+          }, 100);
+      } else if (mode === 'transfer') {
+          document.getElementById('transferItemName').value = match.name;
       }
+      break;
     }
   }
+  if (!found && mode === 'transfer') document.getElementById('transferItemName').value = "查無此料號";
+}
 
-  // --- 渲染材料列表 ---
-  function renderMaterials() {
-    const cat = document.getElementById("category").value;
-    const container = document.getElementById("materialsContainer");
-    container.innerHTML = "";
-    
-    if(!cat) {
-      container.innerHTML = `<div style="color:#888; text-align:center; padding:20px;">請選擇類別</div>`;
-      return;
-    }
+function handleStockPartNoInput(val) {
+   if (val.length < 4) return;
+   for (const cat in materials) {
+     const match = materials[cat].find(m => m.partNo === val);
+     if(match) {
+        document.getElementById('stockSelectedName').textContent = match.name;
+        document.getElementById('category_stock').value = cat;
+        return;
+     }
+   }
+   document.getElementById('stockSelectedName').textContent = "未找到對應品名";
+}
 
-    materialDict[cat].forEach(item => {
-      const div = document.createElement("div");
-      div.className = "material-btn";
-      div.innerText = item;
-      div.onclick = () => selectMaterial(item, div);
-      container.appendChild(div);
-    });
-  }
 
-  function selectMaterial(itemText, element = null) {
-    selectedItem = itemText;
-    selectedPartNo = itemText.split(" ")[0]; // 擷取料號
-    
-    // 更新 UI
-    if(element) {
-        document.querySelectorAll(".material-btn").forEach(b => b.classList.remove("active"));
-        element.classList.add("active");
-    }
-    
-    document.getElementById("qtySection").style.display = "block";
-    document.getElementById("partNoInput").value = selectedPartNo;
-    
-    // 自動判斷單位
-    let unit = "個";
-    if(itemText.includes("線") || itemText.includes("電纜")) unit = "公尺";
-    if(itemText.includes("油")) unit = "公升";
-    document.getElementById("unit").value = unit;
-  }
+// --- 資料儲存 (Tab 1) ---
+document.getElementById('materialForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  if (!selectedMaterial) { alert('請先選擇材料'); return; }
 
-  // --- 表單提交 (領退料) ---
-  document.getElementById("materialForm").onsubmit = function(e) {
-    e.preventDefault();
-    if(!selectedItem) { alert("請選擇材料！"); return; }
-    
-    const record = {
-      date: document.getElementById("mainDate").value,
-      type: document.getElementById("transType").value,
-      orderNo: document.getElementById("orderNo").value,
-      person: document.getElementById("personName").value,
-      staff: document.getElementById("staffName").value,
-      partNo: selectedPartNo,
-      name: selectedItem.substring(11), // 去掉料號
-      qty: parseInt(document.getElementById("qty").value),
-      unit: document.getElementById("unit").value,
-      evalType: document.getElementById("evalType").value,
-      timestamp: new Date().getTime()
-    };
-    
-    saveRecord(record);
-    this.reset();
-    document.getElementById("qtySection").style.display = "none";
-    document.getElementById("category").value = "";
-    document.getElementById("materialsContainer").innerHTML = '<div style="color:#888; text-align:center; padding:20px;">請先選擇類別或輸入料號</div>';
-    alert("✅ 紀錄已儲存！");
+  const record = {
+    date: document.getElementById('mainDate').value,
+    type: document.getElementById('transType').value,
+    orderNo: document.getElementById('orderNo').value,
+    person: document.getElementById('personName').value,
+    staff: document.getElementById('staffName').value,
+    partNo: selectedMaterial.partNo,
+    name: selectedMaterial.name,
+    qty: parseInt(document.getElementById('qty').value),
+    unit: document.getElementById('unit').value,
+    evalType: document.getElementById('evalType').value,
+    timestamp: new Date().toISOString()
   };
 
-  function saveRecord(record) {
-    records.push(record);
-    localStorage.setItem("taipower_v3", JSON.stringify(records));
+  saveRecord(record);
+  alert('✅ 資料已儲存！');
+  this.reset();
+  document.getElementById('materialsContainer_input').innerHTML = '';
+  document.getElementById('qtySection').style.display = 'none';
+  selectedMaterial = null;
+  // 重置日期
+  document.getElementById('mainDate').valueAsDate = new Date();
+});
+
+function saveRecord(record) {
+  let logs = JSON.parse(localStorage.getItem('materialLogs')) || [];
+  logs.push(record);
+  localStorage.setItem('materialLogs', JSON.stringify(logs));
+  updateStockFromRecord(record);
+}
+
+// --- 庫存邏輯 ---
+function getStock() {
+  return JSON.parse(localStorage.getItem('materialStock')) || {};
+}
+
+function saveStock(stockData) {
+  localStorage.setItem('materialStock', JSON.stringify(stockData));
+}
+
+function setInitialStock() {
+  const pNo = document.getElementById('stockPartNo').value;
+  const qty = parseInt(document.getElementById('stockInitQty').value);
+  if (!pNo || isNaN(qty)) { alert('請輸入完整料號與數量'); return; }
+  
+  // 嘗試找品名
+  let pName = document.getElementById('stockSelectedName').textContent;
+  if(pName === '無' || pName === '未找到對應品名') {
+      // 嘗試再次搜尋
+      for (const cat in materials) {
+        const m = materials[cat].find(x => x.partNo === pNo);
+        if(m) { pName = m.name; break; }
+      }
   }
 
-  // --- 搜尋功能 ---
-  function filterRecords() {
-    const pName = document.getElementById("searchPerson").value.toLowerCase();
-    const sStaff = document.getElementById("searchStaff").value.toLowerCase();
-    const sPart = document.getElementById("searchPartNo").value;
-    const sMonth = document.getElementById("searchMonth").value;
-    
-    const list = document.getElementById("logList");
-    list.innerHTML = "";
-    
-    let filtered = records.filter(r => {
-      let match = true;
-      if(pName && !r.person.toLowerCase().includes(pName)) match = false;
-      if(sStaff && (!r.staff || !r.staff.toLowerCase().includes(sStaff))) match = false;
-      if(sPart && !r.partNo.includes(sPart)) match = false;
-      if(sMonth && !r.date.startsWith(sMonth)) match = false;
-      return match;
-    });
-
-    // 排序：新到舊
-    filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
-
-    if(filtered.length === 0) {
-        list.innerHTML = "<div style='text-align:center; padding:20px; color:#666;'>查無資料</div>";
-        return;
-    }
-
-    filtered.forEach((r, index) => {
-      const div = document.createElement("div");
-      div.className = "record-li";
-      // 根據類型顯示不同顏色標籤
-      let typeColor = "#666";
-      if(r.type === '領料') typeColor = "#d64545"; // 紅
-      else if(r.type === '退料' || r.type === '進貨') typeColor = "#2ecc71"; // 綠
-      else if(r.type === '單位調撥' || r.type === '倉庫移轉') typeColor = "#f39c12"; // 橘
-      
-      div.innerHTML = `
-        <div style="font-weight:bold; color:var(--ukiyo-deep-blue); margin-bottom:5px;">
-           <span style="background:${typeColor}; color:white; padding:2px 6px; border-radius:4px; font-size:0.8rem;">${r.type}</span> 
-           ${r.date} - ${r.partNo}
-        </div>
-        <div style="font-size:0.95rem; color:#333;">${r.name}</div>
-        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.9rem; color:#555;">
-           <span>數量: <strong>${r.qty}</strong> ${r.unit || ''}</span>
-           <span>對象: ${r.person}</span>
-        </div>
-        <div style="font-size:0.85rem; color:#888; margin-top:4px;">單號: ${r.orderNo} | 經辦: ${r.staff || '-'}</div>
-        <button class="btn-delete" onclick="deleteRecord(${r.timestamp})">刪除</button>
-      `;
-      list.appendChild(div);
-    });
+  const stockData = getStock();
+  if (!stockData[pNo]) {
+    stockData[pNo] = { init: 0, current: 0, name: pName };
   }
   
-  function clearFilters() {
-      document.getElementById("searchPerson").value = "";
-      document.getElementById("searchStaff").value = "";
-      document.getElementById("searchPartNo").value = "";
-      document.getElementById("searchMonth").value = "";
-      filterRecords();
+  // 重新計算當前庫存 (保留異動紀錄影響，只改初始值)
+  const oldInit = stockData[pNo].init || 0;
+  const diff = qty - oldInit;
+  
+  stockData[pNo].init = qty;
+  stockData[pNo].current = (stockData[pNo].current || 0) + diff;
+  stockData[pNo].name = pName; // 更新品名
+
+  saveStock(stockData);
+  alert(`✅ 料號 ${pNo} 初始庫存設定為 ${qty}`);
+  renderInventoryTable();
+  document.getElementById('stockPartNo').value = '';
+  document.getElementById('stockInitQty').value = '';
+  document.getElementById('stockSelectedName').textContent = '無';
+  document.getElementById('materialsContainer_stock').innerHTML = '';
+  document.getElementById('category_stock').value = '';
+}
+
+function updateStockFromRecord(r) {
+  const stockData = getStock();
+  if (!stockData[r.partNo]) {
+    stockData[r.partNo] = { init: 0, current: 0, name: r.name };
+  }
+  
+  let change = 0;
+  // 消耗類 (減少庫存)
+  if (['領料', '借用', '調出', '移出'].includes(r.type)) {
+    change = -r.qty;
+  } 
+  // 增加類 (增加庫存)
+  else if (['退料', '進貨', '調入', '移入'].includes(r.type)) {
+    change = r.qty;
   }
 
-  function deleteRecord(ts) {
-    if(confirm("確定要刪除此筆紀錄嗎？(刪除後無法復原，會影響庫存)")) {
-      records = records.filter(r => r.timestamp !== ts);
-      localStorage.setItem("taipower_v3", JSON.stringify(records));
-      filterRecords();
-      renderInventoryTable(); // 若在庫存頁面也要更新
-    }
+  stockData[r.partNo].current += change;
+  saveStock(stockData);
+}
+
+function renderInventoryTable() {
+  const stockData = getStock();
+  const logs = JSON.parse(localStorage.getItem('materialLogs')) || [];
+  const filter = document.getElementById('filterStockInput').value.toLowerCase();
+  const tbody = document.getElementById('inventoryBody');
+  tbody.innerHTML = '';
+
+  Object.keys(stockData).forEach(pNo => {
+    const item = stockData[pNo];
+    if (filter && !pNo.includes(filter) && !item.name.includes(filter)) return;
+
+    // 計算異動總計 (驗算用)
+    const totalChange = item.current - item.init;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${pNo}</td>
+      <td>${item.name}</td>
+      <td>${item.init}</td>
+      <td style="color:${totalChange >=0 ? 'green':'red'}">${totalChange > 0 ? '+'+totalChange : totalChange}</td>
+      <td style="font-weight:900; font-size:1.1rem;">${item.current}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// --- 歷史查詢 (Tab 2) ---
+function loadLogs() {
+  const logs = JSON.parse(localStorage.getItem('materialLogs')) || [];
+  renderLogs(logs);
+}
+
+function renderLogs(logs) {
+  const list = document.getElementById('logList');
+  list.innerHTML = '';
+  logs.sort((a,b) => b.timestamp.localeCompare(a.timestamp)); // 新的在前
+
+  if (logs.length === 0) { list.innerHTML = '<div style="text-align:center;color:#999">尚無紀錄</div>'; return; }
+
+  logs.forEach((log, index) => {
+    const div = document.createElement('div');
+    div.className = 'record-li';
+    div.innerHTML = `
+      <div style="font-weight:bold; color:var(--ukiyo-deep-blue); margin-bottom:5px;">
+        ${log.date} | ${log.type} | 單號:${log.orderNo}
+      </div>
+      <div style="font-size:1.1rem; margin-bottom:5px;">
+        ${log.partNo} ${log.name} <span style="color:var(--danger-red); font-weight:900;">x ${log.qty} ${log.unit || ''}</span>
+      </div>
+      <div style="color:#666; font-size:0.9rem;">
+        對象: ${log.person} | 經辦: ${log.staff} ${log.evalType ? `| 評:${log.evalType}` : ''}
+      </div>
+      <button class="btn-delete" onclick="deleteLog(${index})">刪除</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function deleteLog(index) {
+  if(!confirm('確定刪除此紀錄？庫存將會回滾。')) return;
+  let logs = JSON.parse(localStorage.getItem('materialLogs')) || [];
+  const target = logs[index]; // 原始陣列因為被 sort 過，這裡 index 可能會錯，建議改用 timestamp 找
+  
+  // 簡單解法：這裡的 index 是 render 後的，需要重新對應
+  // 為了正確刪除，我們直接在 render 時傳入真實 index 太麻煩，
+  // 改為用 filter 移除特定 timestamp (假設唯一)
+  const newLogs = logs.filter(l => l.timestamp !== target.timestamp);
+  
+  // 回滾庫存
+  const stockData = getStock();
+  if (stockData[target.partNo]) {
+    let reverseChange = 0;
+    if (['領料', '借用', '調出', '移出'].includes(target.type)) reverseChange = target.qty;
+    else if (['退料', '進貨', '調入', '移入'].includes(target.type)) reverseChange = -target.qty;
+    stockData[target.partNo].current += reverseChange;
+    saveStock(stockData);
   }
 
-  // --- 庫存計算與渲染 ---
-  function calculateStock(partNo) {
-    let current = stockSettings[partNo] || 0;
-    records.forEach(r => {
-      if(r.partNo === partNo) {
-        if(r.type === '領料' || r.type === '借用') {
-            current -= r.qty;
-        } else if (r.type === '退料' || r.type === '進貨') {
-            current += r.qty;
-        } else if (r.type === '單位調撥' || r.type === '倉庫移轉') {
-            // 調撥/移轉 需看 action
-            if(r.action === 'transfer_in') current += r.qty;
-            else if(r.action === 'transfer_out') current -= r.qty;
-        }
-      }
-    });
-    return current;
-  }
+  localStorage.setItem('materialLogs', JSON.stringify(newLogs));
+  loadLogs(); // 重整
+  renderInventoryTable(); // 重整庫存
+}
 
-  function setInitialStock() {
-    const pn = document.getElementById("stockPartNo").value;
-    const q = parseInt(document.getElementById("stockInitQty").value);
-    if(pn && !isNaN(q)) {
-        stockSettings[pn] = q;
-        localStorage.setItem("taipower_stock_settings_v3", JSON.stringify(stockSettings));
-        alert(`已設定料號 ${pn} 初始庫存為 ${q}`);
-        document.getElementById("stockPartNo").value = "";
-        document.getElementById("stockInitQty").value = "";
-        renderInventoryTable();
-    } else {
-        alert("請輸入完整料號與數量");
-    }
-  }
+function filterRecords() {
+  const logs = JSON.parse(localStorage.getItem('materialLogs')) || [];
+  const pName = document.getElementById('searchPerson').value.toLowerCase();
+  const sName = document.getElementById('searchStaff').value.toLowerCase();
+  const pNo = document.getElementById('searchPartNo').value.toLowerCase();
+  const month = document.getElementById('searchMonth').value; // YYYY-MM
 
-  function renderInventoryTable() {
-    const tbody = document.getElementById("inventoryBody");
-    tbody.innerHTML = "";
+  const filtered = logs.filter(l => {
+    const matchPerson = !pName || l.person.toLowerCase().includes(pName);
+    const matchStaff = !sName || l.staff.toLowerCase().includes(sName);
+    const matchPart = !pNo || l.partNo.includes(pNo) || l.name.includes(pNo);
+    const matchDate = !month || l.date.startsWith(month);
+    return matchPerson && matchStaff && matchPart && matchDate;
+  });
+  renderLogs(filtered);
+}
+
+function clearFilters() {
+  document.getElementById('searchPerson').value = '';
+  document.getElementById('searchStaff').value = '';
+  document.getElementById('searchPartNo').value = '';
+  document.getElementById('searchMonth').value = '';
+  loadLogs();
+}
+
+// --- 進貨/調撥/移轉 (Tab 4) ---
+function setTransferMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     
-    // 找出所有出現過的料號 (包含設定過初始值的，與交易紀錄中的)
-    const allParts = new Set([...Object.keys(stockSettings), ...records.map(r => r.partNo)]);
-    const filterTxt = document.getElementById("filterStockInput").value.toLowerCase();
+    document.getElementById('stockInFields').style.display = 'none';
+    document.getElementById('transferFields').style.display = 'none';
+    document.getElementById('warehouseFields').style.display = 'none';
 
-    allParts.forEach(pn => {
-        // 查找品名
-        let name = "未知品名";
-        Object.values(materialDict).flat().forEach(item => {
-            if(item.startsWith(pn)) name = item.substring(11);
-        });
-
-        if(filterTxt && !pn.includes(filterTxt) && !name.includes(filterTxt)) return;
-
-        const init = stockSettings[pn] || 0;
-        let change = 0;
-        records.forEach(r => {
-            if(r.partNo === pn) {
-                if(r.type === '領料' || r.type === '借用') change -= r.qty;
-                else if(r.type === '退料' || r.type === '進貨') change += r.qty;
-                else if(r.type === '單位調撥' || r.type === '倉庫移轉') {
-                    if(r.action === 'transfer_in') change += r.qty;
-                    else change -= r.qty;
-                }
-            }
-        });
-
-        const current = init + change;
-        
-        // 庫存狀態燈號
-        let statusHtml = `<span class="status-badge status-ok">充足</span>`;
-        if(current <= 0) statusHtml = `<span class="status-badge status-low">缺料</span>`;
-        else if(current < 5) statusHtml = `<span class="status-badge status-warn">偏低</span>`;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${pn}</td>
-            <td>${name}</td>
-            <td>${init}</td>
-            <td style="color:${change >=0 ? 'green':'red'}">${change >0?'+':''}${change}</td>
-            <td style="font-weight:bold; font-size:1.1rem;">${current} ${statusHtml}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-  }
-
-  // --- 分析報告 (存貨預警) ---
-  function setSafetyStock() {
-      const pn = document.getElementById("safePartNo").value;
-      const q = parseInt(document.getElementById("safeQty").value);
-      if(pn && !isNaN(q)) {
-          safetyStockSettings[pn] = q;
-          localStorage.setItem("taipower_safety_stock_v3", JSON.stringify(safetyStockSettings));
-          alert(`已設定料號 ${pn} 安全存量為 ${q}`);
-          renderAnalysisReport();
-      } else {
-          alert("請輸入正確料號與數值");
-      }
-  }
-
-  function renderAnalysisReport() {
-      const div = document.getElementById("analysisReport");
-      div.innerHTML = "";
-      
-      // 計算所有庫存
-      const allParts = new Set([...Object.keys(stockSettings), ...records.map(r => r.partNo)]);
-      let warnings = [];
-
-      allParts.forEach(pn => {
-          const current = calculateStock(pn);
-          const safe = safetyStockSettings[pn] || 0; // 預設0表示未設定
-          
-          if(safe > 0 && current < safe) {
-              // 查找品名
-              let name = "未知品名";
-              Object.values(materialDict).flat().forEach(item => {
-                  if(item.startsWith(pn)) name = item.substring(11);
-              });
-              
-              warnings.push({ pn, name, current, safe });
-          }
-      });
-
-      if(warnings.length === 0) {
-          div.innerHTML = `<div style="text-align:center; padding:30px; color:green; font-weight:bold;">✅ 目前無低於安全存量之物料</div>`;
-      } else {
-          warnings.forEach(w => {
-              const itemDiv = document.createElement("div");
-              itemDiv.style.background = "#fff";
-              itemDiv.style.borderLeft = "5px solid red";
-              itemDiv.style.padding = "15px";
-              itemDiv.style.marginBottom = "10px";
-              itemDiv.style.borderRadius = "8px";
-              itemDiv.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
-              
-              itemDiv.innerHTML = `
-                  <div style="font-weight:bold; color:#d64545; font-size:1.1rem;">🚨 庫存不足警報</div>
-                  <div style="margin:5px 0;">料號：${w.pn}</div>
-                  <div style="margin:5px 0;">品名：${w.name}</div>
-                  <div style="display:flex; gap:15px; margin-top:10px;">
-                      <span style="background:#eee; padding:5px 10px; border-radius:5px;">目前庫存: <strong>${w.current}</strong></span>
-                      <span style="background:#ffeaea; color:red; padding:5px 10px; border-radius:5px;">安全存量: <strong>${w.safe}</strong></span>
-                  </div>
-              `;
-              div.appendChild(itemDiv);
-          });
-      }
-  }
-
-  // --- 進貨/調撥/移轉 邏輯 ---
-  let transferMode = 'stockin'; // 'stockin', 'transfer', 'warehouse'
-
-  function setTransferMode(mode) {
-      transferMode = mode;
-      
-      // 切換按鈕樣式
-      document.getElementById("modeStockIn").classList.remove("active");
-      document.getElementById("modeTransfer").classList.remove("active");
-      document.getElementById("modeWarehouse").classList.remove("active");
-      
-      if(mode === 'stockin') document.getElementById("modeStockIn").classList.add("active");
-      if(mode === 'transfer') document.getElementById("modeTransfer").classList.add("active");
-      if(mode === 'warehouse') document.getElementById("modeWarehouse").classList.add("active");
-      
-      // 切換顯示區域
-      document.getElementById("stockInFields").style.display = (mode === 'stockin') ? "block" : "none";
-      document.getElementById("transferFields").style.display = (mode === 'transfer') ? "block" : "none";
-      document.getElementById("warehouseFields").style.display = (mode === 'warehouse') ? "block" : "none";
-  }
-
-  // 1. 進貨入庫處理
-  function processStockIn() {
-      const orderNo = document.getElementById("transferOrderNo").value;
-      const partNo = document.getElementById("transferPartNo").value;
-      const name = document.getElementById("transferItemName").value;
-      const qty = document.getElementById("stockInQty").value;
-      const staff = document.getElementById("stockInStaff").value;
-      const date = document.getElementById("transferDate").value;
-
-      if(!orderNo || !partNo || !qty || !staff) { alert("請填寫所有欄位"); return; }
-      if(name === "查無此料號" || name === "") { alert("料號錯誤"); return; }
-
-      const record = {
-          date: date,
-          type: '進貨',
-          action: 'stockin', // 識別碼
-          orderNo: orderNo,
-          person: '廠商/總處',
-          staff: staff,
-          partNo: partNo,
-          name: name,
-          qty: parseInt(qty),
-          unit: '個', // 簡化處理
-          evalType: '0新', // 進貨預設為新
-          timestamp: new Date().getTime()
-      };
-      
-      saveRecord(record);
-      alert("✅ 進貨入庫成功！");
-      document.getElementById("stockInQty").value = "";
-      document.getElementById("transferPartNo").value = "";
-      document.getElementById("transferItemName").value = "";
-  }
-
-  // 2. 單位調撥處理
-  function processTransfer() {
-      const orderNo = document.getElementById("transferOrderNo").value;
-      const partNo = document.getElementById("transferPartNo").value;
-      const name = document.getElementById("transferItemName").value;
-      const targetUnit = document.getElementById("transferTargetUnit").value;
-      const type = document.getElementById("transferType").value; // transfer_in or transfer_out
-      const qty = document.getElementById("transferQty").value;
-      const staff = document.getElementById("transferStaff").value;
-      const date = document.getElementById("transferDate").value;
-
-      if(!orderNo || !partNo || !qty || !staff || !targetUnit) { alert("請填寫所有欄位"); return; }
-      
-      const record = {
-          date: date,
-          type: '單位調撥',
-          action: type, // 重要：用於計算庫存加減
-          orderNo: orderNo,
-          person: targetUnit, // 對象變成單位
-          staff: staff,
-          partNo: partNo,
-          name: name,
-          qty: parseInt(qty),
-          unit: '個',
-          evalType: '調撥',
-          timestamp: new Date().getTime()
-      };
-
-      saveRecord(record);
-      alert("✅ 單位調撥單已建立！");
-      document.getElementById("transferQty").value = "";
-  }
-
-  // 3. 倉庫移轉處理 (新增功能)
-  function processWarehouseTransfer() {
-      const orderNo = document.getElementById("transferOrderNo").value;
-      const partNo = document.getElementById("transferPartNo").value;
-      const name = document.getElementById("transferItemName").value;
-      const warehouse = document.getElementById("warehouseTarget").value;
-      const type = document.getElementById("warehouseType").value; // transfer_in or transfer_out
-      const qty = document.getElementById("warehouseQty").value;
-      const staff = document.getElementById("warehouseStaff").value;
-      const date = document.getElementById("transferDate").value;
-
-      if(!orderNo || !partNo || !qty || !staff) { alert("請填寫所有欄位"); return; }
-      
-      const record = {
-          date: date,
-          type: '倉庫移轉',
-          action: type, // 用於計算庫存加減
-          orderNo: orderNo,
-          person: warehouse, // 對象變成倉庫名稱
-          staff: staff,
-          partNo: partNo,
-          name: name,
-          qty: parseInt(qty),
-          unit: '個',
-          evalType: '移轉',
-          timestamp: new Date().getTime()
-      };
-
-      saveRecord(record);
-      alert("✅ 倉庫移轉單已建立！");
-      document.getElementById("warehouseQty").value = "";
-  }
-
-  // --- Excel 匯出相關功能 (Modal & Selection) ---
-  function openExportModal() {
-    document.getElementById("exportModal").style.display = "flex";
-  }
-
-  function closeExportModal() {
-    document.getElementById("exportModal").style.display = "none";
-  }
-
-  function confirmExport() {
-    // 1. 取得勾選的欄位
-    const checkboxes = document.querySelectorAll('.export-col:checked');
-    const selectedFields = Array.from(checkboxes).map(cb => cb.value);
-    
-    if(selectedFields.length === 0) {
-      alert("請至少選擇一個匯出欄位！");
-      return;
+    if (mode === 'stockin') {
+        document.getElementById('modeStockIn').classList.add('active');
+        document.getElementById('stockInFields').style.display = 'block';
+    } else if (mode === 'transfer') {
+        document.getElementById('modeTransfer').classList.add('active');
+        document.getElementById('transferFields').style.display = 'block';
+    } else if (mode === 'warehouse') {
+        document.getElementById('modeWarehouse').classList.add('active');
+        document.getElementById('warehouseFields').style.display = 'block';
     }
+}
 
-    // 2. 取得日期範圍
-    const startDate = document.getElementById("exportStart").value;
-    const endDate = document.getElementById("exportEnd").value;
+function processStockIn() {
+    const date = document.getElementById('transferDate').value;
+    const orderNo = document.getElementById('transferOrderNo').value;
+    const partNo = document.getElementById('transferPartNo').value;
+    const name = document.getElementById('transferItemName').value;
+    const qty = parseInt(document.getElementById('stockInQty').value);
+    const staff = document.getElementById('stockInStaff').value;
 
-    // 3. 欄位標題對照表 (Key -> 中文標題)
-    const headerMap = {
-      date: "異動日期",
-      type: "作業類型",
-      orderNo: "單號",
-      partNo: "料號",
-      name: "品名/規格",
-      qty: "數量",
-      unit: "單位",
-      person: "對象",
-      staff: "經辦人",
-      evalType: "評價類型",
-      timestamp: "系統時間戳"
+    if (!partNo || !qty || !staff) { alert('請填寫完整資訊'); return; }
+
+    const record = {
+        date, type: '進貨', orderNo, person: '廠商/總處', staff, partNo, name, qty, unit: '個', evalType: '', timestamp: new Date().toISOString()
     };
+    saveRecord(record);
+    alert('✅ 進貨入庫成功！');
+    clearTransferForm();
+}
 
-    // 4. 篩選資料
-    let dataToExport = records;
+function processTransfer() {
+    const date = document.getElementById('transferDate').value;
+    const orderNo = document.getElementById('transferOrderNo').value;
+    const partNo = document.getElementById('transferPartNo').value;
+    const name = document.getElementById('transferItemName').value;
+    const targetUnit = document.getElementById('transferTargetUnit').value;
+    const typeKey = document.getElementById('transferType').value; // transfer_in or transfer_out
+    const qty = parseInt(document.getElementById('transferQty').value);
+    const staff = document.getElementById('transferStaff').value;
 
-    // 4a. 日期篩選
-    if (startDate || endDate) {
-        dataToExport = dataToExport.filter(r => {
-            const rDate = new Date(r.date);
-            const start = startDate ? new Date(startDate) : new Date('1900-01-01');
-            const end = endDate ? new Date(endDate) : new Date('2100-12-31');
-            return rDate >= start && rDate <= end;
-        });
+    if (!partNo || !qty || !targetUnit) { alert('請填寫完整資訊'); return; }
+
+    const typeName = (typeKey === 'transfer_in') ? '調入' : '調出';
+    const record = {
+        date, type: typeName, orderNo, person: targetUnit, staff, partNo, name, qty, unit: '個', evalType: '', timestamp: new Date().toISOString()
+    };
+    saveRecord(record);
+    alert(`✅ ${typeName}成功！`);
+    clearTransferForm();
+}
+
+function processWarehouseTransfer() {
+    const date = document.getElementById('transferDate').value;
+    const orderNo = document.getElementById('transferOrderNo').value;
+    const partNo = document.getElementById('transferPartNo').value;
+    const name = document.getElementById('transferItemName').value;
+    const whTarget = document.getElementById('warehouseTarget').value;
+    const typeKey = document.getElementById('warehouseType').value;
+    const qty = parseInt(document.getElementById('warehouseQty').value);
+    const staff = document.getElementById('warehouseStaff').value;
+
+    if (!partNo || !qty) { alert('請填寫完整資訊'); return; }
+
+    const typeName = (typeKey === 'transfer_in') ? '移入' : '移出';
+    const record = {
+        date, type: typeName, orderNo, person: whTarget, staff, partNo, name, qty, unit: '個', evalType: '', timestamp: new Date().toISOString()
+    };
+    saveRecord(record);
+    alert(`✅ 倉庫${typeName}成功！`);
+    clearTransferForm();
+}
+
+function clearTransferForm() {
+    document.getElementById('transferPartNo').value = '';
+    document.getElementById('transferItemName').value = '';
+    document.getElementById('stockInQty').value = '';
+    document.getElementById('transferQty').value = '';
+    document.getElementById('warehouseQty').value = '';
+}
+
+// --- 歷史用料紀錄與分析 (Tab 5 - 新增) ---
+function searchHistoryByInput() {
+    const val = document.getElementById('historySearchInput').value;
+    if(val) calculateUsageHistory(val);
+}
+
+function calculateUsageHistory(directInputPartNo) {
+    let pNo = directInputPartNo;
+    
+    // 如果沒有直接傳入，嘗試從輸入框或選擇狀態拿
+    if (!pNo) {
+        pNo = document.getElementById('historySearchInput').value;
     }
 
-    if(dataToExport.length === 0) {
-        alert("此條件範圍內無資料可匯出");
+    if (!pNo && !selectedMaterial) {
+        alert("請先選擇類別選取材料，或輸入料號搜尋");
         return;
     }
+    
+    // 如果是用選擇的
+    if (!pNo && selectedMaterial) {
+        pNo = selectedMaterial.partNo;
+    }
 
-    // 5. 轉換資料格式 (只保留選取的欄位)
-    const finalData = dataToExport.map(record => {
-      let newRow = {};
-      selectedFields.forEach(field => {
-        newRow[headerMap[field]] = record[field] || "";
-      });
-      return newRow;
+    const logs = JSON.parse(localStorage.getItem('materialLogs')) || [];
+    
+    // 找出對應品名
+    let pName = "未知品名";
+    if (selectedMaterial && selectedMaterial.partNo === pNo) {
+        pName = selectedMaterial.name;
+    } else {
+        // 從 log 或 rawData 找
+        const found = logs.find(l => l.partNo === pNo);
+        if (found) pName = found.name;
+    }
+
+    // 篩選紀錄：針對該料號，且動作為「消耗性」(領料、借用)
+    // 註：是否包含「調出」視需求而定，此處主要計算使用量，故以領料為主
+    const usageLogs = logs.filter(l => 
+        l.partNo === pNo && (l.type === '領料' || l.type === '借用')
+    );
+
+    let totalUsage = 0;
+    const yearStats = {}; // { '2023': 100, '2024': 50 }
+    const monthStats = new Array(12).fill(0); // [0..11] Jan-Dec
+    const seasonStats = [0, 0, 0, 0]; // Q1, Q2, Q3, Q4
+
+    usageLogs.forEach(l => {
+        const d = new Date(l.date);
+        const y = d.getFullYear();
+        const m = d.getMonth(); // 0-11
+        const qty = parseInt(l.qty) || 0;
+
+        totalUsage += qty;
+
+        // 年統計
+        if (!yearStats[y]) yearStats[y] = 0;
+        yearStats[y] += qty;
+
+        // 月統計 (歷月累計)
+        monthStats[m] += qty;
+
+        // 季統計
+        const season = Math.floor(m / 3); // 0, 1, 2, 3
+        seasonStats[season] += qty;
     });
 
-    // 6. 執行匯出
-    const ws = XLSX.utils.json_to_sheet(finalData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "材料紀錄");
-    XLSX.writeFile(wb, `材料管理報表_${new Date().toISOString().slice(0,10)}.xlsx`);
-    
-    closeExportModal();
-  }
+    // 計算平均
+    const yearsCount = Object.keys(yearStats).length || 1;
+    const avgYearly = (totalUsage / yearsCount).toFixed(1);
 
-  // 點擊 Modal 外部關閉
-  window.onclick = function(event) {
-    const modal = document.getElementById("exportModal");
-    if (event.target == modal) {
-      closeExportModal();
+    // 渲染 UI
+    document.getElementById('historyResult').style.display = 'block';
+    document.getElementById('historyItemTitle').textContent = `${pNo} ${pName}`;
+    document.getElementById('totalUsage').textContent = totalUsage;
+    document.getElementById('avgYearly').textContent = avgYearly;
+
+    document.getElementById('season1').textContent = seasonStats[0];
+    document.getElementById('season2').textContent = seasonStats[1];
+    document.getElementById('season3').textContent = seasonStats[2];
+    document.getElementById('season4').textContent = seasonStats[3];
+
+    // 渲染月報表
+    const monthContainer = document.getElementById('monthlyStats');
+    monthContainer.innerHTML = '';
+    const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    months.forEach((mLabel, idx) => {
+        const div = document.createElement('div');
+        div.style.cssText = "background:#f9f9f9; padding:5px; border-radius:5px;";
+        div.innerHTML = `<div style="color:#666">${mLabel}</div><div style="font-weight:bold; color:#2980b9">${monthStats[idx]}</div>`;
+        monthContainer.appendChild(div);
+    });
+}
+
+
+// --- 分析預測 (Tab 6) ---
+function setSafetyStock() {
+  const pNo = document.getElementById('safePartNo').value;
+  const qty = parseInt(document.getElementById('safeQty').value);
+  if (!pNo || isNaN(qty)) { alert('請輸入'); return; }
+
+  const settings = JSON.parse(localStorage.getItem('safetyStockSettings')) || {};
+  settings[pNo] = qty;
+  localStorage.setItem('safetyStockSettings', JSON.stringify(settings));
+  alert(`✅ 料號 ${pNo} 安全存量設定為 ${qty}`);
+  updateAnalysis();
+}
+
+function updateAnalysis() {
+  const settings = JSON.parse(localStorage.getItem('safetyStockSettings')) || {};
+  const stockData = getStock();
+  const report = document.getElementById('analysisReport');
+  report.innerHTML = '';
+
+  let hasAlert = false;
+  
+  Object.keys(settings).forEach(pNo => {
+    const safeQty = settings[pNo];
+    const current = stockData[pNo] ? stockData[pNo].current : 0;
+    const name = stockData[pNo] ? stockData[pNo].name : '未知';
+
+    if (current < safeQty) {
+      hasAlert = true;
+      const div = document.createElement('div');
+      div.style.cssText = 'background:#ffebee; border-left:5px solid red; padding:15px; margin-bottom:10px; border-radius:5px;';
+      div.innerHTML = `
+        <strong>⚠️ 庫存不足警報</strong><br>
+        料號: ${pNo} (${name})<br>
+        目前庫存: <span style="color:red; font-weight:bold; font-size:1.2rem;">${current}</span> (低於安全值 ${safeQty})
+      `;
+      report.appendChild(div);
     }
-  }
+  });
 
-  function toggleSignature(el) {
+  if (!hasAlert) {
+    report.innerHTML = '<div style="text-align:center; color:green; padding:20px;">✅ 目前所有監控項目庫存正常</div>';
+  }
+}
+
+// --- Excel 匯出功能 ---
+function openExportModal() {
+  document.getElementById('exportModal').style.display = 'flex';
+}
+function closeExportModal() {
+  document.getElementById('exportModal').style.display = 'none';
+}
+function confirmExport() {
+  const logs = JSON.parse(localStorage.getItem('materialLogs')) || [];
+  if (logs.length === 0) { alert('無資料可匯出'); return; }
+
+  const start = document.getElementById('exportStart').value;
+  const end = document.getElementById('exportEnd').value;
+  const cols = Array.from(document.querySelectorAll('.export-col:checked')).map(c => c.value);
+
+  const filtered = logs.filter(l => {
+    if (start && l.date < start) return false;
+    if (end && l.date > end) return false;
+    return true;
+  });
+
+  if (filtered.length === 0) { alert('該區間無資料'); return; }
+
+  const colMap = {
+    date: '異動日期', type: '類型', orderNo: '單號', partNo: '料號',
+    name: '品名', qty: '數量', unit: '單位', person: '對象',
+    staff: '經辦人', evalType: '評價', timestamp: '紀錄時間'
+  };
+
+  const data = filtered.map(item => {
+    const row = {};
+    cols.forEach(k => row[colMap[k]] = item[k]);
+    return row;
+  });
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "材料紀錄");
+  XLSX.writeFile(wb, `Material_Log_${new Date().toISOString().slice(0,10)}.xlsx`);
+  closeExportModal();
+}
+
+function toggleSignature(el) {
     const span = document.getElementById('sigName');
     span.hidden = !span.hidden;
-  }
+}
 </script>
 </body>
 </html>
