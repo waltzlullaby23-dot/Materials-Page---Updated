@@ -929,32 +929,15 @@ function selectMaterial(pNo, context) {
   }
 }
 
-// --- 自動搜尋核心邏輯 ---
-    function handleAutoSearch(val, mode) {
-      if (val.length >= 4) { // 優化：輸入4碼以上就開始找
-        let found = null;
-        let foundCat = "";
-        for (let cat in rawData) {
-          if (rawData[cat][val]) {
-            found = { id: val, name: rawData[cat][val] };
-            foundCat = cat;
-            break;
-          }
+// 萬用料號輸入處理 (自動帶出)
+function handlePartNoInput(val, context) {
+    if (val.length === 10 && materials[val]) {
+        selectMaterial(val, context);
+        if(context === 'transfer') {
+             document.getElementById('transferItemName').value = materials[val].name;
         }
-
-        if (found) {
-          selectedMaterial = found;
-          if (mode === 'input') {
-            document.getElementById('category').value = foundCat;
-            renderMaterialList('input', val);
-          } else if (mode === 'stock') {
-            document.getElementById('stockItemDisplay').innerText = "品名：" + found.name;
-          } else if (mode === 'trans') {
-            document.getElementById('transItemDisplay').innerText = "品名：" + found.name;
-          }
-        }
-      }
     }
+}
 
 function handleStockPartNoInput(val) {
     if (val.length === 10 && materials[val]) {
