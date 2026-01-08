@@ -281,62 +281,59 @@
       <div id="logList"></div>
     </div>
 
-   <div id="tab-inventory" class="container-3d">
-  <h3 class="section-title">📦 庫存設定與查詢</h3>
-  <div class="form-row-4" style="background: var(--ukiyo-foam); padding:15px; border-radius:10px; margin-bottom:20px;">
-    <div style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center;">
-        <strong>🔧 設定初始庫存 (分評價類型設定)</strong>
-        <button onclick="clearAllInventory()" style="background: var(--danger-red); color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:0.8rem;">⚠️ 清空所有庫存</button>
-    </div>
-    
-    <div style="grid-column: 1 / -1; margin-bottom: 10px;">
-         <label>選擇類別 (輔助帶入)</label>
-         <select id="category_stock" onchange="renderMaterials('stock')">
-          <option value="">-- 請選擇材料類別 --</option>
-          <option value="A">A 類 (礙子)</option>
-          <option value="B">B 類 (鐵件)</option>
-          <option value="C">C 類 (線材)</option>
-          <option value="F">F 類 (變壓器)</option>
-          <option value="H">H 類 (開關)</option>
-          <option value="D">D 類 (電表)</option>
-        </select>
-        <div id="materialsContainer_stock" class="materials-container" style="display:none; margin-bottom:10px;"></div>
-    </div>
+    <div id="tab-inventory" class="container-3d">
+      <h3 class="section-title">📦 庫存設定與查詢</h3>
+      <div class="form-row-4" style="background: var(--ukiyo-foam); padding:15px; border-radius:10px; margin-bottom:20px;">
+        <div style="grid-column: 1 / -1;"><strong>🔧 設定初始庫存 (分評價類型設定)</strong></div>
+        
+        <div style="grid-column: 1 / -1; margin-bottom: 10px;">
+             <label>選擇類別 (輔助帶入)</label>
+             <select id="category_stock" onchange="renderMaterials('stock')">
+              <option value="">-- 請選擇材料類別 --</option>
+              <option value="A">A 類 (礙子)</option>
+              <option value="B">B 類 (鐵件)</option>
+              <option value="C">C 類 (線材)</option>
+              <option value="F">F 類 (變壓器)</option>
+              <option value="H">H 類 (開關)</option>
+              <option value="D">D 類 (電表)</option>
+            </select>
+            <div id="materialsContainer_stock" class="materials-container" style="display:none; margin-bottom:10px;"></div>
+        </div>
 
-    <div><label>料號</label><input type="text" id="stockPartNo" placeholder="輸入或選擇..." oninput="handleStockPartNoInput(this.value)"></div>
-    
-    <div><label>評價類型</label>
-       <select id="stockEvalType">
-            <option value="0新">0新</option>
-            <option value="1舊">1舊</option>
-            <option value="2待修待驗">2待修待驗</option>
-            <option value="3資產新">3資產新</option>
-            <option value="4資產舊">4資產舊</option>
-       </select>
+        <div><label>料號</label><input type="text" id="stockPartNo" placeholder="輸入或選擇..." oninput="handleStockPartNoInput(this.value)"></div>
+        
+        <div><label>評價類型</label>
+           <select id="stockEvalType">
+                <option value="0新">0新</option>
+                <option value="1舊">1舊</option>
+                <option value="2待修待驗">2待修待驗</option>
+                <option value="3資產新">3資產新</option>
+                <option value="4資產舊">4資產舊</option>
+           </select>
+        </div>
+        
+        <div><label>初始數量</label><input type="number" id="stockInitQty" placeholder="0"></div>
+        <div><label>動作</label><button class="btn-search" style="width:100%" onclick="setInitialStock()">設定/更新</button></div>
+        <div style="grid-column: 1 / -1;"><small style="color:#666">目前選擇: <span id="stockSelectedName">無</span></small></div>
+      </div>
+      
+      <div><label>🔍 快速過濾庫存表</label><input type="text" id="filterStockInput" placeholder="輸入料號或品名..." oninput="renderInventoryTable()"></div>
+      
+      <div style="overflow-x: auto;">
+        <table class="stock-table">
+          <thead>
+            <tr>
+              <th>料號</th>
+              <th>評價類型</th> <th>品名</th>
+              <th>初始</th>
+              <th>異動總計</th>
+              <th>目前庫存</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryBody"></tbody>
+        </table>
+      </div>
     </div>
-    
-    <div><label>初始數量</label><input type="number" id="stockInitQty" placeholder="0"></div>
-    <div><label>動作</label><button class="btn-search" style="width:100%" onclick="setInitialStock()">設定/更新</button></div>
-    <div style="grid-column: 1 / -1;"><small style="color:#666">目前選擇: <span id="stockSelectedName">無</span></small></div>
-  </div>
-  
-  <div><label>🔍 快速過濾庫存表</label><input type="text" id="filterStockInput" placeholder="輸入料號或品名..." oninput="renderInventoryTable()"></div>
-  
-  <div style="overflow-x: auto;">
-    <table class="stock-table">
-      <thead>
-        <tr>
-          <th>料號</th>
-          <th>評價類型</th> <th>品名</th>
-          <th>初始</th>
-          <th>異動總計</th>
-          <th>目前庫存</th>
-          <th>操作</th> </tr>
-      </thead>
-      <tbody id="inventoryBody"></tbody>
-    </table>
-  </div>
-</div>
 
     <div id="tab-transfer" class="container-3d">
       <h3 class="section-title">🚚 進貨 / 調撥 / 移轉</h3>
@@ -932,15 +929,32 @@ function selectMaterial(pNo, context) {
   }
 }
 
-// 萬用料號輸入處理 (自動帶出)
-function handlePartNoInput(val, context) {
-    if (val.length === 10 && materials[val]) {
-        selectMaterial(val, context);
-        if(context === 'transfer') {
-             document.getElementById('transferItemName').value = materials[val].name;
+// --- 自動搜尋核心邏輯 ---
+    function handleAutoSearch(val, mode) {
+      if (val.length >= 4) { // 優化：輸入4碼以上就開始找
+        let found = null;
+        let foundCat = "";
+        for (let cat in rawData) {
+          if (rawData[cat][val]) {
+            found = { id: val, name: rawData[cat][val] };
+            foundCat = cat;
+            break;
+          }
         }
+
+        if (found) {
+          selectedMaterial = found;
+          if (mode === 'input') {
+            document.getElementById('category').value = foundCat;
+            renderMaterialList('input', val);
+          } else if (mode === 'stock') {
+            document.getElementById('stockItemDisplay').innerText = "品名：" + found.name;
+          } else if (mode === 'trans') {
+            document.getElementById('transItemDisplay').innerText = "品名：" + found.name;
+          }
+        }
+      }
     }
-}
 
 function handleStockPartNoInput(val) {
     if (val.length === 10 && materials[val]) {
@@ -1245,24 +1259,23 @@ function deleteRecord(index) {
   renderInventoryTable(); // 更新庫存
 }
 
-修改：渲染歷史紀錄（增加單筆刪除）
 function filterRecords() {
-    const list = document.getElementById('logList');
-    list.innerHTML = '';
+  const pName = document.getElementById('searchPerson').value.toLowerCase();
+  const sName = document.getElementById('searchStaff').value.toLowerCase();
+  const pNo = document.getElementById('searchPartNo').value.toLowerCase();
+  const month = document.getElementById('searchMonth').value;
+
+  document.querySelectorAll('.record-li').forEach(item => {
+    let txt = item.innerText.toLowerCase();
+    let dateTxt = item.querySelector('div').innerText; // 約略抓日期
     
-    // ... 這裡保留你原本的過濾邏輯 (filteredLogs) ...
-    // 在顯示每一筆紀錄的 loop 內修改：
-    filteredLogs.forEach((log, index) => {
-        const div = document.createElement('div');
-        div.className = 'record-li';
-        div.innerHTML = `
-            <strong>[${log.date}] ${log.type} - ${log.orderNo}</strong><br>
-            料號: ${log.partNo} | 品名: ${log.name} | 評價: ${log.evalType}<br>
-            數量: ${log.qty} ${log.unit || ''} | 對象: ${log.person} | 經辦: ${log.staff}
-            <button class="btn-delete" onclick="deleteLog(${index})">刪除</button>
-        `;
-        list.appendChild(div);
-    });
+    let matchPerson = !pName || txt.includes(pName);
+    let matchStaff = !sName || txt.includes(sName);
+    let matchPart = !pNo || txt.includes(pNo);
+    let matchDate = !month || dateTxt.includes(month);
+
+    item.style.display = (matchPerson && matchStaff && matchPart && matchDate) ? 'block' : 'none';
+  });
 }
 
 function clearFilters() {
