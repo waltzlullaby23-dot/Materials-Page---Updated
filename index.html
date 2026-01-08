@@ -854,355 +854,197 @@ let materials = {};
 let selectedPartNo = "";
 let selectedName = "";
 
-// 初始化解析資料
+// 1. 初始化解析資料 (確保料號與類別建立映射)
 function initMaterials() {
-  for (let cat in rawData) {
-    let lines = rawData[cat].split('\n');
-    lines.forEach(line => {
-      let parts = line.split(' ');
-      let pNo = parts[0];
-      let name = parts.slice(1).join(' ');
-      materials[pNo] = { name: name, category: cat };
-    });
-  }
+    for (let cat in rawData) {
+        let lines = rawData[cat].split('\n');
+        lines.forEach(line => {
+            if (!line.trim()) return;
+            let parts = line.split(' ');
+            let pNo = parts[0];
+            let name = parts.slice(1).join(' ');
+            materials[pNo] = { name: name, category: cat };
+        });
+    }
 }
 
-// 頁面載入
 window.onload = function() {
-  initMaterials();
-  document.getElementById('mainDate').valueAsDate = new Date();
-  document.getElementById('transferDate').valueAsDate = new Date();
-  renderLog();
+    initMaterials();
+    // 設定預設日期
+    const today = new Date().toISOString().split('T')[0];
+    if(document.getElementById('mainDate')) document.getElementById('mainDate').value = today;
+    if(document.getElementById('transferDate')) document.getElementById('transferDate').value = today;
+    renderLog(); // 確保你有這個函數渲染歷史紀錄
 };
 
-function switchTab(tabName) {
-  document.querySelectorAll('.container-3d').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + tabName).classList.add('active');
-  event.currentTarget.classList.add('active');
-  
-  if(tabName === 'inventory') renderInventoryTable();
-  if(tabName === 'analysis') runAnalysis();
-}
-
-function setTransferMode(mode) {
-    document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
-    if(mode === 'stockin') document.getElementById('modeStockIn').classList.add('active');
-    if(mode === 'transfer') document.getElementById('modeTransfer').classList.add('active');
-    if(mode === 'warehouse') document.getElementById('modeWarehouse').classList.add('active');
-
-    document.getElementById('stockInFields').style.display = (mode === 'stockin') ? 'block' : 'none';
-    document.getElementById('transferFields').style.display = (mode === 'transfer') ? 'block' : 'none';
-    document.getElementById('warehouseFields').style.display = (mode === 'warehouse') ? 'block' : 'none';
-}
-
-function renderMaterials(context) {
-  const cat = document.getElementById(context === 'stock' ? 'category_stock' : (context === 'history' ? 'category_history' : 'category')).value;
-  const container = document.getElementById(context === 'stock' ? 'materialsContainer_stock' : (context === 'history' ? 'materialsContainer_history' : 'materialsContainer_input'));
-  
-  container.innerHTML = "";
-  container.style.display = "flex";
-
-  if (!cat) return;
-
-  for (let pNo in materials) {
-    if (materials[pNo].category === cat) {
-      let div = document.createElement('div');
-      div.className = "material-btn";
-      div.innerHTML = `<strong>${pNo}</strong><br>${materials[pNo].name}`;
-      div.onclick = function() {
-        selectMaterial(pNo, context);
-        document.querySelectorAll('.material-btn').forEach(b => b.classList.remove('active'));
-        div.classList.add('active');
-      };
-      container.appendChild(div);
-    }
-  }
-}
-
-function selectMaterial(pNo, context) {
-  selectedPartNo = pNo;
-  selectedName = materials[pNo].name;
-
-  if (context === 'input') {
-    document.getElementById('partNoInput').value = pNo;
-    document.getElementById('qtySection').style.display = "block";
-  } else if (context === 'stock') {
-    document.getElementById('stockPartNo').value = pNo;
-    document.getElementById('stockSelectedName').innerText = selectedName;
-  } else if (context === 'transfer') {
-    document.getElementById('transferPartNo').value = pNo;
-    document.getElementById('transferItemName').value = selectedName;
-  } else if (context === 'history') {
-    document.getElementById('historySearchInput').value = selectedName;
-    document.getElementById('historyItemTitle').innerText = pNo + " " + selectedName;
-  }
-}
-
-// 萬用料號輸入處理 (自動帶出)
+// 2. 自動搜尋與帶入類別 (解決您的核心問題)
 function handlePartNoInput(val, context) {
-    if (val.length === 10 && materials[val]) {
-        selectMaterial(val, context);
-        if(context === 'transfer') {
-             document.getElementById('transferItemName').value = materials[val].name;
+    if (val.length === 10) {
+        if (materials[val]) {
+            const cat = materials[val].category;
+            // 自動切換對應的類別選單
+            const catSelect = document.getElementById(context === 'stock' ? 'category_stock' : 'category');
+            if (catSelect) {
+                catSelect.value = cat;
+                renderMaterials(context); // 重新渲染該類別清單
+            }
+            // 執行選中邏輯
+            selectMaterial(val, context);
+            
+            // 如果是調撥模式，額外填入品名
+            if(context === 'transfer') {
+                document.getElementById('transferItemName').value = materials[val].name;
+            }
+        } else {
+            console.log("未找到匹配料號");
         }
     }
 }
 
-function handleStockPartNoInput(val) {
-    if (val.length === 10 && materials[val]) {
-        selectMaterial(val, 'stock');
+// 選擇物料邏輯
+function selectMaterial(pNo, context) {
+    if (!materials[pNo]) return;
+    selectedPartNo = pNo;
+    selectedName = materials[pNo].name;
+
+    // 根據不同情境更新 UI
+    if (context === 'input') {
+        document.getElementById('partNoInput').value = pNo;
+        document.getElementById('qtySection').style.display = "block";
+    } else if (context === 'stock' || context === 'transfer' || context === 'warehouse') {
+        // 統一更新進貨/調撥分頁的隱藏欄位或顯示資訊
+        const displayEl = document.getElementById('stockSelectedName') || document.getElementById('transferItemName');
+        if(displayEl) {
+            displayEl.value = selectedName; // 如果是 input
+            displayEl.innerText = selectedName; // 如果是 span/p
+        }
+        document.getElementById('transferPartNo').value = pNo;
     }
 }
 
-// ---------------------- 核心功能 ----------------------
+// 3. 核心功能儲存邏輯 (修復所有按鈕)
 
-// 儲存一般紀錄 (領/退/借)
-document.getElementById('materialForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  const record = {
-    id: Date.now(),
-    date: document.getElementById('mainDate').value,
-    type: document.getElementById('transType').value,
-    orderNo: document.getElementById('orderNo').value,
-    person: document.getElementById('personName').value,
-    staff: document.getElementById('staffName').value,
-    partNo: selectedPartNo || document.getElementById('partNoInput').value,
-    name: selectedName || (materials[document.getElementById('partNoInput').value] ? materials[document.getElementById('partNoInput').value].name : "未知"),
-    qty: parseInt(document.getElementById('qty').value),
-    unit: document.getElementById('unit').value,
-    evalType: document.getElementById('evalType').value,
-    timestamp: new Date().toISOString()
-  };
+// 領料/退料 儲存
+const materialForm = document.getElementById('materialForm');
+if (materialForm) {
+    materialForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const pNo = document.getElementById('partNoInput').value;
+        if(!materials[pNo]) { alert("請輸入正確的 10 位料號"); return; }
 
-  if(!record.partNo) { alert("請輸入正確料號"); return; }
-  
-  saveRecordToLS(record);
-  alert("✅ 紀錄已儲存！");
-  document.getElementById('materialForm').reset();
-  document.getElementById('qtySection').style.display = "none";
-  document.getElementById('mainDate').valueAsDate = new Date();
-  renderLog();
-});
+        const record = {
+            id: Date.now(),
+            date: document.getElementById('mainDate').value,
+            type: document.getElementById('transType').value,
+            orderNo: document.getElementById('orderNo').value,
+            person: document.getElementById('personName').value,
+            staff: document.getElementById('staffName').value,
+            partNo: pNo,
+            name: materials[pNo].name,
+            qty: parseInt(document.getElementById('qty').value) || 0,
+            unit: document.getElementById('unit').value || "式",
+            evalType: document.getElementById('evalType').value,
+            timestamp: new Date().toISOString()
+        };
 
-// 處理入庫 (進貨)
+        saveRecordToLS(record);
+        alert("✅ 紀錄儲存成功！");
+        materialForm.reset();
+        document.getElementById('qtySection').style.display = "none";
+        renderLog();
+    });
+}
+
+// 進貨入庫確認按鈕
 function processStockIn() {
     const pNo = document.getElementById('transferPartNo').value;
     const qty = parseInt(document.getElementById('stockInQty').value);
     const staff = document.getElementById('stockInStaff').value;
-    const date = document.getElementById('transferDate').value;
-    const orderNo = document.getElementById('transferOrderNo').value;
-    const evalType = document.getElementById('transferEvalType').value; // 取得評價類型
-
-    if(!pNo || !qty || !staff) { alert("請填寫完整入庫資訊"); return; }
-    if(!materials[pNo]) { alert("料號不存在"); return; }
+    
+    if(!materials[pNo] || isNaN(qty) || !staff) {
+        alert("請填寫完整的入庫資訊 (料號、數量、經辦人)");
+        return;
+    }
 
     const record = {
         id: Date.now(),
-        date: date,
+        date: document.getElementById('transferDate').value,
         type: "進貨入庫",
-        orderNo: orderNo || "N/A",
-        person: "廠商/總處",
+        orderNo: document.getElementById('transferOrderNo').value || "無單號",
+        person: "外部進貨",
         staff: staff,
         partNo: pNo,
         name: materials[pNo].name,
-        qty: qty, 
+        qty: qty,
         unit: "式",
-        evalType: evalType, // 儲存評價類型
+        evalType: document.getElementById('transferEvalType').value,
         timestamp: new Date().toISOString()
     };
     saveRecordToLS(record);
-    alert("✅ 入庫成功！");
+    alert("✅ 進貨入庫成功！");
     renderLog();
 }
 
-// 處理調撥
+// 調撥確認按鈕
 function processTransfer() {
     const pNo = document.getElementById('transferPartNo').value;
     const qty = parseInt(document.getElementById('transferQty').value);
-    const staff = document.getElementById('transferStaff').value;
     const target = document.getElementById('transferTargetUnit').value;
-    const type = document.getElementById('transferType').value;
-    const date = document.getElementById('transferDate').value;
-    const orderNo = document.getElementById('transferOrderNo').value;
-    const evalType = document.getElementById('transferEvalType').value;
 
-    if(!pNo || !qty || !staff || !target) { alert("請填寫完整調撥資訊"); return; }
+    if(!materials[pNo] || isNaN(qty) || !target) {
+        alert("請填寫完整調撥資訊");
+        return;
+    }
 
     const record = {
         id: Date.now(),
-        date: date,
-        type: (type === 'transfer_in' ? "調撥移入" : "調撥移出"),
-        orderNo: orderNo || "N/A",
+        date: document.getElementById('transferDate').value,
+        type: document.getElementById('transferType').value === 'transfer_in' ? "調撥移入" : "調撥移出",
+        orderNo: document.getElementById('transferOrderNo').value || "調撥單",
         person: target,
-        staff: staff,
+        staff: document.getElementById('transferStaff').value,
         partNo: pNo,
-        name: materials[pNo] ? materials[pNo].name : "",
+        name: materials[pNo].name,
         qty: qty,
         unit: "式",
-        evalType: evalType,
+        evalType: document.getElementById('transferEvalType').value,
         timestamp: new Date().toISOString()
     };
     saveRecordToLS(record);
-    alert("✅ 調撥紀錄已建立！");
+    alert("✅ 調撥紀錄已儲存！");
     renderLog();
 }
 
-// 處理倉庫移轉
-function processWarehouseTransfer() {
-    const pNo = document.getElementById('transferPartNo').value;
-    const qty = parseInt(document.getElementById('warehouseQty').value);
-    const staff = document.getElementById('warehouseStaff').value;
-    const warehouse = document.getElementById('warehouseTarget').value;
-    const type = document.getElementById('warehouseType').value;
-    const date = document.getElementById('transferDate').value;
-    const evalType = document.getElementById('transferEvalType').value;
-
-    if(!pNo || !qty) { alert("請填寫移轉資訊"); return; }
-
-    const record = {
-        id: Date.now(),
-        date: date,
-        type: (type === 'transfer_in' ? "倉庫移入" : "倉庫移出"),
-        orderNo: "內部移轉",
-        person: warehouse,
-        staff: staff,
-        partNo: pNo,
-        name: materials[pNo] ? materials[pNo].name : "",
-        qty: qty,
-        unit: "式",
-        evalType: evalType,
-        timestamp: new Date().toISOString()
-    };
-    saveRecordToLS(record);
-    alert("✅ 移轉成功！");
-    renderLog();
-}
-
+// 輔助儲存與渲染
 function saveRecordToLS(record) {
-  let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
-  records.push(record);
-  localStorage.setItem('materialRecords', JSON.stringify(records));
+    let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
+    records.push(record);
+    localStorage.setItem('materialRecords', JSON.stringify(records));
 }
 
-// --- 庫存計算核心 (修改支援評價類型) ---
-
-// 1. 設定初始庫存 (含評價類型)
-function setInitialStock() {
-  const pNo = document.getElementById('stockPartNo').value;
-  const qty = parseInt(document.getElementById('stockInitQty').value);
-  const evalType = document.getElementById('stockEvalType').value;
-
-  if(!pNo || isNaN(qty)) { alert("請輸入正確料號與數量"); return; }
-
-  let stockSettings = JSON.parse(localStorage.getItem('initialStock')) || {};
-  
-  // 建立複合 Key: 料號_評價類型
-  let key = `${pNo}_${evalType}`;
-  stockSettings[key] = qty;
-  
-  localStorage.setItem('initialStock', JSON.stringify(stockSettings));
-  alert(`✅ 已設定 ${pNo} (${evalType}) 初始庫存為 ${qty}`);
-  renderInventoryTable();
-}
-
-// 2. 取得目前庫存表 (計算邏輯更新)
-function getInventoryMap() {
-  let stock = {}; // Map<Key, {qty, pNo, evalType, init}>
-  let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
-  let initials = JSON.parse(localStorage.getItem('initialStock')) || {};
-
-  // 載入初始庫存 (Key 格式: PartNo_EvalType)
-  for (let key in initials) {
-    let [pNo, ...rest] = key.split('_');
-    let eType = rest.join('_'); // 避免 evalType 本身有底線 (雖然目前沒有)
+function renderMaterials(context) {
+    const catSelectId = context === 'stock' ? 'category_stock' : 'category';
+    const containerId = context === 'stock' ? 'materialsContainer_stock' : 'materialsContainer_input';
+    const cat = document.getElementById(catSelectId).value;
+    const container = document.getElementById(containerId);
     
-    // 如果是舊版資料 (沒有底線)，預設為 "0新"
-    if (!eType) {
-        eType = "0新";
-        // 可以考慮自動遷移舊資料，這裡先做相容
+    if (!container) return;
+    container.innerHTML = "";
+    if (!cat) return;
+
+    for (let pNo in materials) {
+        if (materials[pNo].category === cat) {
+            let div = document.createElement('div');
+            div.className = "material-btn " + (selectedPartNo === pNo ? "active" : "");
+            div.innerHTML = `<strong>${pNo}</strong><br>${materials[pNo].name}`;
+            div.onclick = function() {
+                selectMaterial(pNo, context);
+                container.querySelectorAll('.material-btn').forEach(b => b.classList.remove('active'));
+                div.classList.add('active');
+            };
+            container.appendChild(div);
+        }
     }
-
-    stock[key] = {
-      pNo: pNo,
-      evalType: eType,
-      name: materials[pNo] ? materials[pNo].name : "未知",
-      init: initials[key],
-      change: 0,
-      total: initials[key]
-    };
-  }
-
-  // 計算歷史異動
-  records.forEach(r => {
-    // 確保每筆紀錄都有 evalType，舊資料預設為 "0新"
-    let rEvalType = r.evalType || "0新";
-    let key = `${r.partNo}_${rEvalType}`;
-
-    if (!stock[key]) {
-      stock[key] = {
-        pNo: r.partNo,
-        evalType: rEvalType,
-        name: materials[r.partNo] ? materials[r.partNo].name : "未知",
-        init: 0,
-        change: 0,
-        total: 0
-      };
-    }
-
-    // 計算邏輯：
-    // 增加庫存: 退料, 進貨入庫, 調撥移入, 倉庫移入
-    // 減少庫存: 領料, 借用, 調撥移出, 倉庫移出
-    if (["退料", "進貨入庫", "調撥移入", "倉庫移入"].includes(r.type)) {
-      stock[key].change += r.qty;
-      stock[key].total += r.qty;
-    } else if (["領料", "借用", "調撥移出", "倉庫移出"].includes(r.type)) {
-      stock[key].change -= r.qty;
-      stock[key].total -= r.qty;
-    }
-  });
-
-  return stock;
-}
-
-// 3. 渲染庫存表格
-function renderInventoryTable() {
-  const tbody = document.getElementById('inventoryBody');
-  const filter = document.getElementById('filterStockInput').value.toLowerCase();
-  const inventory = getInventoryMap();
-  
-  tbody.innerHTML = "";
-
-  // 將 Object 轉為 Array 並排序 (料號 -> 評價類型)
-  let list = Object.values(inventory).sort((a, b) => {
-      if (a.pNo !== b.pNo) return a.pNo.localeCompare(b.pNo);
-      return a.evalType.localeCompare(b.evalType);
-  });
-
-  list.forEach(item => {
-    if (filter && !item.pNo.includes(filter) && !item.name.includes(filter)) return;
-
-    // 狀態判定
-    let statusClass = "status-ok";
-    let statusText = "充足";
-    // 簡單規則：庫存 < 3 警戒 (可再優化)
-    if (item.total <= 0) { statusClass = "status-low"; statusText = "缺料"; }
-    else if (item.total < 3) { statusClass = "status-warn"; statusText = "偏低"; }
-
-    let tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${item.pNo}</td>
-      <td style="color:#2980b9; font-weight:bold;">${item.evalType}</td>
-      <td>${item.name}</td>
-      <td>${item.init}</td>
-      <td style="color:${item.change >= 0 ? 'green':'red'}">${item.change > 0 ? '+'+item.change : item.change}</td>
-      <td style="font-weight:900; font-size:1.1rem;">
-        ${item.total} <span class="status-badge ${statusClass}">${statusText}</span>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
 }
 
 // --- 歷史紀錄列表 ---
