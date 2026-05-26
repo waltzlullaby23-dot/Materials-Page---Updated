@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>台電材料管理系統 — 職人優化版</title>
+  <title>材料管理系統 — 職人完全體版</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
@@ -34,14 +34,14 @@
     }
 
     .container {
-      max-width: 1300px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
     header {
       background: var(--ukiyo-deep-blue);
       color: white;
-      padding: 20px;
+      padding: 25px;
       border-radius: 12px;
       margin-bottom: 25px;
       box-shadow: 0 4px 15px rgba(29, 59, 86, 0.2);
@@ -50,9 +50,9 @@
       align-items: center;
     }
 
-    header h1 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px; }
+    header h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: 1px; }
 
-    /* 儀表板卡片 */
+    /* 頂部看板統計 */
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -76,11 +76,12 @@
     }
     .stat-card.warning { border-left-color: var(--warning-orange); }
     .stat-card.success { border-left-color: var(--success-green); }
+    .stat-card.danger { border-left-color: var(--danger-red); }
     
     .stat-title { font-size: 13px; color: #7f8c8d; font-weight: bold; margin-bottom: 5px; }
     .stat-value { font-size: 26px; font-weight: 900; color: var(--ukiyo-deep-blue); }
 
-    /* 操作控制列 */
+    /* 本地操作控制列 */
     .control-panel {
       display: flex;
       gap: 12px;
@@ -110,7 +111,7 @@
       outline: none;
     }
 
-    /* 按鈕樣式 */
+    /* 按鈕大師美化 */
     .btn {
       padding: 11px 18px;
       border: none;
@@ -125,13 +126,13 @@
     }
     .btn-primary { background-color: var(--ukiyo-mid-blue); color: white; }
     .btn-primary:hover { background-color: var(--ukiyo-deep-blue); }
-    .btn-success { background-color: var(--ukiyo-light-blue); color: white; }
-    .btn-success:hover { opacity: 0.9; }
+    .btn-success { background-color: #27ae60; color: white; }
+    .btn-success:hover { background-color: #219653; }
     .btn-danger { background-color: var(--danger-red); color: white; }
     .btn-danger:hover { background-color: #c0392b; }
     .btn-secondary { background-color: #7f8c8d; color: white; }
 
-    /* 分頁標籤 */
+    /* 分頁導覽 */
     .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 15px; gap: 10px; }
     .tab {
       padding: 12px 24px;
@@ -147,22 +148,22 @@
       font-size: 15px;
     }
 
-    /* 表格樣式 */
-    .table-container { overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    /* 表格樣式優化 */
+    .table-container { overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; }
     table { width: 100%; border-collapse: collapse; text-align: left; }
     th { background-color: var(--ukiyo-deep-blue); color: white; padding: 14px; font-size: 14px; }
     td { padding: 12px 14px; border-bottom: 1px solid #eee; font-size: 14px; vertical-align: middle; }
     tr:hover { background-color: #fcfdfe; }
 
-    /* 狀態標籤 */
+    /* 狀態色彩標籤 */
     .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
     .badge-issue { background-color: #fce4d6; color: #c65911; } 
     .badge-return { background-color: #e2efda; color: #375623; } 
     .badge-borrow { background-color: #fff2cc; color: #7f6000; } 
-    .badge-diff { background-color: #fff59d; color: #5d4037; border: 1px solid #fff59d; }
+    .badge-diff { background-color: #fff59d; color: #5d4037; border: 1px solid #fbc02d; }
     .badge-none { background-color: #f0f4f5; color: #7f8c8d; }
 
-    /* 彈出視窗 Modal */
+    /* 彈出視窗 */
     .modal {
       display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
       background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;
@@ -181,7 +182,7 @@
     }
     .form-group input:focus { border-color: var(--ukiyo-mid-blue); }
 
-    /* 關鍵字自動提示選單 */
+    /* 關鍵字智慧型下拉選單 */
     .suggestions-box {
       border: 1px solid #ccc; border-top: none; max-height: 180px; overflow-y: auto;
       background: white; position: absolute; width: 100%; z-index: 99; border-radius: 0 0 6px 6px;
@@ -195,7 +196,7 @@
 
 <div class="container">
   <header>
-    <h1>材料管理系統 🗃️ <span style="font-size: 14px; font-weight: normal; opacity: 0.8;">| 即時庫存與 ERP 對帳模組</span></h1>
+    <h1>材料管理與即時對帳系統 🗃️</h1>
     <div id="sysTime" style="font-weight: bold; font-size: 14px; opacity: 0.9;"></div>
   </header>
 
@@ -209,51 +210,79 @@
       <div class="stat-value" id="totalStockValue">0</div>
     </div>
     <div class="stat-card warning">
-      <div class="stat-title">📉 本地累計總領料量</div>
+      <div class="stat-title">📉 本日累計領料/借用數</div>
       <div class="stat-value" id="totalUsage">0</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-title">📅 年平均領料量</div>
-      <div class="stat-value" id="avgYearly">0</div>
+    <div class="stat-card danger">
+      <div class="stat-title">⚠️ 今日有發生異動料件數</div>
+      <div class="stat-value" id="todayAffectedCount">0</div>
     </div>
   </div>
 
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px;">
     <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
-      <h3 style="margin: 0 0 15px 0; color: var(--ukiyo-deep-blue); font-size: 16px;">季度領料統計 (單位: 件)</h3>
+      <h3 style="margin: 0 0 15px 0; color: var(--ukiyo-deep-blue); font-size: 16px;">季度領料統計看板 (單位: 件)</h3>
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;">
-        <div style="background:#f8f9fa; padding:10px; border-radius:6px;"><div style="color:#7f8c8d; font-size:12px;">第一季</div><div style="font-weight:bold; font-size:18px; color:var(--ukiyo-mid-blue);" id="season1">0</div></div>
-        <div style="background:#f8f9fa; padding:10px; border-radius:6px;"><div style="color:#7f8c8d; font-size:12px;">第二季</div><div style="font-weight:bold; font-size:18px; color:var(--ukiyo-mid-blue);" id="season2">0</div></div>
-        <div style="background:#f8f9fa; padding:10px; border-radius:6px;"><div style="color:#7f8c8d; font-size:12px;">第三季</div><div style="font-weight:bold; font-size:18px; color:var(--ukiyo-mid-blue);" id="season3">0</div></div>
-        <div style="background:#f8f9fa; padding:10px; border-radius:6px;"><div style="color:#7f8c8d; font-size:12px;">第四季</div><div style="font-weight:bold; font-size:18px; color:var(--ukiyo-mid-blue);" id="season4">0</div></div>
+        <div style="background:#f8f9fa; padding:10px; border-radius:6px;"><div style="color:#7f8c8d; font-size:12px;">Q1</div><div style="font-weight:bold; font-size:18px; color:var(--ukiyo-mid-blue);" id="season1">0</div></div>
+        <div style="background:#f8f9fa; padding:10px; border-radius:6px;"><div style="color:#7f8c8d; font-size:12px;">Q2</div><div style="font-weight:bold; font-size:18px; color:var(--ukiyo-mid-blue);" id="season2">0</div></div>
+        <div style="background:#f8f9fa; padding:10px; border-radius:6px;"><div style="color:#7f8c8d; font-size:12px;">Q3</div><div style="font-weight:bold; font-size:18px; color:var(--ukiyo-mid-blue);" id="season3">0</div></div>
+        <div style="background:#f8f9fa; padding:10px; border-radius:6px;"><div style="color:#7f8c8d; font-size:12px;">Q4</div><div style="font-weight:bold; font-size:18px; color:var(--ukiyo-mid-blue);" id="season4">0</div></div>
       </div>
     </div>
     <div class="card">
-      <h3 style="margin: 0 0 10px 0; color: var(--ukiyo-deep-blue); font-size: 16px;">12個月本地領料趨勢圖</h3>
+      <h3 style="margin: 0 0 10px 0; color: var(--ukiyo-deep-blue); font-size: 16px;">年度 12 個月本地異動趨勢圖</h3>
       <div id="monthlyChart" style="display: flex; justify-content: space-between; align-items: flex-end; height: 75px; padding-top: 5px;">
         </div>
     </div>
   </div>
 
+  <div class="card" style="border: 2px solid var(--ukiyo-mid-blue); background-color: #fff;">
+    <h2 style="margin-top: 0; color: var(--ukiyo-deep-blue); font-size: 18px; display: flex; align-items: center; gap: 8px;">
+      ✨ 今日物料變更與差異追蹤清單 <span style="font-size: 12px; font-weight: normal; color: #666;">(上傳 Excel 後將自動依據今日數據增減更新)</span>
+    </h2>
+    <div class="table-container" style="margin-bottom: 0; max-height: 250px; overflow-y: auto;">
+      <table id="todayChangeTable">
+        <thead>
+          <tr>
+            <th style="background-color: var(--ukiyo-mid-blue);">物料編號</th>
+            <th style="background-color: var(--ukiyo-mid-blue);">名稱規範</th>
+            <th style="background-color: var(--ukiyo-mid-blue);">原庫存量 (Excel)</th>
+            <th style="background-color: var(--ukiyo-mid-blue);">今日領料 (-)</th>
+            <th style="background-color: var(--ukiyo-mid-blue);">今日借用 (-)</th>
+            <th style="background-color: var(--ukiyo-mid-blue);">今日退料 (+)</th>
+            <th style="background-color: var(--ukiyo-mid-blue);">更新後最新庫存</th>
+            <th style="background-color: var(--ukiyo-mid-blue);">淨增減變化</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="8" style="text-align: center; color: #999; padding: 20px;">💡 尚未偵測到今日物料變動。請先於下方登記異動，或匯入最新 Excel 檔自動計算！</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <br>
+
   <div class="tabs">
-    <div class="tab active" id="tabMaterials" onclick="switchTab('materials')">📋 庫存管理與即時差異</div>
-    <div class="tab" id="tabLogs" onclick="switchTab('logs')">🪵 本地異動歷史日誌</div>
+    <div class="tab active" id="tabMaterials" onclick="switchTab('materials')">📋 庫存總表與即時庫存</div>
+    <div class="tab" id="tabLogs" onclick="switchTab('logs')">🪵 本地歷史異動日誌</div>
   </div>
 
   <div class="control-panel">
-    <input type="text" id="searchInput" class="search-input" placeholder="🔍 輸入物料編號、品名關鍵字快速搜尋..." oninput="renderData()">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 輸入物料編號、品名關鍵字快速過濾搜尋..." oninput="renderData()">
     
     <select id="diffFilter" class="select-filter" onchange="renderData()">
-      <option value="all">顯示所有物料檔</option>
-      <option value="diff">⚠️ 僅顯示有本地異動 (有差異) 的物料</option>
+      <option value="all">顯示完整料件庫存檔</option>
+      <option value="diff">⚠️ 僅顯示今日有發生差異異動的項目</option>
     </select>
 
-    <button class="btn btn-primary" onclick="openTxModal('')">＋ 登記領/退/借料</button>
+    <button class="btn btn-primary" onclick="openTxModal('')">＋ 登記領/退/借料單</button>
     
     <button class="btn btn-success" onclick="document.getElementById('excelFileInput').click()">📥 匯入 ERP 庫存 Excel</button>
     <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display:none;">
     
-    <button class="btn btn-danger" onclick="clearAllTransactions()">🧹 清空本地異動 (平帳)</button>
+    <button class="btn btn-danger" onclick="clearAllTransactions()">🧹 歸零清空本地異動 (平帳)</button>
   </div>
 
   <div id="materialsSection" class="table-container">
@@ -267,11 +296,11 @@
 
 <div id="txModal" class="modal">
   <div class="modal-content">
-    <h3 style="margin-top:0; color:var(--ukiyo-deep-blue); border-bottom:2px solid var(--ukiyo-foam); padding-bottom:10px;">📝 新增本地料件異動登記</h3>
+    <h3 style="margin-top:0; color:var(--ukiyo-deep-blue); border-bottom:2px solid var(--ukiyo-foam); padding-bottom:10px;">📝 新增本地料件變更登記</h3>
     <form id="txForm">
       <div class="form-group">
         <label for="txMaterialId">物料編號 (料號)</label>
-        <input type="text" id="txMaterialId" placeholder="請輸入台電料號..." autocomplete="off" required>
+        <input type="text" id="txMaterialId" placeholder="請輸入或黏貼台電料號..." autocomplete="off" required>
         <div id="suggestions" class="suggestions-box"></div>
       </div>
       
@@ -287,8 +316,8 @@
           <label for="txType">異動類型</label>
           <select id="txType">
             <option value="領料">領料 (庫存扣減 -)</option>
-            <option value="退料">退料 (庫存增加 +)</option>
             <option value="借用">借用 (庫存扣減 -)</option>
+            <option value="退料">退料 (庫存增加 +)</option>
           </select>
         </div>
         <div class="form-group">
@@ -304,7 +333,7 @@
 
       <div class="form-group">
         <label for="txNote">備註說明</label>
-        <input type="text" id="txNote" placeholder="例如：領料工程名稱、借用人、退料原因等">
+        <input type="text" id="txNote" placeholder="輸入工程名稱、借用人、或原因說明等">
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
@@ -316,17 +345,17 @@
 </div>
 
 <script>
-  // 1. 初始化 Dexie 本地資料庫
-  const db = new Dexie("TaiPowerMaterialDB");
+  // 1. 初始化 Dexie 本地內嵌高防錯資料庫
+  const db = new Dexie("TaiPowerProMaterialDB");
   db.version(1).stores({
     materials: 'id, name, rating, unit, location, erpStock',
     transactions: '++id, materialId, type, qty, date, note'
   });
 
-  // 顯示當前系統時間
+  // 設定當前時間顯示
   document.getElementById('sysTime').innerText = `系統時間：${new Date().toLocaleDateString('zh-TW')} ${new Date().toLocaleTimeString('zh-TW', {hour12:false})}`;
 
-  // 2. 解析 Excel 數字防錯機制
+  // 輔助函式：防錯並強制轉化為正確數字
   function parseNumber(val) {
     if (val === undefined || val === null || val === "") return 0;
     if (typeof val === 'number') return val;
@@ -335,7 +364,7 @@
     return isNaN(parsed) ? 0 : parsed;
   }
 
-  // 3. 處理 Excel 檔案匯入 (核心修正比對邏輯)
+  // 2. 當匯入 Excel (1110.xlsx) 時的處理邏輯 (解決對應不準確、漏掉 0、及去除空格問題)
   document.getElementById('excelFileInput').addEventListener('change', handleExcelImport);
 
   function handleExcelImport(e) {
@@ -349,13 +378,11 @@
         const workbook = XLSX.read(data, { type: 'array' });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        // 將外部 Excel 轉為 JSON 物件陣列
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
         
         let updateCount = 0;
         let insertCount = 0;
         
-        // 啟動 Dexie 事務提升寫入效能與一致性
         await db.transaction('rw', db.materials, async () => {
           for (let row of jsonData) {
             let materialCode = "";
@@ -365,7 +392,7 @@
             let location = "";
             let stock = 0;
             
-            // 關鍵修正：修剪欄位名稱的前後空白，避免讀取不到
+            // 智慧對應並修剪所有不可見的空白符號
             for (let key in row) {
               let trimmedKey = key.trim();
               if (trimmedKey === "物料編號") materialCode = String(row[key]).trim();
@@ -376,10 +403,8 @@
               else if (trimmedKey === "庫存") stock = parseNumber(row[key]);
             }
             
-            // 如果連基本料號都沒有則跳過
-            if (!materialCode) continue;
+            if (!materialCode) continue; // 料號無效則跳過
             
-            // 精準比對（料號純字串化）
             const existing = await db.materials.get(materialCode);
             if (existing) {
               await db.materials.update(materialCode, {
@@ -387,35 +412,30 @@
                 rating: rating !== undefined ? rating : existing.rating,
                 unit: unit || existing.unit,
                 location: location || existing.location,
-                erpStock: stock // 以最新下載的 ERP 庫存全面覆蓋基準
+                erpStock: stock // 以匯入之 Excel 的庫存量當成基準原庫存
               });
               updateCount++;
             } else {
               await db.materials.add({
-                id: materialCode,
-                name: name,
-                rating: rating,
-                unit: unit,
-                location: location,
-                erpStock: stock
+                id: materialCode, name: name, rating: rating, unit: unit, location: location, erpStock: stock
               });
               insertCount++;
             }
           }
         });
         
-        alert(`🎉 匯入成功！\n已成功對應更新 ${updateCount} 筆物料基準，新上架 ${insertCount} 筆獨立物料。`);
-        document.getElementById('excelFileInput').value = ""; // 清空
+        alert(`🎉 ERP Excel 庫存對應匯入成功！\n共準確更新對應了 ${updateCount} 筆既存物料庫存，額外新增 ${insertCount} 筆新物料項目！`);
+        document.getElementById('excelFileInput').value = ""; 
         await renderData();
       } catch (err) {
         console.error(err);
-        alert("❌ 讀取 Excel 檔案失敗，請確認是否為附檔之標準台電格式欄位！");
+        alert("❌ 解析 Excel 失敗！請確保檔案結構包含：【物料編號、名稱規範、庫存】等欄位。");
       }
     };
     reader.readAsArrayBuffer(file);
   }
 
-  // 4. 核心渲染模組：動態計算庫存與計算差異
+  // 3. 核心數據處理模組：進行三合一異動計算並生成今日異動與差異清單
   async function renderData() {
     const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
     const diffFilter = document.getElementById('diffFilter').value;
@@ -423,41 +443,44 @@
     const materials = await db.materials.toArray();
     const transactions = await db.transactions.toArray();
     
-    // 統計本地每項物料的累計變動量
+    // 初始化統計
     const txSummary = {};
     transactions.forEach(tx => {
       if (!txSummary[tx.materialId]) {
-        txSummary[tx.materialId] = { 領料: 0, 退料: 0, 借用: 0, netChange: 0 };
+        txSummary[tx.materialId] = { 領料: 0, 借用: 0, 退料: 0, netChange: 0 };
       }
       let qty = parseInt(tx.qty) || 0;
       if (tx.type === "領料") {
         txSummary[tx.materialId].領料 += qty;
-        txSummary[tx.materialId].netChange -= qty; // 領料扣庫存
-      } else if (tx.type === "退料") {
-        txSummary[tx.materialId].退料 += qty;
-        txSummary[tx.materialId].netChange += qty; // 退料補庫存
+        txSummary[tx.materialId].netChange -= qty; // 減去領料
       } else if (tx.type === "借用") {
         txSummary[tx.materialId].借用 += qty;
-        txSummary[tx.materialId].netChange -= qty; // 借用扣庫存
+        txSummary[tx.materialId].netChange -= qty; // 減去借用
+      } else if (tx.type === "退料") {
+        txSummary[tx.materialId].退料 += qty;
+        txSummary[tx.materialId].netChange += qty; // 加上退料
       }
     });
     
-    // 更新上方儀表板看板
+    // 渲染 A：動態生成「今日異動材料清單區塊」
+    renderTodayChangeTable(materials, txSummary);
+
+    // 更新頂層數據看板
     updateDashboardStats(materials, transactions, txSummary);
     
-    // 渲染主庫存表格
+    // 渲染 B：完整料件庫存表格總表
     let tableHtml = `
       <table>
         <thead>
           <tr>
-            <th>物料編號 (料號)</th>
+            <th>物料編號</th>
             <th>名稱規範 (品名規格)</th>
             <th>評價</th>
             <th>單位</th>
             <th>儲格位置</th>
-            <th>ERP 基準庫存</th>
-            <th>本地異動累計</th>
-            <th>即時庫存 (現況)</th>
+            <th>Excel 原庫存</th>
+            <th>今日異動累計</th>
+            <th>更新後最新庫存</th>
             <th>狀態與差異</th>
             <th>快捷操作</th>
           </tr>
@@ -468,16 +491,14 @@
     let displayedRows = 0;
     
     for (let m of materials) {
-      // 關鍵字過濾條件
       if (searchVal && !m.id.toLowerCase().includes(searchVal) && !m.name.toLowerCase().includes(searchVal)) {
         continue;
       }
       
       let erpStock = m.erpStock || 0;
-      let summary = txSummary[m.id] || { 領料: 0, 退料: 0, 借用: 0, netChange: 0 };
-      let realTimeStock = erpStock + summary.netChange; // 即時庫存公式
+      let summary = txSummary[m.id] || { 領料: 0, 借用: 0, 退料: 0, netChange: 0 };
+      let latestStock = erpStock + summary.netChange; // 核心公式計算
       
-      // 差異過濾條件
       if (diffFilter === "diff" && summary.netChange === 0) {
         continue;
       }
@@ -485,28 +506,28 @@
       displayedRows++;
       
       let changeText = "-";
-      if (summary.領料 > 0 || summary.退料 > 0 || summary.借用 > 0) {
-        changeText = `領:${summary.領料} | 退:${summary.退料} | 借:${summary.借用}`;
+      if (summary.領料 > 0 || summary.借用 > 0 || summary.退料 > 0) {
+        changeText = `領:${summary.領料} | 借:${summary.借用} | 退:${summary.退料}`;
       }
       
-      let statusBadge = `<span class="badge badge-none">同步中</span>`;
+      let statusBadge = `<span class="badge badge-none">庫存同步中</span>`;
       let rowStyle = "";
       if (summary.netChange !== 0) {
         let sign = summary.netChange > 0 ? "+" : "";
         statusBadge = `<span class="badge badge-diff">待平帳 (${sign}${summary.netChange})</span>`;
-        rowStyle = "background-color: #fffde7;"; // 有差異則高亮黃底
+        rowStyle = "background-color: #fffde7;"; 
       }
       
       tableHtml += `
         <tr style="${rowStyle}">
           <td style="font-family: monospace; font-weight: bold; color: #111;">${m.id}</td>
-          <td title="${m.name}">${m.name.length > 28 ? m.name.substring(0, 28) + '...' : m.name}</td>
+          <td title="${m.name}">${m.name.length > 30 ? m.name.substring(0, 30) + '...' : m.name}</td>
           <td style="color:#f39c12; font-weight:bold;">★${m.rating}</td>
-          <td><span style="color:#666; font-weight:bold;">${m.unit || '-'}</span></td>
+          <td><span style="color:#666; font-weight:bold;">${m.unit || '件'}</span></td>
           <td><mark style="background:#e1f5fe; padding:3px 6px; border-radius:4px; color:#0288d1; font-weight:bold;">${m.location || '未指定'}</mark></td>
           <td style="font-weight: bold; color:#7f8c8d; text-align:center;">${erpStock}</td>
           <td style="font-size:12px; color: var(--ukiyo-mid-blue); font-weight:600;">${changeText}</td>
-          <td style="font-size:15px; font-weight: 900; text-align:center; color: ${realTimeStock < 0 ? 'var(--danger-red)' : 'var(--ukiyo-deep-blue)'};">${realTimeStock}</td>
+          <td style="font-size:15px; font-weight: 900; text-align:center; color: ${latestStock < 0 ? 'var(--danger-red)' : 'var(--ukiyo-deep-blue)'};">${latestStock}</td>
           <td>${statusBadge}</td>
           <td>
             <button class="btn btn-primary" style="padding:4px 10px; font-size:12px; border-radius:4px;" onclick="openTxModal('${m.id}')">登記異動</button>
@@ -516,88 +537,131 @@
     }
     
     if (displayedRows === 0) {
-      tableHtml += `<tr><td colspan="10" style="text-align:center; color:#999; padding:40px; font-weight:bold;">💡 查無符合條件的物料檔案。請先點選上方匯入 ERP 庫存 Excel！</td></tr>`;
+      tableHtml += `<tr><td colspan="10" style="text-align:center; color:#999; padding:40px; font-weight:bold;">💡 查無任何相符的庫存料件，請點選上方按鈕匯入 Excel 檔案建立基礎數據。</td></tr>`;
     }
     
     tableHtml += `</tbody></table>`;
     document.getElementById('tableContainer').innerHTML = tableHtml;
     
-    // 渲染歷史日誌
+    // 渲染歷史日誌分頁
     renderTransactionLogs(transactions);
   }
 
-  // 5. 更新看板統計與原有的趨勢圖表
+  // 4. 動態渲染「今日異動材料清單區塊」的輔助程序
+  function renderTodayChangeTable(materials, txSummary) {
+    const tbody = document.querySelector('#todayChangeTable tbody');
+    let hasChange = false;
+    let html = "";
+
+    materials.forEach(m => {
+      let summary = txSummary[m.id];
+      if (summary && (summary.領料 > 0 || summary.借用 > 0 || summary.退料 > 0)) {
+        hasChange = true;
+        let erpStock = m.erpStock || 0;
+        let latestStock = erpStock + summary.netChange;
+        
+        let changeBadge = "";
+        if (summary.netChange > 0) {
+          changeBadge = `<span class="badge" style="background-color:#e2efda; color:#375623;">增加 (+${summary.netChange})</span>`;
+        } else if (summary.netChange < 0) {
+          changeBadge = `<span class="badge" style="background-color:#fce4d6; color:#c65911;">減少 (${summary.netChange})</span>`;
+        } else {
+          changeBadge = `<span class="badge badge-none">互抵無淨變</span>`;
+        }
+
+        html += `
+          <tr>
+            <td style="font-family:monospace; font-weight:bold;">${m.id}</td>
+            <td style="font-weight:600; color:var(--ukiyo-deep-blue);">${m.name}</td>
+            <td style="text-align:center; font-weight:bold; color:#7f8c8d;">${erpStock}</td>
+            <td style="color:var(--danger-red); text-align:center; font-weight:bold;">${summary.領料 || 0}</td>
+            <td style="color:var(--warning-orange); text-align:center; font-weight:bold;">${summary.借用 || 0}</td>
+            <td style="color:var(--success-green); text-align:center; font-weight:bold;">${summary.退料 || 0}</td>
+            <td style="text-align:center; font-size:15px; font-weight:900; color:var(--ukiyo-deep-blue); background-color:#f1f8ff;">${latestStock}</td>
+            <td>${changeBadge}</td>
+          </tr>
+        `;
+      }
+    });
+
+    if (hasChange) {
+      tbody.innerHTML = html;
+    } else {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #999; padding: 20px;">💡 今日尚無任何材料發生異動變更。</td></tr>`;
+    }
+  }
+
+  // 5. 看板數值與 12 個月趨勢圖表更新
   function updateDashboardStats(materials, transactions, txSummary) {
     document.getElementById('totalItems').innerText = materials.length;
     
     let totalStock = 0;
+    let affectedCount = 0;
     materials.forEach(m => {
       let erp = m.erpStock || 0;
       let net = txSummary[m.id] ? txSummary[m.id].netChange : 0;
       totalStock += (erp + net);
+      if (txSummary[m.id] && (txSummary[m.id].領料 > 0 || txSummary[m.id].借用 > 0 || txSummary[m.id].退料 > 0)) {
+        affectedCount++;
+      }
     });
     document.getElementById('totalStockValue').innerText = totalStock;
+    document.getElementById('todayAffectedCount').innerText = affectedCount;
     
-    // 計算領料統計
     let totalUsage = 0;
     let monthly = new Array(12).fill(0);
     let quarterly = new Array(4).fill(0);
-    let years = new Set();
     
     transactions.forEach(tx => {
-      if (tx.type === "領料" || tx.type === "借用") { // 統計消耗用料量
+      if (tx.type === "領料" || tx.type === "借用") { 
         let d = new Date(tx.date);
         let qty = parseInt(tx.qty) || 0;
         totalUsage += qty;
-        
         if (!isNaN(d.getMonth())) {
           monthly[d.getMonth()] += qty;
           quarterly[Math.floor(d.getMonth() / 3)] += qty;
-          years.add(d.getFullYear());
         }
       }
     });
     
     document.getElementById('totalUsage').innerText = totalUsage;
-    document.getElementById('avgYearly').innerText = years.size > 0 ? (totalUsage / years.size).toFixed(1) : totalUsage;
-    
     document.getElementById('season1').innerText = quarterly[0];
     document.getElementById('season2').innerText = quarterly[1];
     document.getElementById('season3').innerText = quarterly[2];
     document.getElementById('season4').innerText = quarterly[3];
     
-    // 渲染 12 個月客製化 HTML 柱狀圖
+    // 渲染客製化 Ukiyo 風格柱狀圖表
     let mHtml = "";
     const maxMonthly = Math.max(...monthly);
-    ["一","二","三","四","五","六","七","八","九","十","十一","十二"].forEach((m, i) => {
+    ["1","2","3","4","5","6","7","8","9","10","11","12"].forEach((m, i) => {
       let val = monthly[i];
       let barH = maxMonthly > 0 ? (val / maxMonthly) * 55 : 0; 
       mHtml += `
         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; margin: 0 2px;">
           <div style="height: 55px; display: flex; align-items: flex-end; justify-content: center; width: 100%;">
-            <div style="width: 65%; background: var(--ukiyo-light-blue); height: ${Math.max(barH, 2)}px; border-radius: 3px 3px 0 0; transition: height 0.3s ease;"></div>
+            <div style="width: 60%; background: var(--ukiyo-light-blue); height: ${Math.max(barH, 2)}px; border-radius: 3px 3px 0 0;"></div>
           </div>
-          <div style="font-weight: bold; font-size: 11px; margin-top: 3px; color: var(--ukiyo-deep-blue);">${val}</div>
-          <div style="color: #888; font-size: 10px;">${m}月</div>
+          <div style="font-weight: bold; font-size: 11px; color: var(--ukiyo-deep-blue); margin-top:2px;">${val}</div>
+          <div style="color: #7f8c8d; font-size: 10px;">${m}月</div>
         </div>
       `;
     });
     document.getElementById('monthlyChart').innerHTML = mHtml;
   }
 
-  // 6. 渲染歷史日誌
+  // 6. 渲染歷史變更日誌
   function renderTransactionLogs(transactions) {
     let sorted = [...transactions].sort((a,b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
     let logHtml = `
       <table>
         <thead>
           <tr>
-            <th>異動單號</th>
+            <th>序號</th>
             <th>登記日期</th>
             <th>物料編號</th>
             <th>異動類型</th>
-            <th>登記數量</th>
-            <th>備註說明</th>
+            <th>數量</th>
+            <th>工程與備註說明</th>
             <th>管理操作</th>
           </tr>
         </thead>
@@ -625,30 +689,30 @@
     });
     
     if (sorted.length === 0) {
-      logHtml += `<tr><td colspan="7" style="text-align:center; color:#999; padding:30px; font-weight:bold;">💡 目前現場尚無任何領、退、借異動紀錄。</td></tr>`;
+      logHtml += `<tr><td colspan="7" style="text-align:center; color:#999; padding:30px; font-weight:bold;">💡 目前無任何領、退、借紀錄。</td></tr>`;
     }
     logHtml += `</tbody></table>`;
     document.getElementById('logsContainer').innerHTML = logHtml;
   }
 
-  // 7. 刪除單筆本地異動
+  // 作廢單筆異動紀錄
   async function deleteTransaction(id) {
-    if (confirm("確定要作廢此筆本地異動紀錄嗎？作廢後即時庫存將即時回補。")) {
+    if (confirm("確定要移除此筆異動紀錄嗎？庫存將會即時連動彈回。")) {
       await db.transactions.delete(id);
       await renderData();
     }
   }
 
-  // 8. 核心設計：清空本地異動 (平帳核心程序)
+  // 清空與平帳
   async function clearAllTransactions() {
-    if (confirm("⚠️ 【重要平帳確認】\n\n您確定要清空所有本地登記的「領/退/借」紀錄嗎？\n\n👉 適用時機：當您已經將本系統內的所有異動資料，全部「補登打」進台電 ERP 系統中，且剛剛已經下載並匯入了最新的 ERP 庫存 Excel 時。\n\n執行「平帳」會將本地累計變動量歸零，讓系統即時庫存完美對準最新匯入的 ERP 基準，避免發生重複扣減！")) {
+    if (confirm("⚠️ 【平帳確認】確定要把今天/本期的變動量全部清空歸零嗎？\n請確認已將上述數據補打入台電 ERP，並且重新下載最新 Excel 匯入。")) {
       await db.transactions.clear();
       await renderData();
-      alert("✨ 平帳完成！本地暫存變動量已全數歸零，目前庫存百分之百與最新的 ERP 基準完全同步！");
+      alert("✨ 平帳成功！本地變更已清空，目前即時庫存已與 Excel 基準完全一致！");
     }
   }
 
-  // 9. 視窗控制與自動提示關鍵字搜尋
+  // 7. 自動提示框與彈出視窗開關
   async function openTxModal(materialId) {
     document.getElementById('txModal').classList.add('show');
     document.getElementById('txMaterialId').value = materialId;
@@ -656,41 +720,35 @@
     document.getElementById('txNote').value = "";
     document.getElementById('suggestions').innerHTML = "";
     
-    // 預設日期為當天
     let now = new Date();
     document.getElementById('txDate').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     
     if (materialId) {
       const m = await db.materials.get(materialId);
-      document.getElementById('txMaterialName').innerText = m ? m.name : "獨立臨時件";
+      document.getElementById('txMaterialName').innerText = m ? m.name : "未知物料";
     } else {
-      document.getElementById('txMaterialName').innerText = "請輸入左上方料號進行檢索...";
+      document.getElementById('txMaterialName').innerText = "請輸入料號進行檢索...";
     }
   }
 
   function closeTxModal() { document.getElementById('txModal').classList.remove('show'); }
 
-  // 料號輸入欄位動態監聽 (自動提示)
+  // 智慧監聽料號輸入欄位
   document.getElementById('txMaterialId').addEventListener('input', async (e) => {
     let val = e.target.value.trim();
     let sugBox = document.getElementById('suggestions');
     sugBox.innerHTML = "";
     
     if (!val) {
-      document.getElementById('txMaterialName').innerText = "請輸入上方料號進行檢索...";
+      document.getElementById('txMaterialName').innerText = "請輸入料號進行檢索...";
       return;
     }
     
-    // 從 Dexie 模糊檢索前 6 筆相符物料
-    let matches = await db.materials
-      .filter(m => m.id.includes(val) || m.name.includes(val))
-      .limit(6)
-      .toArray();
-      
+    let matches = await db.materials.filter(m => m.id.includes(val) || m.name.includes(val)).limit(6).toArray();
     matches.forEach(m => {
       let div = document.createElement('div');
       div.className = "suggestion-item";
-      div.innerText = `🔢 ${m.id} | ${m.name.substring(0,22)}...`;
+      div.innerText = `🔢 ${m.id} - ${m.name.substring(0,22)}...`;
       div.onclick = () => {
         document.getElementById('txMaterialId').value = m.id;
         document.getElementById('txMaterialName').innerText = m.name;
@@ -703,11 +761,11 @@
     if (matchedMat) {
       document.getElementById('txMaterialName').innerText = matchedMat.name;
     } else {
-      document.getElementById('txMaterialName').innerText = "⚠️ 注意：此料號尚未存在於主庫存表中，送出將直接建立此件的異動紀錄。";
+      document.getElementById('txMaterialName').innerText = "⚠️ 警示：主庫存中尚未存在此料號。";
     }
   });
 
-  // 異動表單送出邏輯
+  // 表單遞交
   document.getElementById('txForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     let materialId = document.getElementById('txMaterialId').value.trim();
@@ -716,19 +774,10 @@
     let date = document.getElementById('txDate').value;
     let note = document.getElementById('txNote').value.trim();
     
-    if (!materialId || qty <= 0 || !date) {
-      alert("請確實填妥所有必填欄位！");
-      return;
-    }
-    
     const m = await db.materials.get(materialId);
     if (!m) {
-      if (confirm(`物料編號 ${materialId} 尚未存在於庫存主表（可能尚未由 ERP 匯入過），是否要直接強制登記此料件的本地異動紀錄？`)) {
-        await db.materials.add({
-          id: materialId,
-          name: "本地自建暫存件 (待匯入正式 Excel 更新規格)",
-          rating: 0, unit: "件", location: "未指定", erpStock: 0
-        });
+      if (confirm(`物料 ${materialId} 尚未存在。是否直接新增此料號並進行登記？`)) {
+        await db.materials.add({ id: materialId, name: "手動暫存件", rating: 0, unit: "件", location: "未指定", erpStock: 0 });
       } else {
         return;
       }
@@ -739,7 +788,7 @@
     await renderData();
   });
 
-  // 分頁切換控制
+  // 分頁切換
   function switchTab(tabName) {
     if (tabName === 'materials') {
       document.getElementById('tabMaterials').classList.add('active');
@@ -754,7 +803,7 @@
     }
   }
 
-  // 網頁開啟後自動載入初始化
+  // 初始化
   window.onload = async () => {
     await renderData();
   };
