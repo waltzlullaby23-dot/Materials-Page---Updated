@@ -2069,7 +2069,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ==========================================
-// ⚡ 災害常用材料快捷區 
+// ⚡ 天災常用材料快捷區 
 // ==========================================
 const TAIPOWER_EMERGENCY_COMMON = [
     { partNo: "1030420013", shortName: "懸垂礙子 C型 10000磅 6"φ 灰色" },
@@ -2277,7 +2277,7 @@ function importAndMergeEmergencyJSON(file) {
                 const dup = await db.emergency_logs.where('timestamp').equals(entry.timestamp).and(x => x.teamName === entry.teamName && x.partNo === entry.partNo).first();
                 if (!dup) { await db.emergency_logs.add(entry); importCount++; }
             }
-            alert(`✅ 成功合併其餘手機資料！本次共匯入 ${importCount} 筆全新戰地發料帳目。`);
+            alert(`✅ 成功合併其餘手機資料！本次共匯入 ${importCount} 筆全新天災發料帳目。`);
             renderEmergencyLiveDashboard();
         } catch (err) { alert("讀取 JSON 檔案失敗，請檢查檔案是否損毀：" + err); }
     };
