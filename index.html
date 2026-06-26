@@ -62,21 +62,26 @@
 
     /* Excel 匯出按鈕 */
     .excel-btn {
-      position: fixed; top: 20px; left: 20px; z-index: 1000;
+      position: fixed;
+      top: 20px; left: 20px; z-index: 1000;
       background-color: var(--excel-green); color: white; border: 2px solid white;
-      padding: 10px 20px; border-radius: 30px; font-weight: 900; cursor: pointer;
+      padding: 10px 20px; border-radius: 30px;
+      font-weight: 900; cursor: pointer;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
     }
     .excel-btn:hover { transform: scale(1.05); background-color: #1e6b40; }
 
     /* Modal */
     .modal-overlay {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6); z-index: 2000; justify-content: center; align-items: center;
+      display: none;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6); z-index: 2000; justify-content: center;
+      align-items: center;
       backdrop-filter: blur(5px); padding: 10px; box-sizing: border-box;
     }
     .modal-content {
-      background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 500px;
+      background: white;
+      padding: 25px; border-radius: 15px; width: 100%; max-width: 500px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto;
     }
     .modal-header { font-size: 1.2rem; font-weight: 900; margin-bottom: 15px; color: var(--ukiyo-deep-blue); border-bottom: 2px solid var(--ukiyo-sky); padding-bottom: 10px; }
@@ -1024,13 +1029,11 @@ const rawData = {
 1310300001	電表測試開關 600V 20A 10P
 1915000093	扣環 1AMB20008160 單相瓦時計 I-70S 中興`
 };
-
 let materials = {};
 let selectedPartNo = "";
 let selectedName = "";
 let batchMaterials = [];
 const MAX_BATCH = 20;
-
 // 初始化解析資料
 function initMaterials() {
   for (let cat in rawData) {
@@ -1043,7 +1046,7 @@ function initMaterials() {
       let name = parts.slice(1).join(' ').trim();
       if(pNo) materials[pNo] = { name: name, category: cat };
     });
-  }
+}
 }
 
 // 頁面載入
@@ -1069,7 +1072,7 @@ function switchTab(tabName) {
   document.getElementById('tab-' + tabName).classList.add('active');
   if(event && event.currentTarget) {
     event.currentTarget.classList.add('active');
-  }
+}
   
   if(tabName === 'inventory') renderInventoryTable();
   if(tabName === 'analysis') runAnalysis();
@@ -1106,7 +1109,7 @@ function renderMaterials(context) {
       div.innerHTML = `<strong>${pNo}</strong><br>${materials[pNo].name}`;
       div.onclick = function() { selectMaterial(pNo, context); };
       container.appendChild(div);
-    }
+}
   }
 }
 
@@ -1123,13 +1126,13 @@ function selectMaterial(pNo, context) {
 
   if (context === 'input') {
     document.getElementById('qtySection').style.display = "block";
-  } else if (context === 'stock') {
+} else if (context === 'stock') {
     document.getElementById('stockPartNo').value = pNo;
     document.getElementById('stockSelectedName').innerText = selectedName;
-  } else if (context === 'transfer') {
+} else if (context === 'transfer') {
     document.getElementById('transferPartNo').value = pNo;
     document.getElementById('transferItemName').value = selectedName;
-  } else if (context === 'history') {
+} else if (context === 'history') {
     document.getElementById('historySearchInput').value = pNo;
     document.getElementById('historyItemTitle').innerText = pNo + " " + selectedName;
   } else if (context === 'analysis') {
@@ -1169,7 +1172,7 @@ async function handleUniversalInput(val, context) {
     } else if(context === 'stock') {
         document.getElementById('stockPartNo').value = pNo;
         document.getElementById('stockSelectedName').innerText = selectedName;
-    } else if(context === 'transfer') {
+} else if(context === 'transfer') {
         document.getElementById('transferPartNo').value = pNo;
         document.getElementById('transferItemName').value = selectedName;
         await refreshEvalTypeOptionsForPartNo(pNo, 'transferEvalType');
@@ -1198,7 +1201,7 @@ function addMaterialToBatch() {
   if(!selectedPartNo || !qty || !unit) {
     alert("請填寫完整材料資訊 (料號、數量、單位)");
     return;
-  }
+}
 
   batchMaterials.push({ partNo: selectedPartNo, name: selectedName, qty: qty, unit: unit, evalType: evalType });
   renderBatchList();
@@ -1208,11 +1211,10 @@ function addMaterialToBatch() {
   selectedPartNo = "";
   selectedName = "";
   document.getElementById('qtySection').style.display = "none";
-  
   if(batchMaterials.length < MAX_BATCH) {
     const continueInput = confirm(`已加入 ${batchMaterials.length} 筆材料\n\n是否繼續輸入下一筆材料？\n(點擊「取消」直接儲存)`);
     if(!continueInput) submitBatchRecords();
-  } else {
+} else {
     alert(`已達上限 ${MAX_BATCH} 筆，系統將自動儲存`);
     submitBatchRecords();
   }
@@ -1248,7 +1250,7 @@ function clearBatch() {
   if(confirm("確定清空批次清單？")) {
     batchMaterials = [];
     renderBatchList();
-  }
+}
 }
 
 async function submitBatchRecords() {
@@ -1264,7 +1266,7 @@ async function submitBatchRecords() {
   const operator = document.getElementById('operatorName').value;
   if(!date || !type || !orderNo || !person || !staff || !operator) {
     alert("請先填寫基本資訊 (日期、作業類型、單號、領用人、經辦人、操作人)"); return;
-  }
+}
 
   for(let item of batchMaterials) {
     const record = {
@@ -1297,7 +1299,6 @@ async function saveRecordToLS(record) {
   let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
   records.push(record);
   localStorage.setItem('materialRecords', JSON.stringify(records));
-
   await db.changeLog.add({
       date: record.date + " " + new Date().toLocaleTimeString(),
       partNo: record.partNo,
@@ -1319,7 +1320,8 @@ async function processStockIn() {
     const evalType = normalizeEvalType(document.getElementById('transferEvalType').value);
     const operator = document.getElementById('operatorName')?.value || staff;
 
-    if(!pNo || !qty || !staff) { alert("請填寫完整入庫資訊"); return; }
+    if(!pNo || !qty || !staff) { alert("請填寫完整入庫資訊"); return;
+}
     const record = {
         id: Date.now(), date: date, type: "進貨入庫", orderNo: orderNo || "N/A", person: "廠商/總處",
         staff: staff, operator: operator, partNo: pNo, name: getMaterialDisplayName(pNo, selectedName),
@@ -1342,8 +1344,8 @@ async function processTransfer() {
     const orderNo = document.getElementById('transferOrderNo').value;
     const evalType = normalizeEvalType(document.getElementById('transferEvalType').value);
     const operator = document.getElementById('operatorName')?.value || staff;
-
-    if(!pNo || !qty || !staff || !target) { alert("請填寫完整調撥資訊"); return; }
+    if(!pNo || !qty || !staff || !target) { alert("請填寫完整調撥資訊"); return;
+}
     const record = {
         id: Date.now(), date: date, type: (type === 'transfer_in' ? "調撥移入" : "調撥移出"),
         orderNo: orderNo || "N/A", person: target, staff: staff, operator: operator, partNo: pNo,
@@ -1367,7 +1369,8 @@ async function processWarehouseTransfer() {
     const evalType = normalizeEvalType(document.getElementById('transferEvalType').value);
     const operator = document.getElementById('operatorName')?.value || staff;
     
-    if(!pNo || !qty) { alert("請填寫移轉資訊"); return; }
+    if(!pNo || !qty) { alert("請填寫移轉資訊"); return;
+}
     const record = {
         id: Date.now(), date: date, type: (type === 'transfer_in' ? "倉庫移入" : "倉庫移出"),
         orderNo: "內部移轉", person: warehouse, staff: staff, operator: operator, partNo: pNo,
@@ -1401,7 +1404,6 @@ const EVAL_TYPE_ALIAS = {
     '3': '3資產新', '3資產新': '3資產新', '資產新': '3資產新',
     '4': '4資產舊', '4資產舊': '4資產舊', '資產舊': '4資產舊'
 };
-
 function normalizeEvalType(v){
     if(v===undefined || v===null || String(v).trim()==='') return '0新';
     let s = String(v).trim().replace(/\s/g,'');
@@ -1461,7 +1463,8 @@ async function refreshEvalTypeOptionsForPartNo(partNo, selectId){
         rows.forEach(r => exists.add(normalizeEvalType(r.rating)));
         const logs = await db.changeLog.where('partNo').equals(partNo).toArray();
         logs.forEach(r => exists.add(normalizeEvalType(r.rating ?? r.evalType)));
-    } catch(e) { console.warn('評價類型載入失敗', e); }
+    } catch(e) { console.warn('評價類型載入失敗', e);
+}
 
     const ordered = EVAL_TYPE_OPTIONS.filter(x => exists.has(x));
     if(ordered.length === 0) ordered.push(...EVAL_TYPE_OPTIONS);
@@ -1512,14 +1515,14 @@ async function normalizeDexieExistingData(){
                 erpStock: normalizeNumber(m.erpStock ?? m.stock ?? 0),
                 unit: m.unit || '', lastUpdate: m.lastUpdate || new Date().toISOString()
             });
-        }
+}
         const logs = await db.changeLog.toArray();
         for(const l of logs){
             await db.changeLog.update(l.id, {
                 partNo: normalizePartNo(l.partNo), rating: normalizeEvalType(l.rating ?? l.evalType),
                 amount: normalizeNumber(l.amount ?? l.qty ?? 0)
             });
-        }
+}
     } catch(e) { console.warn('舊資料標準化失敗', e); }
 }
 
@@ -1529,7 +1532,7 @@ function findColumn(row, list){
         let a=k.replace(/\s/g,'').toLowerCase();
         for(let n of list){
             if(a.includes(n.replace(/\s/g,'').toLowerCase())) return k;
-        }
+}
     }
     return null;
 }
@@ -1565,13 +1568,13 @@ async function handleExcelImport(file){
         let totalRows = 0, fail = [];
         const importMap = {};
         const partNoSheetMap = {};
-
         workbook.SheetNames.forEach(sheetName => {
             const sheet = workbook.Sheets[sheetName];
             const rows = XLSX.utils.sheet_to_json(sheet, {defval:''});
             rows.forEach((r, idx) => {
                 totalRows++;
                 const partCol = findColumn(r, ['物料編號','料號','物料','MATNR','Material']);
+                
                 const nameCol = findColumn(r, ['名稱規範','名稱','品名','規格','MAKTX']);
                 const stockCol = findColumn(r, ['庫存量','庫存','數量','LABST','自由使用']);
                 const evalCol = findColumn(r, ['評價類型','評價','評價別','BWTAR']);
@@ -1585,11 +1588,14 @@ async function handleExcelImport(file){
                 const unit = String(unitCol ? r[unitCol] : '').trim();
                 const location = String(locCol ? r[locCol] : '').trim();
 
-                if(!partNo){ fail.push({reason:'無料號', sheetSource:sheetName, row:idx+2, rawData:JSON.stringify(r)}); return; }
-                if(partNo.length !== 10){ fail.push({reason:'料號格式錯誤', sheetSource:sheetName, row:idx+2, partNo, evalType, rawData:JSON.stringify(r)}); return; }
+                if(!partNo){ fail.push({reason:'無料號', sheetSource:sheetName, row:idx+2, rawData:JSON.stringify(r)}); return;
+}
+                if(partNo.length !== 10){ fail.push({reason:'料號格式錯誤', sheetSource:sheetName, row:idx+2, partNo, evalType, rawData:JSON.stringify(r)});
+return; }
 
                 const key = makeInventoryKey(partNo, evalType);
-                if(!importMap[key]){ importMap[key] = {partNo, rating:evalType, name, erpStock:0, unit, location, sheets:new Set(), rows:0}; }
+                if(!importMap[key]){ importMap[key] = {partNo, rating:evalType, name, erpStock:0, unit, location, sheets:new Set(), rows:0};
+}
                 importMap[key].erpStock += stock;
                 importMap[key].name = name || importMap[key].name;
                 importMap[key].unit = unit || importMap[key].unit;
@@ -1598,14 +1604,14 @@ async function handleExcelImport(file){
                 importMap[key].rows++;
                 partNoSheetMap[key] = Array.from(importMap[key].sheets).join(',');
             });
-        });
+});
 
         let success = 0;
         for(const item of Object.values(importMap)){
             await upsertMaterialStock({ partNo: item.partNo, rating: item.rating, name: item.name, erpStock: item.erpStock, unit: item.unit, location: item.location });
             if(item.name && !materials[item.partNo]) { materials[item.partNo] = {name:item.name, category:''}; }
             success++;
-        }
+}
 
         await db.importHistory.add({ fileName: file.name, fileHash, importDate, operator, totalRows, successCount: success, failCount: fail.length });
         await syncInventoryFromERP();
@@ -1621,7 +1627,7 @@ async function handleExcelImport(file){
         console.error('Excel 匯入失敗', error);
         status.innerText = '❌ 匯入失敗：' + error.message;
         alert('❌ 匯入失敗：' + error.message + '\n\n請按 F12 查看 Console 詳細錯誤。');
-    }
+}
 }
 
 function exportFailureDetails(failList, fileName) {
@@ -1695,9 +1701,9 @@ async function syncInventoryFromERP(){
         const key = makeInventoryKey(pNo, evalType);
         if(!map[key]){
             map[key] = { pNo, name: getMaterialDisplayName(pNo, ''), evalType, init:0, change:0, total:0, unit:'', lastUpdate:'' };
-        }
+}
         map[key].change += getStockDelta(l.type, l.amount);
-    }
+}
 
     Object.values(map).forEach(item => {
         item.init = normalizeNumber(item.init);
@@ -1715,7 +1721,6 @@ async function setInitialStock(){
     const qty = normalizeNumber(document.getElementById('stockInitQty').value);
     const evalType = normalizeEvalType(document.getElementById('stockEvalType').value);
     const name = document.getElementById('stockSelectedName').innerText || getMaterialDisplayName(pNo, '');
-
     if(!pNo || pNo.length !== 10 || !Number.isFinite(qty)){ alert("料號或數量錯誤"); return; }
     await upsertMaterialStock({partNo:pNo, rating:evalType, name, erpStock:qty});
     await syncInventoryFromERP();
@@ -1764,6 +1769,7 @@ async function renderInventoryTable(){
         <td>${x.init}</td>
         <td style="color:${x.change < 0 ? 'red' : '#27ae60'}">${x.change}</td>
         <td><b style="color:${x.total < 0 ? 'red' : '#1a202c'}">${x.total}</b></td>
+        
         </tr>`;
     });
 }
@@ -1789,7 +1795,8 @@ async function backupDatabase() {
         document.getElementById('backupStatus').innerText = "✅ 備份完成"; alert("✅ 資料庫備份成功！");
     } catch (error) {
         console.error("備份失敗:", error);
-        document.getElementById('backupStatus').innerText = "❌ 備份失敗"; alert("❌ 備份失敗：" + error.message);
+        document.getElementById('backupStatus').innerText = "❌ 備份失敗";
+        alert("❌ 備份失敗：" + error.message);
     }
 }
 
@@ -1798,7 +1805,8 @@ async function restoreDatabase(file) {
     if(!confirm("⚠️ 警告：還原將覆蓋現有資料！\n\n確定要還原此備份檔嗎？")) return;
     try {
         const text = await file.text(); const backupData = JSON.parse(text);
-        await db.materials.clear(); await db.changeLog.clear(); await db.importHistory.clear(); await db.emergency_logs.clear();
+        await db.materials.clear();
+        await db.changeLog.clear(); await db.importHistory.clear(); await db.emergency_logs.clear();
         
         if(backupData.materials && backupData.materials.length > 0) await db.materials.bulkAdd(backupData.materials);
         if(backupData.changeLog && backupData.changeLog.length > 0) await db.changeLog.bulkAdd(backupData.changeLog);
@@ -1815,7 +1823,8 @@ async function restoreDatabase(file) {
         renderLog(); renderInventoryTable(); runAnalysis();
     } catch (error) {
         console.error("還原失敗:", error);
-        document.getElementById('backupStatus').innerText = "❌ 還原失敗"; alert("❌ 還原失敗：" + error.message);
+        document.getElementById('backupStatus').innerText = "❌ 還原失敗";
+        alert("❌ 還原失敗：" + error.message);
     }
 }
 
@@ -1837,6 +1846,7 @@ function renderLog() {
       <div style="font-weight:900; color:var(--ukiyo-deep-blue)">${r.date} | 【${r.type}】 ${r.partNo} ${r.name} </div>
       <div style="margin-top:5px; color:#555;">
         數量: <span style="color:#d35400; font-weight:bold;">${r.qty} ${r.unit}</span> ${evalDisplay} | 
+     
         對象: ${r.person} | 經辦: ${r.staff} ${r.operator ? `| 操作人: ${r.operator}` : ''} | 單號: ${r.orderNo}
       </div>`;
     list.appendChild(item);
@@ -1863,7 +1873,8 @@ async function deleteRecord(id) {
 async function deleteAllRecords() {
     if(confirm("🚨 危險操作：這將刪除「所有」歷史進出紀錄！(包含輸入、調撥、進貨)\n此動作無法復原，確定嗎？")) {
         localStorage.removeItem('materialRecords');
-        await db.changeLog.clear(); await syncInventoryFromERP();
+        await db.changeLog.clear();
+        await syncInventoryFromERP();
         renderLog(); renderInventoryTable(); runAnalysis();
         alert("已清空所有紀錄。");
     }
@@ -1897,7 +1908,8 @@ function clearFilters() {
 // 匯出功能
 // ==========================================
 function openExportModal() { document.getElementById('exportModal').style.display = 'flex'; }
-function closeExportModal() { document.getElementById('exportModal').style.display = 'none'; }
+function closeExportModal() { document.getElementById('exportModal').style.display = 'none';
+}
 
 function confirmExport() {
   let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
@@ -1936,7 +1948,8 @@ function setSafetyStock() {
   const evalType = normalizeEvalType(document.getElementById('safeEvalType').value);
   const qty = normalizeNumber(document.getElementById('safeQty').value);
   if(!pNo || pNo.length !== 10) { alert('請輸入完整10碼料號'); return; }
-  if(!Number.isFinite(qty) || qty < 0) { alert('請輸入正確安全存量'); return; }
+  if(!Number.isFinite(qty) || qty < 0) { alert('請輸入正確安全存量'); return;
+}
 
   let safe = JSON.parse(localStorage.getItem('safeStock')) || {};
   safe[makeInventoryKey(pNo, evalType)] = qty;
@@ -1948,11 +1961,9 @@ function setSafetyStock() {
 function runAnalysis() {
   const report = document.getElementById('analysisReport');
   if(!report) return;
-
   const safe = JSON.parse(localStorage.getItem('safeStock')) || {};
   const inventory = getInventoryMap();
   let html = "";
-
   Object.entries(safe).forEach(([key, limit]) => {
     const parts = key.split('_');
     const pNo = normalizePartNo(parts[0]);
@@ -1984,18 +1995,17 @@ function calculateUsageHistory() {
     let evalTypeFilter = rawEvalTypeFilter ? normalizeEvalType(rawEvalTypeFilter) : '';
     
     if(!selectedPartNo && inputVal.length===10 && materials[inputVal]) selectMaterial(inputVal, 'history');
-    if(!selectedPartNo) { alert("請先搜尋或選擇料號"); return; }
+    if(!selectedPartNo) { alert("請先搜尋或選擇料號"); return;
+}
     
     document.getElementById('historyResult').style.display = "block";
     let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
-    
     let targets = records.filter(r => r.partNo === selectedPartNo && r.type === "領料" && (!evalTypeFilter || normalizeEvalType(r.evalType) === evalTypeFilter));
     let total = 0, monthly = new Array(12).fill(0), quarterly = new Array(4).fill(0), years = new Set();
     targets.forEach(r => {
         let d = new Date(r.date); let qty = parseInt(r.qty);
         total += qty; monthly[d.getMonth()] += qty; quarterly[Math.floor(d.getMonth() / 3)] += qty; years.add(d.getFullYear());
     });
-    
     document.getElementById('totalUsage').innerText = total;
     document.getElementById('avgYearly').innerText = years.size > 0 ? (total / years.size).toFixed(1) : total;
     document.getElementById('season1').innerText = quarterly[0]; document.getElementById('season2').innerText = quarterly[1];
@@ -2009,12 +2019,14 @@ function calculateUsageHistory() {
                 <div style="width:10px; background:#3498db; height:${Math.max(barH, 2)}px;"></div>
             </div>
             <div style="font-weight:bold;">${val}</div><div style="color:#888;">${m}月</div>
+   
         </div>`;
     });
     document.getElementById('monthlyStats').innerHTML = mHtml;
 }
 
-function toggleSignature(el) { let span = document.getElementById('sigName'); span.hidden = !span.hidden; }
+function toggleSignature(el) { let span = document.getElementById('sigName');
+span.hidden = !span.hidden; }
 
 // ==========================================
 // 簽名板功能 (保留原作者功能)
@@ -2030,6 +2042,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <label style="font-weight: bold; color: var(--ukiyo-deep-blue, #1D3B56); display: block; margin-bottom: 5px;">
             領/退/借用人簽名 <span style="font-weight: normal; font-size: 0.85em; color: #7f8c8d;">(非必填)</span>
         </label>
+     
         <div style="position: relative; border: 1px solid #ccc; border-radius: 8px; background-color: #fff; width: 100%; height: 130px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
             <canvas id="signature-canvas" style="display: block; cursor: crosshair; touch-action: none; width: 100%; height: 100%;"></canvas>
             <button type="button" id="clear-btn" style="position: absolute; right: 8px; bottom: 8px; font-size: 11px; padding: 4px 10px; background: #f8f9fa; border: 1px solid #cbd5e1; border-radius: 4px; z-index: 50; cursor: pointer;">清除</button>
@@ -2057,22 +2070,25 @@ document.addEventListener("DOMContentLoaded", function () {
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         return { x: clientX - rect.left, y: clientY - rect.top };
-    }
+}
 
-    function startDrawing(e) { isDrawing = true; hasSigned = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); if (e.touches && e.cancelable) e.preventDefault(); }
-    function draw(e) { if (!isDrawing) return; const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); if (e.touches && e.cancelable) e.preventDefault(); }
-    function stopDrawing() { if (!isDrawing) return; isDrawing = false; if (hasSigned) { signatureInput.value = canvas.toDataURL("image/png"); } else { signatureInput.value = ""; } }
+    function startDrawing(e) { isDrawing = true; hasSigned = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+if (e.touches && e.cancelable) e.preventDefault(); }
+    function draw(e) { if (!isDrawing) return; const pos = getPos(e);
+ctx.lineTo(pos.x, pos.y); ctx.stroke(); if (e.touches && e.cancelable) e.preventDefault(); }
+    function stopDrawing() { if (!isDrawing) return;
+isDrawing = false; if (hasSigned) { signatureInput.value = canvas.toDataURL("image/png"); } else { signatureInput.value = "";
+} }
 
     canvas.addEventListener("mousedown", startDrawing, { passive: false }); canvas.addEventListener("mousemove", draw, { passive: false }); window.addEventListener("mouseup", stopDrawing);
     canvas.addEventListener("touchstart", startDrawing, { passive: false }); canvas.addEventListener("touchmove", draw, { passive: false }); canvas.addEventListener("touchend", stopDrawing);
     clearBtn.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); ctx.clearRect(0, 0, canvas.width, canvas.height); hasSigned = false; signatureInput.value = ""; });
 });
-
 // ==========================================
 // ⚡ 天災常用材料快捷區 
 // ==========================================
 const TAIPOWER_EMERGENCY_COMMON = [
-    { partNo: "1030420013", shortName: "懸垂礙子 C型 10000磅 6 φ 灰色" },
+    { partNo: "1030420013", shortName: '懸垂礙子 C型 10000磅 6"φ 灰色' },
     { partNo: "1030480007", shortName: "防盬裝腳礙子 11.4KV 無腳" },
     { partNo: "1102050097", shortName: "600V PVC風雨線 1C 銅 22㎜2 黑色" },
     { partNo: "0561003330", shortName: "熔絲鏈開關" },
@@ -2146,21 +2162,22 @@ function initEmergencySignatureCanvas() {
     
     emCtx = canvas.getContext('2d');
     emCtx.strokeStyle = '#1D3B56'; emCtx.lineWidth = 3;
-    
     function getTouchPos(e) {
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         return { x: clientX - rect.left, y: clientY - rect.top };
-    }
+}
     
-    function startDraw(e) { emIsDrawing = true; const pos = getTouchPos(e); emCtx.beginPath(); emCtx.moveTo(pos.x, pos.y); if (e.cancelable) e.preventDefault(); }
-    function draw(e) { if (!emIsDrawing) return; const pos = getTouchPos(e); emCtx.lineTo(pos.x, pos.y); emCtx.stroke(); if (e.cancelable) e.preventDefault(); }
-    function stopDraw() { if (!emIsDrawing) return; emIsDrawing = false; document.getElementById('emergencySignatureInput').value = canvas.toDataURL("image/png"); }
+    function startDraw(e) { emIsDrawing = true; const pos = getTouchPos(e); emCtx.beginPath();
+emCtx.moveTo(pos.x, pos.y); if (e.cancelable) e.preventDefault(); }
+    function draw(e) { if (!emIsDrawing) return; const pos = getTouchPos(e);
+emCtx.lineTo(pos.x, pos.y); emCtx.stroke(); if (e.cancelable) e.preventDefault(); }
+    function stopDraw() { if (!emIsDrawing) return; emIsDrawing = false;
+document.getElementById('emergencySignatureInput').value = canvas.toDataURL("image/png"); }
     
     canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', draw); window.addEventListener('mouseup', stopDraw);
     canvas.addEventListener('touchstart', startDraw, { passive: false }); canvas.addEventListener('touchmove', draw, { passive: false }); canvas.addEventListener('touchend', stopDraw);
-    
     clearBtn.addEventListener('click', () => {
         emCtx.clearRect(0, 0, canvas.width, canvas.height); document.getElementById('emergencySignatureInput').value = "";
     });
@@ -2173,9 +2190,9 @@ async function submitEmergencyRecord() {
     const quantity = parseFloat(document.getElementById('m_quantity').value);
     const evalType = document.getElementById('m_evalType').value;
     const signatureBase64 = document.getElementById('emergencySignatureInput').value;
-    
     if (!teamName || !matSearchInput || isNaN(quantity) || quantity <= 0) {
-        alert("⚠️ 請確實填寫【工班】、選取【材料】並輸入【大於0的數量】！"); return;
+        alert("⚠️ 請確實填寫【工班】、選取【材料】並輸入【大於0的數量】！");
+        return;
     }
     
     let finalPartNo = partNo, finalMatName = matSearchInput;
@@ -2191,24 +2208,25 @@ async function submitEmergencyRecord() {
         teamName: teamName, partNo: finalPartNo, matName: finalMatName, quantity: quantity,
         unit: "個", evalType: evalType, signature: signatureBase64 || null, status: "Typhoon_Pending", erpOrderNo: "" 
     };
-    
     try {
         await db.emergency_logs.add(logEntry);
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]); 
-        document.getElementById('m_partNo_hidden').value = ""; document.getElementById('m_matSearchInput').value = "";
+        document.getElementById('m_partNo_hidden').value = "";
+        document.getElementById('m_matSearchInput').value = "";
         document.getElementById('m_quantity').value = ""; document.getElementById('clearEmergencySignBtn').click();
         alert("✅ 臨時發料成功登記！");
         renderEmergencyLiveDashboard();
-    } catch (err) { alert("儲存至 Dexie 失敗：" + err); }
+    } catch (err) { alert("儲存至 Dexie 失敗：" + err);
+}
 }
 
 async function renderEmergencyLiveDashboard() {
     const dashboard = document.getElementById('emergencyLiveDashboard');
     if (!dashboard) return;
     const logs = await db.emergency_logs.orderBy('id').reverse().toArray();
-    
     if (logs.length === 0) {
-        dashboard.innerHTML = `<div style="text-align:center; color:#999; padding:20px; background:#fff; border-radius:8px;">當前無天災發料紀錄</div>`; return;
+        dashboard.innerHTML = `<div style="text-align:center; color:#999; padding:20px; background:#fff; border-radius:8px;">當前無天災發料紀錄</div>`;
+        return;
     }
     
     dashboard.innerHTML = logs.map(log => `
@@ -2239,7 +2257,8 @@ async function renderEmergencyLiveDashboard() {
 
 async function reconcileSingleLog(id) {
     const erpNo = document.getElementById(`erp_input_${id}`).value.trim();
-    if (!erpNo) { alert("請輸入真實的台電 ERP 系統發料單號，才能完成核銷！"); return; }
+    if (!erpNo) { alert("請輸入真實的台電 ERP 系統發料單號，才能完成核銷！"); return;
+}
     
     await db.emergency_logs.update(id, { status: "Archived", erpOrderNo: erpNo });
     alert("核銷成功！該筆臨時紀錄已正式歸檔洗白。");
@@ -2249,7 +2268,7 @@ async function reconcileSingleLog(id) {
 async function deleteEmergencyLog(id) {
     if (confirm("確定要刪除這筆天災發料紀錄嗎？(簽名資料將永久遺失)")) {
         await db.emergency_logs.delete(id); renderEmergencyLiveDashboard();
-    }
+}
 }
 
 function exportEmergencyLogsJSON() {
@@ -2273,9 +2292,10 @@ function importAndMergeEmergencyJSON(file) {
             
             let importCount = 0;
             for (let entry of importedData) {
-                delete entry.id; 
+                delete entry.id;
                 const dup = await db.emergency_logs.where('timestamp').equals(entry.timestamp).and(x => x.teamName === entry.teamName && x.partNo === entry.partNo).first();
-                if (!dup) { await db.emergency_logs.add(entry); importCount++; }
+                if (!dup) { await db.emergency_logs.add(entry); importCount++;
+}
             }
             alert(`✅ 成功合併其餘手機資料！本次共匯入 ${importCount} 筆全新天災發料帳目。`);
             renderEmergencyLiveDashboard();
