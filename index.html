@@ -224,7 +224,7 @@
     </div>
 
     <div id="tab-emergency" class="container-3d">
-      <h3 class="section-title" style="border-left-color: #e74c3c;">⚡ 災害現場緊急發料快速登記</h3>
+      <h3 class="section-title" style="border-left-color: #e74c3c;">⚡ 天災現場緊急發料快速登記</h3>
       <p style="font-size:0.85rem; color:#666; margin-top:-10px; margin-bottom:20px;">※ 本介面專為手機操作設計。免背料號，自動綁定簽名。</p>
       
       <form id="emergencyForm" onsubmit="event.preventDefault();">
@@ -234,7 +234,7 @@
         </div>
 
         <div style="margin-bottom: 15px;">
-          <label style="font-weight: bold; color: var(--ukiyo-deep-blue); display:block; margin-bottom:5px;">🎯 災害常用材料快捷區 (免打字點選)</label>
+          <label style="font-weight: bold; color: var(--ukiyo-deep-blue); display:block; margin-bottom:5px;">🎯 天災常用材料快捷區 (免打字點選)</label>
           <div id="quickDeckContainer" style="display: flex; flex-wrap: wrap; gap: 8px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
             </div>
         </div>
@@ -2069,7 +2069,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ==========================================
-// ⚡ 戰地快登模組核心邏輯驅動
+// ⚡ 災害常用材料快捷區 
 // ==========================================
 const TAIPOWER_EMERGENCY_COMMON = [
     { partNo: "1030420013", shortName: "懸垂礙子 C型 10000磅 6"φ 灰色" },
@@ -2197,7 +2197,7 @@ async function submitEmergencyRecord() {
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]); 
         document.getElementById('m_partNo_hidden').value = ""; document.getElementById('m_matSearchInput').value = "";
         document.getElementById('m_quantity').value = ""; document.getElementById('clearEmergencySignBtn').click();
-        alert("✅ 戰地臨時發料成功登記！");
+        alert("✅ 臨時發料成功登記！");
         renderEmergencyLiveDashboard();
     } catch (err) { alert("儲存至 Dexie 失敗：" + err); }
 }
@@ -2208,14 +2208,14 @@ async function renderEmergencyLiveDashboard() {
     const logs = await db.emergency_logs.orderBy('id').reverse().toArray();
     
     if (logs.length === 0) {
-        dashboard.innerHTML = `<div style="text-align:center; color:#999; padding:20px; background:#fff; border-radius:8px;">當前無戰地發料紀錄</div>`; return;
+        dashboard.innerHTML = `<div style="text-align:center; color:#999; padding:20px; background:#fff; border-radius:8px;">當前無天災發料紀錄</div>`; return;
     }
     
     dashboard.innerHTML = logs.map(log => `
         <div style="background:#fff; border-left:6px solid ${log.status === 'Archived' ? 'var(--safe-green)' : '#e74c3c'}; padding:15px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.05); position:relative; display:flex; flex-direction:column; gap:8px;">
             <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#666;">
                 <span>⏱️ ${new Date(log.timestamp).toLocaleTimeString()} | 📅 ${log.dateStr}</span>
-                <span style="font-weight:bold; color:${log.status === 'Archived' ? 'green' : 'red'};">${log.status === 'Archived' ? '✅ 已核銷歸檔' : '⚠️ 颱風待核銷'}</span>
+                <span style="font-weight:bold; color:${log.status === 'Archived' ? 'green' : 'red'};">${log.status === 'Archived' ? '✅ 已核銷歸檔' : '⚠️ 天災待核銷'}</span>
             </div>
             <div style="font-size:1.1rem;">
                 <strong>工班：${log.teamName}</strong> 領用 <span style="color:#d32f2f; font-weight:bold;">${log.matName} × ${log.quantity} ${log.unit}</span> (${log.evalType})
@@ -2247,7 +2247,7 @@ async function reconcileSingleLog(id) {
 }
 
 async function deleteEmergencyLog(id) {
-    if (confirm("確定要刪除這筆戰地發料紀錄嗎？(簽名資料將永久遺失)")) {
+    if (confirm("確定要刪除這筆天災發料紀錄嗎？(簽名資料將永久遺失)")) {
         await db.emergency_logs.delete(id); renderEmergencyLiveDashboard();
     }
 }
