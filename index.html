@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>材料管理系統</title>
+  <title>材料管理系統 - 整合強化版 V6 (戰地極限完整版)</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
@@ -48,8 +48,7 @@
       border-left: 150px solid transparent; border-right: 150px solid transparent;
       border-bottom: 200px solid #2c3e50;
     }
-    .wave { position: absolute; bottom: 0; width: 200%; height: 100%; background-repeat: repeat-x; background-position: bottom;
-    }
+    .wave { position: absolute; bottom: 0; width: 200%; height: 100%; background-repeat: repeat-x; background-position: bottom; }
     .wave-back { z-index: 2; height: 45%;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 180' preserveAspectRatio='none'%3E%3Cpath d='M0,120 C150,150 250,80 400,110 C550,140 650,80 800,110 L800,180 L0,180 Z' fill='%232A587A' opacity='0.8'/%3E%3C/svg%3E");
       animation: moveWave 25s linear infinite; }
@@ -59,158 +58,104 @@
     .wave-front { z-index: 4; height: 35%;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%231D3B56' fill-opacity='1' d='M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E"); animation: moveWave 10s linear infinite;
     }
-    @keyframes moveWave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%);
-    } }
+    @keyframes moveWave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
     /* Excel 匯出按鈕 */
     .excel-btn {
-      position: fixed;
-      top: 20px; left: 20px; z-index: 1000;
+      position: fixed; top: 20px; left: 20px; z-index: 1000;
       background-color: var(--excel-green); color: white; border: 2px solid white;
-      padding: 10px 20px; border-radius: 30px;
-      font-weight: 900; cursor: pointer;
+      padding: 10px 20px; border-radius: 30px; font-weight: 900; cursor: pointer;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
     }
-    .excel-btn:hover { transform: scale(1.05); background-color: #1e6b40;
-    }
+    .excel-btn:hover { transform: scale(1.05); background-color: #1e6b40; }
 
     /* Modal */
     .modal-overlay {
-      display: none;
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6); z-index: 2000; justify-content: center;
-      align-items: center;
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6); z-index: 2000; justify-content: center; align-items: center;
       backdrop-filter: blur(5px); padding: 10px; box-sizing: border-box;
     }
     .modal-content {
-      background: white;
-      padding: 25px; border-radius: 15px; width: 100%; max-width: 500px;
+      background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 500px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; max-height: 90vh; overflow-y: auto;
     }
-    .modal-header { font-size: 1.2rem; font-weight: 900; margin-bottom: 15px; color: var(--ukiyo-deep-blue); border-bottom: 2px solid var(--ukiyo-sky); padding-bottom: 10px;
-    }
+    .modal-header { font-size: 1.2rem; font-weight: 900; margin-bottom: 15px; color: var(--ukiyo-deep-blue); border-bottom: 2px solid var(--ukiyo-sky); padding-bottom: 10px; }
     .modal-body { margin-bottom: 20px; }
-    .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr;
-      gap: 10px; }
-    .checkbox-item { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 5px; border-radius: 5px;
-    }
+    .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .checkbox-item { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 5px; border-radius: 5px; }
     .checkbox-item:hover { background: #f0f0f0; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 10px;
-    }
-    .btn-modal-cancel { background: #ccc; color: #333; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;
-      font-weight: bold; }
-    .btn-modal-confirm { background: var(--excel-green); color: white; border: none; padding: 10px 20px; border-radius: 8px;
-      cursor: pointer; font-weight: bold; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+    .btn-modal-cancel { background: #ccc; color: #333; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .btn-modal-confirm { background: var(--excel-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
     /* UI 內容層 */
-    .content-wrapper { position: relative;
-      z-index: 10; padding: 20px 16px 80px; max-width: 950px; margin: 0 auto; }
-    header { background: var(--ukiyo-deep-blue);
-      color: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(29, 59, 86, 0.5); border: 2px solid #D4AF37;
-      margin-bottom: 25px; }
+    .content-wrapper { position: relative; z-index: 10; padding: 20px 16px 80px; max-width: 950px; margin: 0 auto; }
+    header { background: var(--ukiyo-deep-blue); color: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(29, 59, 86, 0.5); border: 2px solid #D4AF37; margin-bottom: 25px; }
 
-    .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch;
-      flex-wrap: nowrap; }
-    .nav-btn { flex: 0 0 auto; padding: 12px; border: none; border-radius: 8px; background: rgba(255,255,255,0.6);
-      font-weight: 700; color: var(--ukiyo-deep-blue); cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); white-space: nowrap;
-    }
-    .nav-btn.active { background: var(--ukiyo-deep-blue); color: #fff; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-    }
+    .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
+    .nav-btn { flex: 0 0 auto; padding: 12px; border: none; border-radius: 8px; background: rgba(255,255,255,0.6); font-weight: 700; color: var(--ukiyo-deep-blue); cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); white-space: nowrap; }
+    .nav-btn.active { background: var(--ukiyo-deep-blue); color: #fff; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
     .nav-btn-transfer { border-bottom: 3px solid var(--warning-orange); }
-    .nav-btn-history { border-bottom: 3px solid #8e44ad;
-    }
+    .nav-btn-history { border-bottom: 3px solid #8e44ad; }
+    .nav-btn-emergency { border-bottom: 3px solid var(--danger-red); }
 
-    .container-3d { background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-      border: 1px solid var(--glass-border); margin-bottom: 30px; display: none; }
-    .container-3d.active { display: block; animation: fadeIn 0.5s;
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0);
-    } }
+    .container-3d { background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid var(--glass-border); margin-bottom: 30px; display: none; }
+    .container-3d.active { display: block; animation: fadeIn 0.5s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    h3.section-title { color: var(--ukiyo-deep-blue); border-left: 6px solid var(--danger-red); padding-left: 15px; margin: 25px 0 15px;
-      font-weight: 900; }
-    input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;
-      font-size: 1rem; box-sizing: border-box; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;
-    }
-    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 15px; margin-bottom: 15px;
-    }
-    .form-row-4 { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;
-    }
+    h3.section-title { color: var(--ukiyo-deep-blue); border-left: 6px solid var(--danger-red); padding-left: 15px; margin: 25px 0 15px; font-weight: 900; }
+    input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 15px; margin-bottom: 15px; }
+    .form-row-4 { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
 
-    .btn-save { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(45deg, var(--ukiyo-deep-blue), var(--ukiyo-mid-blue)); color: white;
-      font-size: 1.1rem; font-weight: 900; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-    .btn-save:hover { background: var(--danger-red); transform: translateY(-2px);
-    }
-    .btn-search { background: var(--ukiyo-mid-blue); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
-    }
-    .btn-danger { background: var(--danger-red); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
-    }
+    .btn-save { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(45deg, var(--ukiyo-deep-blue), var(--ukiyo-mid-blue)); color: white; font-size: 1.1rem; font-weight: 900; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+    .btn-save:hover { background: var(--danger-red); transform: translateY(-2px); }
+    .btn-search { background: var(--ukiyo-mid-blue); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .btn-danger { background: var(--danger-red); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .btn-backup { background: #9b59b6; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-    .materials-container { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; padding: 10px;
-      border: 1px solid #ddd; border-radius: 8px; background: white; margin-top: 10px; }
-    .material-btn { padding: 10px; background: #f9f9f9;
-      border: 1px solid #eee; cursor: pointer; border-radius: 6px; text-align: left; transition: 0.2s; }
-    .material-btn:hover { background: #eef2f5;
-    }
+    .materials-container { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; margin-top: 10px; }
+    .material-btn { padding: 10px; background: #f9f9f9; border: 1px solid #eee; cursor: pointer; border-radius: 6px; text-align: left; transition: 0.2s; }
+    .material-btn:hover { background: #eef2f5; }
     .material-btn.active { background: var(--ukiyo-mid-blue); color: white; }
 
-    .record-li { background: white; border-radius: 12px;
-      padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--ukiyo-mid-blue); position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .btn-delete { position: absolute; right: 15px; top: 15px; background: #ffeaea; border: 1px solid #ffcccc; color: red;
-      cursor: pointer; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; }
+    .record-li { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--ukiyo-mid-blue); position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .btn-delete { position: absolute; right: 15px; top: 15px; background: #ffeaea; border: 1px solid #ffcccc; color: red; cursor: pointer; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; }
 
-    .stock-table { width: 100%; border-collapse: collapse;
-      margin-top: 10px; }
-    .stock-table th, .stock-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee;
-    }
-    .stock-table th { background-color: var(--ukiyo-foam); color: var(--ukiyo-deep-blue); white-space: nowrap;
-    }
-    .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; color: white; white-space: nowrap;
-    }
+    .stock-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .stock-table th, .stock-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+    .stock-table th { background-color: var(--ukiyo-foam); color: var(--ukiyo-deep-blue); white-space: nowrap; }
+    .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; color: white; white-space: nowrap; }
     .status-ok { background-color: var(--safe-green); }
-    .status-low { background-color: var(--danger-red);
-    }
+    .status-low { background-color: var(--danger-red); }
     .status-warn { background-color: var(--warning-orange); }
 
-    .history-card { background: #fff; border-radius: 12px; padding: 15px;
-      margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee; }
-    .history-stat-grid { display: grid;
-      grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-    .stat-box { background: var(--ukiyo-foam); padding: 10px; border-radius: 8px;
-      text-align: center; }
-    .stat-val { font-size: 1.2rem; font-weight: 900; color: var(--ukiyo-deep-blue);
-    }
+    .history-card { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee; }
+    .history-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+    .stat-box { background: var(--ukiyo-foam); padding: 10px; border-radius: 8px; text-align: center; }
+    .stat-val { font-size: 1.2rem; font-weight: 900; color: var(--ukiyo-deep-blue); }
     .stat-label { font-size: 0.8rem; color: #666; }
 
-    .mode-toggle { display: flex; background: #ddd;
-      border-radius: 10px; padding: 5px; margin-bottom: 20px; }
-    .mode-btn { flex: 1; padding: 10px; text-align: center; cursor: pointer;
-      border-radius: 8px; font-weight: bold; font-size: 0.9rem; }
-    .mode-btn.active { background: white; color: var(--ukiyo-deep-blue);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .mode-toggle { display: flex; background: #ddd; border-radius: 10px; padding: 5px; margin-bottom: 20px; }
+    .mode-btn { flex: 1; padding: 10px; text-align: center; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 0.9rem; }
+    .mode-btn.active { background: white; color: var(--ukiyo-deep-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-    .ukiyo-signature { position: fixed; left: 20px; bottom: 20px; z-index: 100;
-      font-weight: 900; padding: 10px; background: #F2E6D9; border: 2px solid #1D3B56; border-radius: 5px; transform: rotate(-5deg); cursor: pointer;
-      box-shadow: 3px 3px 0px #1D3B56; }
+    .ukiyo-signature { position: fixed; left: 20px; bottom: 20px; z-index: 100; font-weight: 900; padding: 10px; background: #F2E6D9; border: 2px solid #1D3B56; border-radius: 5px; transform: rotate(-5deg); cursor: pointer; box-shadow: 3px 3px 0px #1D3B56; }
+
+    .multi-material-list { margin-top: 15px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; background: #f9f9f9; }
+    .multi-material-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: white; border-radius: 5px; margin-bottom: 8px; border-left: 3px solid var(--ukiyo-mid-blue); }
+    .multi-material-count { background: var(--ukiyo-deep-blue); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; margin-right: 10px; }
 
     @media (max-width: 600px) { 
-      .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr;
-      } 
-      .nav-btn { font-size: 0.9rem; padding: 8px 12px;
-      }
-      .excel-btn { top: auto; bottom: 80px; right: 20px; left: auto; border-radius: 50%; width: 50px;
-      height: 50px; padding: 0; justify-content: center; }
-      .excel-btn span { display: none;
-      }
-      .excel-btn::after { content: "📊"; font-size: 1.5rem;
-      }
+      .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; } 
+      .nav-btn { font-size: 0.9rem; padding: 8px 12px; }
+      .excel-btn { top: auto; bottom: 80px; right: 20px; left: auto; border-radius: 50%; width: 50px; height: 50px; padding: 0; justify-content: center; }
+      .excel-btn span { display: none; }
+      .excel-btn::after { content: "📊"; font-size: 1.5rem; }
       .checkbox-grid { grid-template-columns: 1fr; }
-      .container-3d { padding: 20px;
-      }
-      .stock-table th, .stock-table td { font-size: 0.85rem; padding: 8px;
-      }
+      .container-3d { padding: 20px; }
+      .stock-table th, .stock-table td { font-size: 0.85rem; padding: 8px; }
     }
   </style>
 </head>
@@ -264,7 +209,8 @@
 
   <div class="content-wrapper">
     <header>
-      <div style="font-weight:900; font-size: 1.5rem; letter-spacing: 2px;">材料管理系統 </div>
+      <div style="font-weight:900; font-size: 1.5rem; letter-spacing: 2px;">材料管理系統 - 整合強化版 V6 (戰地極限完整版)</div>
+      <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.9;">Excel 智慧匯入 + Dexie複合索引 + 戰地極限快登 + 離線對帳核銷</div>
     </header>
 
     <div class="nav-tabs">
@@ -274,6 +220,76 @@
       <button class="nav-btn nav-btn-transfer" onclick="switchTab('transfer')">🚚 進貨/調撥</button>
       <button class="nav-btn nav-btn-history" onclick="switchTab('history')">📜 歷史用料紀錄</button>
       <button class="nav-btn" onclick="switchTab('analysis')">📊 分析與預測</button>
+      <button class="nav-btn nav-btn-emergency" onclick="switchTab('emergency')">⚡ 戰地快登</button>
+    </div>
+
+    <div id="tab-emergency" class="container-3d">
+      <h3 class="section-title" style="border-left-color: #e74c3c;">⚡ 颱風天現場緊急發料快速登記</h3>
+      <p style="font-size:0.85rem; color:#666; margin-top:-10px; margin-bottom:20px;">※ 本介面專為手機單手操作設計。免背料號、免掃描，大按鈕點選，自動綁定簽名。</p>
+      
+      <form id="emergencyForm" onsubmit="event.preventDefault();">
+        <div style="margin-bottom: 15px;">
+          <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">👷 領料工班 / 外包商名稱</label>
+          <input type="text" id="m_teamName" placeholder="例如：新營維護班、施工七班、大自然營造" required style="border: 2px solid var(--ukiyo-mid-blue); font-size:1.1rem; padding:15px;" />
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <label style="font-weight: bold; color: var(--ukiyo-deep-blue); display:block; margin-bottom:5px;">🎯 防災常備物料快捷區 (免打字點選)</label>
+          <div id="quickDeckContainer" style="display: flex; flex-wrap: wrap; gap: 8px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px; position: relative;">
+          <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">🔍 其他物料搜尋 (輸入中文品名或部分料號)</label>
+          <input type="text" id="m_matSearchInput" placeholder="輸入關鍵字，例如：礙子、橫擔、60SQ..." oninput="searchMaterialFuzzy(this.value)" style="font-size:1.1rem; padding:12px;" />
+          <input type="hidden" id="m_partNo_hidden" />
+          <div id="searchResultDropdown" style="display:none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 250px; overflow-y: auto; background: white; border: 2px solid var(--ukiyo-deep-blue); box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 9999; border-radius: 0 0 8px 8px;"></div>
+        </div>
+
+        <div class="form-row" style="grid-template-columns: 1.5fr 1fr;">
+          <div>
+            <label style="font-weight: bold;">🔢 發放數量</label>
+            <div style="display:flex; gap:5px;">
+              <button type="button" onclick="adjustEmergencyQty(-1)" style="padding:10px 15px; background:#ccc; border:none; border-radius:5px; font-weight:bold; font-size:1.2rem;">-</button>
+              <input type="number" id="m_quantity" min="0.1" step="any" placeholder="請輸入數量" required style="text-align:center; font-size:1.2rem; font-weight:bold;" />
+              <button type="button" onclick="adjustEmergencyQty(1)" style="padding:10px 15px; background:#ccc; border:none; border-radius:5px; font-weight:bold; font-size:1.2rem;">+</button>
+            </div>
+          </div>
+          <div>
+            <label style="font-weight: bold;">🏷️ 評價類型</label>
+            <select id="m_evalType" style="padding:12px;">
+              <option value="0新" selected>0新</option>
+              <option value="1舊">1舊</option>
+              <option value="3資產新">3資產新</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; margin-bottom: 20px;">
+          <label style="font-weight: bold; color: #e74c3c;">✍️ 現場工班領料手指電子簽名</label>
+          <div style="background:#fff; border:2px dashed #999; border-radius:8px; padding:5px; text-align:center;">
+            <canvas id="emergencySignatureCanvas" width="400" height="150" style="width:100%; height:150px; background:#fcfcfc; cursor:crosshair; touch-action:none;"></canvas>
+            <input type="hidden" id="emergencySignatureInput" />
+            <div style="text-align:right; margin-top:5px;">
+              <button type="button" id="clearEmergencySignBtn" style="padding:5px 15px; background:#7f8c8d; color:white; border:none; border-radius:4px; cursor:pointer; font-size:0.85rem;">擦除重簽</button>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-save" style="background: linear-gradient(45deg, #e74c3c, #c0392b); padding:18px; font-size:1.2rem;" onclick="submitEmergencyRecord()">确认發料登記 💾</button>
+      </form>
+
+      <h3 class="section-title" style="border-left-color: #2980b9; margin-top:40px;">🔄 戰地離線紀錄管理與核銷中央console</h3>
+      <div style="background:#e8f4f8; padding:15px; border-radius:10px; margin-bottom:20px; border:1px solid #b8d4e3; display:flex; gap:10px; flex-wrap:wrap;">
+        <button type="button" onclick="exportEmergencyLogsJSON()" style="background:#27ae60; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; cursor:pointer;">📥 匯出這台手機發料檔 (.json)</button>
+        <button type="button" onclick="document.getElementById('importMergeInput').click()" style="background:#2980b9; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; cursor:pointer;">📤 匯入並合併其餘手機檔案</button>
+        <input type="file" id="importMergeInput" accept=".json" style="display:none;" onchange="importAndMergeEmergencyJSON(this.files[0])" />
+      </div>
+
+      <div style="margin-top:20px;">
+        <strong>📋 當前戰地發料即時動態 (最新5筆 / 附核銷功能)</strong>
+        <div id="emergencyLiveDashboard" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
     </div>
 
     <div id="tab-input" class="container-3d active">
@@ -289,21 +305,19 @@
             </select>
           </div>
         </div>
-
         <div class="form-row">
           <div><label>單號</label><input type="text" id="orderNo" placeholder="請輸入單號" required /></div>
           <div><label>領/退/借用人姓名</label><input type="text" id="personName" required /></div>
         </div>
-        
         <div class="form-row">
           <div><label>發/收料經辦人</label><input type="text" id="staffName" required /></div>
           <div>
-              <label>10位料號搜尋 (自動帶出)</label>
-              <input type="text" id="partNoInput" maxlength="10" placeholder="輸入料號自動選取類別" oninput="handleUniversalInput(this.value, 'input')" />
+              <label>操作人員 (用於報表記錄)</label>
+              <input type="text" id="operatorName" placeholder="請輸入操作人員姓名" required />
           </div>
         </div>
 
-        <h3 class="section-title">貳、材料選擇</h3>
+        <h3 class="section-title">貳、材料選擇 (批次輸入模式 - 最多20筆)</h3>
         <select id="category_input" onchange="renderMaterials('input')">
           <option value="">-- 請選擇材料類別 --</option>
           <option value="A">A 類 (礙子)</option>
@@ -332,7 +346,16 @@
               </select>
             </div>
           </div>
-          <button type="submit" class="btn-save">💾 儲存物料紀錄</button>
+          <div style="display:flex; gap:10px;">
+            <button type="button" class="btn-save" style="flex:1; background: linear-gradient(45deg, #3498db, #2980b9);" onclick="addMaterialToBatch()">➕ 加入批次清單</button>
+            <button type="button" class="btn-save" style="flex:1;" onclick="submitBatchRecords()">💾 儲存所有批次物料紀錄</button>
+          </div>
+        </div>
+
+        <div id="batchMaterialList" class="multi-material-list" style="display:none;">
+          <div style="font-weight:bold; margin-bottom:10px; color:var(--ukiyo-deep-blue);">📋 批次清單 (<span id="batchCount">0</span>/20)</div>
+          <div id="batchItems"></div>
+          <button type="button" class="btn-danger" style="width:100%; margin-top:10px;" onclick="clearBatch()">🗑️ 清空批次清單</button>
         </div>
       </form>
     </div>
@@ -357,29 +380,34 @@
         <strong>📋 搜尋結果</strong>
         <button class="btn-delete" style="position:static; border:1px solid red; background:#fff;" onclick="deleteAllRecords()">🗑️ 刪除所有紀錄 (慎用)</button>
       </div>
-
       <div id="logList"></div>
     </div>
 
     <div id="tab-inventory" class="container-3d">
       <h3 class="section-title">📦 庫存設定與查詢</h3>
-      
       <div class="import-section" style="margin: 20px 0; border: 2px dashed #217346; padding: 15px; border-radius: 10px; background: #f0fdf4;">
-          <h4 style="color:#217346; margin-top:0;">📦 步驟 1：同步總處庫存 (拖放Excel)</h4>
+          <h4 style="color:#217346; margin-top:0;">📦 步驟 1：同步系統庫存 (拖放Excel)</h4>
+          <p style="font-size: 0.85rem; color:#666; margin-bottom: 10px;">支援自動掃描所有Sheet、智慧欄位辨識、差異報表自動產出、同一料號多評價類型、防重複匯入</p>
           <input type="file" id="excel-input" accept=".xlsx, .xls" onchange="handleExcelImport(this.files[0])" />
+          <div id="importStatus" style="margin-top:10px; font-size:0.9rem; color:#666;"></div>
       </div>
-
       <div class="report-section" style="margin: 20px 0; background: #fff3cd; padding: 15px; border-radius: 10px; border: 1px solid #ffeeba;">
-          <h4 style="color:#856404; margin-top:0;">📑 步驟 2：產出對帳清單 (回填總處用)</h4>
-          <p style="font-size: 0.9em; color:#666;">當你要回到有網路的辦公室時，點擊下方按鈕產出今日所有領料清單。</p>
-          <button onclick="exportReconciliationReport()" style="background:#856404; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">
-              匯出今日異動清單 (.xlsx)
-          </button>
+          <h4 style="color:#856404; margin-top:0;">📑 步驟 2：產出對帳清單 </h4>
+          <p style="font-size: 0.9em; color:#666;">點擊下方按鈕產出今日所有領料清單。</p>
+          <button onclick="exportReconciliationReport()" style="background:#856404; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">匯出今日異動清單 (.xlsx)</button>
       </div>
-
+      <div style="margin: 20px 0; background: #e8f4f8; padding: 15px; border-radius: 10px; border: 1px solid #b8d4e3;">
+          <h4 style="color:#2980b9; margin-top:0;">💾 資料庫備份與還原</h4>
+          <p style="font-size: 0.9em; color:#666; margin-bottom: 10px;">一鍵備份整個材料資料庫，包含初始庫存、異動紀錄等所有資料。</p>
+          <div style="display:flex; gap:10px;">
+            <button onclick="backupDatabase()" style="background:#9b59b6; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">📥 備份資料庫</button>
+            <input type="file" id="restore-input" accept=".json" style="display:none;" onchange="restoreDatabase(this.files[0])" />
+            <button onclick="document.getElementById('restore-input').click()" style="background:#e67e22; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">📤 還原資料庫</button>
+          </div>
+          <div id="backupStatus" style="margin-top:10px; font-size:0.9rem; color:#666;"></div>
+      </div>
       <div class="form-row-4" style="background: var(--ukiyo-foam); padding:15px; border-radius:10px; margin-bottom:20px;">
         <div style="grid-column: 1 / -1;"><strong>🔧 設定單筆初始庫存 (分評價類型)</strong></div>
-        
         <div style="grid-column: 1 / -1; margin-bottom: 10px;">
              <label>選擇類別 (輔助帶入)</label>
              <select id="category_stock" onchange="renderMaterials('stock')">
@@ -393,12 +421,10 @@
             </select>
             <div id="materialsContainer_stock" class="materials-container" style="display:none; margin-bottom:10px;"></div>
         </div>
-
         <div>
             <label>料號 (輸入10碼)</label>
             <input type="text" id="stockPartNo" placeholder="輸入或選擇..." oninput="handleUniversalInput(this.value, 'stock')">
         </div>
-        
         <div><label>評價類型</label>
            <select id="stockEvalType">
                 <option value="0新">0新</option>
@@ -408,7 +434,6 @@
                 <option value="4資產舊">4資產舊</option>
            </select>
         </div>
-        
         <div><label>初始數量</label><input type="number" id="stockInitQty" placeholder="0"></div>
         <div style="display:flex; flex-direction:column; gap:5px;">
             <button class="btn-search" style="width:100%" onclick="setInitialStock()">設定/更新</button>
@@ -416,12 +441,10 @@
         </div>
         <div style="grid-column: 1 / -1;"><small style="color:#666">目前選擇: <span id="stockSelectedName" style="color:var(--ukiyo-mid-blue); font-weight:bold;">無</span></small></div>
       </div>
-      
       <div style="display:flex; gap:10px; margin-bottom:10px;">
           <input type="text" id="filterStockInput" placeholder="🔍 快速過濾庫存表(料號/品名)" oninput="renderInventoryTable()">
           <button class="btn-danger" style="width:180px;" onclick="clearAllInitialStock()">⚠️ 清空所有初始庫存</button>
       </div>
-      
       <div style="overflow-x: auto;">
         <table class="stock-table">
           <thead>
@@ -440,19 +463,16 @@
 
     <div id="tab-transfer" class="container-3d">
       <h3 class="section-title">🚚 進貨 / 調撥 / 移轉</h3>
-      
       <div class="mode-toggle">
         <div id="modeStockIn" class="mode-btn active" onclick="setTransferMode('stockin')">📥 進貨入庫 (廠商/總處)</div>
         <div id="modeTransfer" class="mode-btn" onclick="setTransferMode('transfer')">⇆ 單位間調撥</div>
         <div id="modeWarehouse" class="mode-btn" onclick="setTransferMode('warehouse')">🏭 倉庫間移轉</div>
       </div>
-
       <div style="background: #eef2f5; padding: 20px; border-radius: 12px; border: 1px solid #ccc;">
         <div class="form-row">
             <div><label>異動日期</label><input type="date" id="transferDate"></div>
             <div><label>單號</label><input type="text" id="transferOrderNo" placeholder="請輸入單號"></div>
         </div>
-
         <div class="form-row">
             <div>
                 <label>10位料號搜尋 (自動帶出)</label>
@@ -460,7 +480,6 @@
             </div>
             <div><label>品名規格 (自動顯示)</label><input type="text" id="transferItemName" disabled style="background: #e0e0e0; font-weight:bold;"></div>
         </div>
-        
         <div style="margin-bottom: 15px;">
            <label>評價類型</label>
            <select id="transferEvalType" style="background:#fff3cd; border:1px solid #e67e22;">
@@ -471,7 +490,6 @@
                 <option value="4資產舊">4資產舊</option>
            </select>
         </div>
-
         <div id="stockInFields">
             <div class="form-row">
                 <div><label>入庫數量</label><input type="number" id="stockInQty" min="1" placeholder="例如: 10"></div>
@@ -479,7 +497,6 @@
             </div>
             <button class="btn-save" style="background: linear-gradient(45deg, #11998e, #38ef7d);" onclick="processStockIn()">📥 確認入庫 (入帳)</button>
         </div>
-
         <div id="transferFields" style="display:none;">
             <div class="form-row">
                 <div><label>對方單位名稱</label><input type="text" id="transferTargetUnit" placeholder="例: 嘉義區處"></div>
@@ -496,9 +513,8 @@
             </div>
             <button class="btn-save" style="background: linear-gradient(45deg, #f7971e, #ffd200);" onclick="processTransfer()">⇆ 確認調撥</button>
         </div>
-
         <div id="warehouseFields" style="display:none;">
-             <div class="form-row">
+            <div class="form-row">
                 <div><label>目標/來源 倉庫名稱</label>
                     <select id="warehouseTarget">
                         <option value="21M1本庫倉">21M1本庫倉</option>
@@ -507,7 +523,7 @@
                         <option value="21M2徵用倉">21M2徵用倉</option>
                         <option value="其他">其他</option>
                     </select>
-                 </div>
+                </div>
                 <div><label>移轉類型</label>
                     <select id="warehouseType">
                         <option value="transfer_out">移出 (移至該倉 -)</option>
@@ -521,7 +537,6 @@
             </div>
             <button class="btn-save" style="background: linear-gradient(45deg, #4b6cb7, #182848);" onclick="processWarehouseTransfer()">🏭 確認移轉</button>
         </div>
-
       </div>
     </div>
 
@@ -546,6 +561,19 @@
                     </select>
                 </div>
             </div>
+            <div class="form-row" style="margin-top: 15px;">
+                <div style="width: 100%;">
+                    <label>選擇評價類型</label>
+                    <select id="historyEvalType" style="width: 100%;">
+                        <option value="">-- 所有評價類型 --</option>
+                        <option value="0新">0新</option>
+                        <option value="1舊">1舊</option>
+                        <option value="2待修待驗">2待修待驗</option>
+                        <option value="3資產新">3資產新</option>
+                        <option value="4資產舊">4資產舊</option>
+                    </select>
+                </div>
+            </div>
             <div id="materialsContainer_history" class="materials-container" style="display:none; margin-bottom:10px;"></div>
             <button class="btn-search" style="width:100%; margin-top:10px;" onclick="calculateUsageHistory()">📊 開始計算用料統計</button>
         </div>
@@ -554,7 +582,6 @@
             <div style="padding:10px; background:var(--ukiyo-mid-blue); color:white; border-radius:8px; margin-bottom:15px;">
                 <h4 style="margin:0; text-align:center;" id="historyItemTitle">品名規格</h4>
             </div>
-
             <div class="history-card">
                 <div style="text-align:center; margin-bottom:10px; font-weight:bold; color:#d35400;">🏆 總體用料概況</div>
                 <div class="history-stat-grid">
@@ -562,13 +589,11 @@
                     <div class="stat-box"><div class="stat-val" id="avgYearly">0</div><div class="stat-label">歷年平均</div></div>
                 </div>
             </div>
-
             <div class="history-card">
                 <div style="text-align:center; margin-bottom:10px; font-weight:bold; color:#2980b9;">📅 歷月用料總計 (1-12月)</div>
                 <div id="monthlyStats" style="display:grid; grid-template-columns: repeat(6, 1fr); gap:5px; font-size:0.8rem; text-align:center;">
                 </div>
             </div>
-
             <div class="history-card">
                 <div style="text-align:center; margin-bottom:10px; font-weight:bold; color:#27ae60;">🍂 歷季用料總計</div>
                 <div class="history-stat-grid">
@@ -583,20 +608,29 @@
 
     <div id="tab-analysis" class="container-3d">
       <h3 class="section-title">📊 存貨預警分析報告</h3>
-      <div class="form-row-3" style="background: #fff3cd; padding:15px; border-radius:10px; margin-bottom:20px;">
-        <div style="grid-column: 1 / -1;"><strong>⚠️ 設定安全存量 (預警值)</strong></div>
+      <div class="form-row-4" style="background: #fff3cd; padding:15px; border-radius:10px; margin-bottom:20px;">
+        <div style="grid-column: 1 / -1;"><strong>⚠️ 設定安全存量 (預警值：依料號 + 評價類型分開控管)</strong></div>
         <div>
             <label>料號 (輸入10碼顯示品名)</label>
-            <input type="text" id="safePartNo" placeholder="輸入完整料號" oninput="handleUniversalInput(this.value, 'analysis')">
-            <small id="safeNameDisplay" style="color:#e67e22;"></small>
+            <input type="text" id="safePartNo" maxlength="10" placeholder="輸入完整料號" oninput="handleUniversalInput(this.value, 'analysis')">
+            <small id="safeNameDisplay" style="color:#e67e22; font-weight:bold;"></small>
         </div>
-        <div><label>安全存量</label><input type="number" id="safeQty" placeholder="例如: 10"></div>
+        <div>
+            <label>評價類型</label>
+            <select id="safeEvalType" style="background:#fff; border:1px solid #e67e22;">
+                <option value="0新">0新</option>
+                <option value="1舊">1舊</option>
+                <option value="2待修待驗">2待修待驗</option>
+                <option value="3資產新">3資產新</option>
+                <option value="4資產舊">4資產舊</option>
+            </select>
+            <small id="safeEvalHint" style="color:#666; display:block; margin-top:4px;">可針對同一料號不同評價類型設定不同預警值</small>
+        </div>
+        <div><label>安全存量</label><input type="number" id="safeQty" min="0" placeholder="例如: 10"></div>
         <div><label>動作</label><button class="btn-search" style="background:#e67e22; width:100%" onclick="setSafetyStock()">設定預警</button></div>
       </div>
-
       <div id="analysisReport"></div>
     </div>
-
   </div>
 
   <div class="ukiyo-signature" onclick="toggleSignature(this)">
@@ -604,14 +638,42 @@
   </div>
 
 <script>
-// --- [初始化資料庫與 Dexie.js 持久化設定] ---
-const db = new Dexie("TPC_Offline_ERP");
+// ==========================================
+// 資料庫初始化 V6 (升級加入 emergency_logs)
+// ==========================================
+const DB_NAME = "TPC_Offline_ERP_V5_Composite";
+const db = new Dexie(DB_NAME);
+
 db.version(1).stores({
-    materials: 'partNo, name, stock, unit, lastUpdate',
-    changeLog: '++id, date, partNo, type, amount, note' 
+    materials: '++id, partNo, rating, name, stock, unit, lastUpdate',
+    changeLog: '++id, date, partNo, type, amount, note',
+    importHistory: '++id, fileName, fileHash, importDate, operator'
 });
 
-// --- [原始資料庫 (靜態資料)] ---
+db.version(2).stores({
+    materials: '++id, [partNo+rating], partNo, rating, name, erpStock, stock, unit, location, lastUpdate',
+    changeLog: '++id, date, partNo, rating, type, amount, recordId, note',
+    importHistory: '++id, fileName, fileHash, importDate, operator',
+    emergency_logs: '++id, timestamp, dateStr, teamName, partNo, matName, quantity, status, erpOrderNo'
+}).upgrade(async tx => {
+    await tx.table('materials').toCollection().modify(item => {
+        item.partNo = normalizePartNo(item.partNo);
+        item.rating = normalizeEvalType(item.rating ?? item.evalType);
+        item.erpStock = normalizeNumber(item.erpStock ?? item.stock ?? 0);
+        item.unit = item.unit || '';
+        item.lastUpdate = item.lastUpdate || new Date().toISOString();
+    });
+
+    await tx.table('changeLog').toCollection().modify(log => {
+        log.partNo = normalizePartNo(log.partNo);
+        log.rating = normalizeEvalType(log.rating ?? log.evalType);
+        log.amount = normalizeNumber(log.amount ?? log.qty ?? 0);
+    });
+});
+
+// ==========================================
+// 原始資料庫 (靜態資料)
+// ==========================================
 const rawData = {
   A: `1030420013	懸垂礙子 C型 10000磅 6"φ 灰色
 1030420014	懸垂礙子 C型 15000磅 φ10" 灰色
@@ -620,7 +682,6 @@ const rawData = {
 1030500000	聚合柱型礙子 11.4kV
 1030520001	拉線礙子 低壓 大型 L139.7㎜
 1030520006	軸型礙子 低壓 軸型`,
-
     B: `1006000006	路燈開關 1P 240Vac 135A 非水銀式
 1006000011	路燈開關 1P 240Vac 135A  電磁式
 1006060005	點滅器 220Vac 5A 5~100lux
@@ -638,7 +699,7 @@ const rawData = {
 1016000000	螺栓鎖 鎖鉤:5㎜φ 鎖鉤:鋁 螺栓:SS400 栓涵:鎂鋁矽合金
 1016050113	開關箱 屋外型 不鏽鋼 600x400x230㎜ T2㎜
 1028500019	配電線路電桿反光標語片 CNS 4345感壓型第1級 33x12㎝自黏式Y193
-1028500025	配電線路電桿反光貼紙 PVC 40x10㎝ 蜂巢狀/黃色 自黏式
+1028500025	配電線路電桿反光貼紙 PVC 40x10㎜ 蜂巢狀/黃色 自黏式
 1028500186	配電線路電桿反光貼紙 非鍍層立方角錐之微稜鏡反射材料 90x100㎝ 黃黑相間色
 1028500187	配電線路電桿反光貼紙 非鍍層立方角錐之微稜鏡反射材料 90x60㎝ 黃黑相間色
 1028600042	電桿牌 鋁 220×90×T0.511㎜ 藍底白字
@@ -722,18 +783,17 @@ const rawData = {
 1404140000	鍍鋅全牙螺栓 SGD290-D M16xP2.0x450㎜ 附4只方螺帽
 1404230039	碳鋼擴張螺栓 S45C H內牙外迫式 5/8"φx2-1/2"
 1404310021	碳鋼單眼螺栓 SGD290-D M16xP2.0x270㎜ 附雙螺帽
-1404310023	碳鋼單眼螺栓 SGD290-D M16xP2.0x450㎜ 附三螺帽
-1404310026	碳鋼支線螺栓 SGD290-D M16xP2.0x500㎜ 附四螺帽
-1404310028	碳鋼支線螺栓 SGD290-D M16xP2.0x300㎜ 附雙螺帽
+1404310023	碳鋼單眼螺栓 SGD290-D M16×P2.0×450㎜ 附三螺帽
+1404310026	碳鋼支線螺栓 SGD290-D M16×P2.0×500㎜ 附四螺帽
+1404310028	碳鋼支線螺栓 SGD290-D M16×P2.0×300㎜ 附雙螺帽
 1406010030	鍍鋅方墊圈 SS400 M16 18㎜φx4.5㎜ L52xW52㎜
 1808360000	鉻酸鋅糊 1磅裝 材規Y413
-1818050011	棉紗手套 棉紗含棉量100％ L250㎜ 電工用
+1818050011	棉紗手套 棉紗含棉量100％ L250㎜ 經電工用
 1900000069	過載保護熔絲 13.8kV 25kVA 單相亭置式變壓器
 1900000070	過載保護熔絲 6.9kV 25kVA/13.8kV 50kVA 單相亭置式變壓器
 1900000071	過載保護熔絲 6.9kV 50kVA/13.8kV 100kVA單相亭置式變壓器
 1900000072	過載保護熔絲 6.9kV100kVA/13.8kV167kVA單相亭置式變壓器
 1900000073	過載保護熔絲 6.9kV 167kVA 單相亭置式變壓器`,
-
     C: `1028560003	支線標示管 PE 34φxT2㎜xL1.8M
 1030060071	電纜用塑膠帶 T0.178㎜xW19㎜xL20M
 1030060072	電纜用塑膠帶 T0.178㎜xW38㎜xL20M
@@ -799,7 +859,7 @@ const rawData = {
 1120340001	素材木橫擔 L1200×90×90㎜
 1120340002	素材木橫擔 L1800×90×90㎜
 1120340008	接戶橫木 60×60㎜
-1120340010	輕鋼橫擔 L1800×75×75×T2.3㎜
+1120340001	輕鋼橫擔 L1800×75×75×T2.3㎜
 1120340011	輕鋼橫擔 L2400×75×75×T2.3㎜
 1122050001	電纜保護鐵 小型 SS400 3"φ L2500㎜
 1122200007	電纜固定帶 #1 AWG 鋁合金 25KV AWG #1 單條
@@ -829,7 +889,6 @@ const rawData = {
 1822810000	不鏽鋼束緊帶 304SST 0.2~0.3㎜×20㎜×1500㎜
 1822810001	不鏽鋼束緊帶 304SST 0.2~0.3㎜×20㎜×1700㎜
 1895020025	白細布 W3FT 12磅`,
-
     F: `1000010059	桿上變壓器 單相 6.9kV 240/120V 10kVA
 1000010064	桿上變壓器 單相 6.9kV 240/120V 25kVA
 1000010066	改良套管型桿上變壓器 單相 6.9kV 240/120V 25kVA
@@ -851,7 +910,7 @@ const rawData = {
 1000010217	桿上變壓器 單相 6.9kV 240/120V 100kVA 不鏽鋼
 1000010218	桿上變壓器 單相 6.9kV 240/120V 50kVA 不鏽鋼
 1000010222	桿上變壓器 單相 6.9/13.8kV 240/120V 25kVA 不銹鋼
-1000010225	桿上變壓器 單相 6.9/13.8kV 240/120V 167kVA 不銹鋼
+1000010225	桿上變壓器 單相 6.9/13.8kV 240/120V 167kVA 不鏽鋼
 1004030005	高壓電容器 單相 6.9kV 100kVAR 屋外型
 1004030006	高壓電容器 單相 6.9kV 200kVAR 屋外型
 1008010002	電容器用油開關 單相 14.4kV 200A 手動/電動 115Vac
@@ -860,10 +919,6 @@ const rawData = {
 1008080005	亭置式氣封開關 三相 24kV 四路 2-600A 2-200A SF6絕緣
 1008080013	亭置式開關 3相 24kV 二路 2-200A SF6絕緣 低碳鋼型
 1008080016	亭置式氣封開關 三相 24kV 四路 3-600A 1-200A SF6絕緣
-1016030015	高壓配電箱 屋外型 鐵 A類x1 單具組
-1016030040	高壓配電箱 屋外型 不鏽鋼 A類x1 單具組
-1016030042	高壓配電箱 屋外型 不鏽鋼 B類J型
-1016030043	高壓配電箱 屋外型 不鏽鋼 B類P型
 1030240010	變壓器絕緣油 35kV以上/2±0.03㎜ 145℃
 1112000015	預力電桿 9m 配電 圓型 B級
 1112000016	預力電桿 10.5m 配電 圓型 B級
@@ -875,7 +930,6 @@ const rawData = {
 1124020059	手孔蓋墊座 方型 1210x810x200㎜ 混凝土
 1124060002	預力混凝土基樁 6000x250x50㎜
 3008240007	空油桶 <各種規格> R-1301`,
-
     H: `1008040010	架空自動線路開關 三相 15kV 600A 24Vdc 標準型 閂鎖型無控制箱
 1008040014	架空自動線路開關 三相 25.8kV 600A 24Vdc 標準型閂鎖型無控制箱
 1008060002	手動型線路負載啟斷開關 三相 15kV 600A 屋外型 SF6
@@ -904,7 +958,6 @@ const rawData = {
 1204100004	線路故障指示器 單相 800A(1000A) 1a 2指示燈 電池
 1204100006	線路故障指示器 單相 800A 1指示燈 電池 FIC OV-A 架空線路
 1404360028	碳鋼單眼螺帽 SGD290-D M16-N/A`,
-
     D: `1002010000	低壓貫穿式比流器 0.3S級 600V 200:5A 15VA 乾式
 1002010002	低壓貫穿式比流器 0.3S級 600V 400:5A 15VA 乾式
 1002010003	低壓貫穿式比流器 0.3S級 600V 600:5A 15VA 乾式
@@ -914,20 +967,20 @@ const rawData = {
 1002010017	高壓計費用比流器 0.3S級 12kV 50:5A 15VA  乾式
 1002010018	高壓計費用比流器 0.3S級 12kV 100:5A 15VA  乾式
 1002010019	高壓計費用比流器 0.3S級 12kV 200:5A 15VA  乾式
-1002010020	高壓計費用比流器 0.3S級 12kV 400:5A 15VA  乾式
+1002010020	高壓計費用比流器 0.3S級 12kV 400:5A 15VA 乾式
 1002010025	高壓計費用比流器 0.3S級 24kV 20:5A 15VA 乾式
 1002010027	高壓計費用比流器 0.3S級 24kV 30:5A 15VA 乾式
 1002010028	高壓計費用比流器 0.3S級 24kV 50:5A 15VA 乾式
 1002010029	高壓計費用比流器 0.3S級 24kV 100:5A 15VA 乾式
 1002010030	高壓計費用比流器 0.3S級 24kV 200:5A 15VA 乾式
-1002030000	高壓計費用比壓器(非接地型) 0.3S級 12k:110V 25VA 乾式
-1002030002	高壓計費用比壓器(非接地型) 0.3S級 24k:110V 25VA 乾式
+1002030000	高壓計費用比流器(非接地型) 0.3S級 12kV:110V 25VA 乾式
+1002030002	高壓計費用比流器(非接地型) 0.3S級 24kV:110V 25VA 乾式
 1002050001	整套型變比器 單相二線0.3級92kV:115/65.7V 200×400:5A
 1002050004	整套型變比器 三相三線 0.3S級 69kV:115V 50×100:5A O型
 1002050005	整套型變比器 三相三線 0.3S級69kV:115V 100×200:5A O型
 1002050007	整套型變比器 三相三線 0.3S級69kV:115V 200×400:5A O型
 1002050008	整套型變比器 三相三線 0.3S級69kV:115V 400×800:5A O型
-1006010012	時控開關 單相 120Vac 10~40A 7天 24時 15分
+1008010012	時控開關 單相 120Vac 10~40A 7天 24時 15分
 1310000008	瓦時計(用戶) 單相三線 110/220V 30A 指針型 附插座(100A)
 1310000010	瓦時計(用戶) 三相三線 220V 2.5A 指針型
 1310000013	瓦時計(用戶) 三相三線 220V 15A 指針型
@@ -935,10 +988,10 @@ const rawData = {
 1310040000	電子式電表(用戶) 0.5級 單相三線 110/220V 30A
 1310040001	電子式電表(用戶) 0.5級 三相四線 120~480V 2.5A
 1310040002	電子式電表(用戶) 0.5級 三相四線 120~480V 2.5A 附記錄型
-1310040003	電子式電表(用戶) 0.5級三相四線120~480V 2.5A雙向計量附記錄型
-1310040005	電子式電表(用戶) 0.5級 三相四線120~480V 2.5A雙向計量智慧型
-1310040006	電子式電表(用戶) 0.5級 三相四線 120~480V 30A
-1310040007	電子式電表(用戶) 0.5級 三相四線 120~480V 30A 附記錄型
+1310040003	電子式電表(用戶) 0.5級 三相四線 120~480V 2.5A雙向計量附記錄型
+1310040005	電子式電表(用戶) 0.5級 三相四線 120~480V 2.5A雙向計量智慧型
+1310040006	電子式電表(用戶) 0.5級 三相四線 120~480V 2.5A 附記錄型
+1310040007	電子式電表(用戶) 0.5級 三相四線 120~480V 30A
 1310040011	電子式電表(用戶) 0.5級單相三線110~220V 30A 雙向計量附記錄型
 1310040012	電子式電表(用戶) 0.5級三相四線120~480V 30A 雙向計量附記錄型
 1310040022	電子式電表(用戶) 0.5級 單相三線 110/220V 30A單向計量附記錄型
@@ -959,6 +1012,8 @@ const rawData = {
 let materials = {};
 let selectedPartNo = "";
 let selectedName = "";
+let batchMaterials = [];
+const MAX_BATCH = 20;
 
 // 初始化解析資料
 function initMaterials() {
@@ -976,24 +1031,33 @@ function initMaterials() {
 }
 
 // 頁面載入
-window.onload = function() {
+window.onload = async function() {
   initMaterials();
   document.getElementById('mainDate').valueAsDate = new Date();
   document.getElementById('transferDate').valueAsDate = new Date();
+  await migrateLegacyLocalStorage();
+  await normalizeDexieExistingData();
+  await syncInventoryFromERP();
   renderLog();
+  runAnalysis();
 };
 
+// ==========================================
+// 標籤切換與模式切換 (整合緊急模組)
+// ==========================================
 function switchTab(tabName) {
   selectedPartNo = "";
   selectedName = "";
-  
   document.querySelectorAll('.container-3d').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + tabName).classList.add('active');
-  event.currentTarget.classList.add('active');
+  if(event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
   
   if(tabName === 'inventory') renderInventoryTable();
   if(tabName === 'analysis') runAnalysis();
+  if(tabName === 'emergency') setTimeout(initEmergencyModule, 50);
 }
 
 function setTransferMode(mode) {
@@ -1007,6 +1071,9 @@ function setTransferMode(mode) {
     document.getElementById('warehouseFields').style.display = (mode === 'warehouse') ? 'block' : 'none';
 }
 
+// ==========================================
+// 材料選擇與搜尋
+// ==========================================
 function renderMaterials(context) {
   const cat = document.getElementById(`category_${context}`).value;
   const container = document.getElementById(`materialsContainer_${context}`);
@@ -1021,17 +1088,16 @@ function renderMaterials(context) {
       div.className = "material-btn";
       div.id = `btn_${context}_${pNo}`; 
       div.innerHTML = `<strong>${pNo}</strong><br>${materials[pNo].name}`;
-      div.onclick = function() {
-        selectMaterial(pNo, context);
-      };
+      div.onclick = function() { selectMaterial(pNo, context); };
       container.appendChild(div);
     }
   }
 }
 
 function selectMaterial(pNo, context) {
+  pNo = normalizePartNo(pNo);
   selectedPartNo = pNo;
-  selectedName = materials[pNo].name;
+  selectedName = materials[pNo]?.name || selectedName || '';
   document.querySelectorAll(`#materialsContainer_${context} .material-btn`).forEach(b => b.classList.remove('active'));
   const targetBtn = document.getElementById(`btn_${context}_${pNo}`);
   if(targetBtn) {
@@ -1040,7 +1106,6 @@ function selectMaterial(pNo, context) {
   }
 
   if (context === 'input') {
-    document.getElementById('partNoInput').value = pNo;
     document.getElementById('qtySection').style.display = "block";
   } else if (context === 'stock') {
     document.getElementById('stockPartNo').value = pNo;
@@ -1049,359 +1114,698 @@ function selectMaterial(pNo, context) {
     document.getElementById('transferPartNo').value = pNo;
     document.getElementById('transferItemName').value = selectedName;
   } else if (context === 'history') {
-    document.getElementById('historySearchInput').value = selectedName;
+    document.getElementById('historySearchInput').value = pNo;
     document.getElementById('historyItemTitle').innerText = pNo + " " + selectedName;
   } else if (context === 'analysis') {
     document.getElementById('safePartNo').value = pNo;
+    document.getElementById('safeNameDisplay').innerText = selectedName;
+    refreshEvalTypeOptionsForPartNo(pNo, 'safeEvalType');
   }
 }
 
-function handleUniversalInput(val, context) {
-    if (val.length === 10 && materials[val]) {
-        const mat = materials[val];
-        const catSelect = document.getElementById(`category_${context}`);
-        if(catSelect) {
-            catSelect.value = mat.category;
-            renderMaterials(context);
+async function handleUniversalInput(val, context) {
+    const pNo = normalizePartNo(val);
+    if (pNo.length !== 10) return;
+
+    let mat = materials[pNo] || null;
+    if(!mat) {
+        const dbItem = await db.materials.where('partNo').equals(pNo).first();
+        if(dbItem) {
+            mat = { name: dbItem.name || pNo, category: '' };
+            materials[pNo] = mat;
         }
-        selectMaterial(val, context);
-        if(context === 'search') {
-            document.getElementById('searchNameDisplay').innerText = mat.name;
-            filterRecords();
-        }
-        if(context === 'analysis') {
-            document.getElementById('safeNameDisplay').innerText = mat.name;
-        }
+    }
+    if(!mat) return;
+
+    selectedPartNo = pNo;
+    selectedName = mat.name || pNo;
+
+    const catSelect = document.getElementById(`category_${context}`);
+    if(catSelect && mat.category) {
+        catSelect.value = mat.category;
+        renderMaterials(context);
+        selectMaterial(pNo, context);
+    }
+
+    if(context === 'search') {
+        document.getElementById('searchNameDisplay').innerText = selectedName;
+        filterRecords();
+    } else if(context === 'stock') {
+        document.getElementById('stockPartNo').value = pNo;
+        document.getElementById('stockSelectedName').innerText = selectedName;
+    } else if(context === 'transfer') {
+        document.getElementById('transferPartNo').value = pNo;
+        document.getElementById('transferItemName').value = selectedName;
+        await refreshEvalTypeOptionsForPartNo(pNo, 'transferEvalType');
+    } else if(context === 'history') {
+        document.getElementById('historySearchInput').value = pNo;
+        document.getElementById('historyItemTitle').innerText = pNo + " " + selectedName;
+    } else if(context === 'analysis') {
+        document.getElementById('safePartNo').value = pNo;
+        document.getElementById('safeNameDisplay').innerText = selectedName;
+        await refreshEvalTypeOptionsForPartNo(pNo, 'safeEvalType');
     }
 }
 
-// 儲存一般紀錄
-document.getElementById('materialForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  const record = {
-    id: Date.now(),
-    date: document.getElementById('mainDate').value,
-    type: document.getElementById('transType').value,
-    orderNo: document.getElementById('orderNo').value,
-    person: document.getElementById('personName').value,
-    staff: document.getElementById('staffName').value,
-    partNo: selectedPartNo || document.getElementById('partNoInput').value,
-    name: selectedName || (materials[document.getElementById('partNoInput').value] ? materials[document.getElementById('partNoInput').value].name : "未知"),
-    qty: parseInt(document.getElementById('qty').value),
-    unit: document.getElementById('unit').value,
-    evalType: document.getElementById('evalType').value,
-    timestamp: new Date().toISOString()
-  };
+// ==========================================
+// 批次材料輸入功能 (最多20筆)
+// ==========================================
+function addMaterialToBatch() {
+  if(batchMaterials.length >= MAX_BATCH) {
+    alert(`已達上限 ${MAX_BATCH} 筆，請先儲存批次清單`);
+    return;
+  }
 
-  if(!record.partNo) { alert("請輸入正確料號"); return; }
+  const qty = parseInt(document.getElementById('qty').value);
+  const unit = document.getElementById('unit').value;
+  const evalType = normalizeEvalType(document.getElementById('evalType').value);
+  if(!selectedPartNo || !qty || !unit) {
+    alert("請填寫完整材料資訊 (料號、數量、單位)");
+    return;
+  }
+
+  batchMaterials.push({ partNo: selectedPartNo, name: selectedName, qty: qty, unit: unit, evalType: evalType });
+  renderBatchList();
   
-  saveRecordToLS(record);
-  alert("✅ 紀錄已儲存！");
+  document.getElementById('qty').value = "";
+  document.getElementById('unit').value = "";
+  selectedPartNo = "";
+  selectedName = "";
+  document.getElementById('qtySection').style.display = "none";
+  
+  if(batchMaterials.length < MAX_BATCH) {
+    const continueInput = confirm(`已加入 ${batchMaterials.length} 筆材料\n\n是否繼續輸入下一筆材料？\n(點擊「取消」直接儲存)`);
+    if(!continueInput) submitBatchRecords();
+  } else {
+    alert(`已達上限 ${MAX_BATCH} 筆，系統將自動儲存`);
+    submitBatchRecords();
+  }
+}
+
+function renderBatchList() {
+  const container = document.getElementById('batchMaterialList');
+  const itemsDiv = document.getElementById('batchItems');
+  const countSpan = document.getElementById('batchCount');
+  container.style.display = batchMaterials.length > 0 ? "block" : "none";
+  countSpan.innerText = batchMaterials.length;
+  itemsDiv.innerHTML = "";
+  batchMaterials.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.className = "multi-material-item";
+    div.innerHTML = `
+      <div><span class="multi-material-count">${index + 1}</span><strong>${item.partNo}</strong> ${item.name}</div>
+      <div>
+        <span style="color:#d35400; font-weight:bold;">${item.qty} ${item.unit}</span>
+        <span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:0.8em; margin-left:5px;">${item.evalType}</span>
+        <button onclick="removeBatchItem(${index})" style="margin-left:10px; background:#ffeaea; border:1px solid #ffcccc; color:red; cursor:pointer; padding:2px 8px; border-radius:4px;">×</button>
+      </div>`;
+    itemsDiv.appendChild(div);
+  });
+}
+
+function removeBatchItem(index) {
+  batchMaterials.splice(index, 1);
+  renderBatchList();
+}
+
+function clearBatch() {
+  if(confirm("確定清空批次清單？")) {
+    batchMaterials = [];
+    renderBatchList();
+  }
+}
+
+async function submitBatchRecords() {
+  if(batchMaterials.length === 0) {
+    alert("批次清單為空"); return;
+  }
+
+  const date = document.getElementById('mainDate').value;
+  const type = document.getElementById('transType').value;
+  const orderNo = document.getElementById('orderNo').value;
+  const person = document.getElementById('personName').value;
+  const staff = document.getElementById('staffName').value;
+  const operator = document.getElementById('operatorName').value;
+  if(!date || !type || !orderNo || !person || !staff || !operator) {
+    alert("請先填寫基本資訊 (日期、作業類型、單號、領用人、經辦人、操作人)"); return;
+  }
+
+  for(let item of batchMaterials) {
+    const record = {
+      id: Date.now() + Math.random(), date: date, type: type, orderNo: orderNo,
+      person: person, staff: staff, operator: operator, partNo: item.partNo,
+      name: item.name, qty: item.qty, unit: item.unit, evalType: item.evalType, timestamp: new Date().toISOString()
+    };
+    await saveRecordToLS(record);
+  }
+
+  alert(`✅ 已成功儲存 ${batchMaterials.length} 筆物料紀錄！`);
+  batchMaterials = [];
+  renderBatchList();
   document.getElementById('materialForm').reset();
   document.getElementById('qtySection').style.display = "none";
   document.getElementById('mainDate').valueAsDate = new Date();
   renderLog();
-});
+  renderInventoryTable();
+}
 
-// 處理入庫 (進貨)
-function processStockIn() {
-    const pNo = document.getElementById('transferPartNo').value;
+// ==========================================
+// 資料儲存與紀錄管理
+// ==========================================
+async function saveRecordToLS(record) {
+  record.partNo = normalizePartNo(record.partNo);
+  record.evalType = normalizeEvalType(record.evalType ?? record.rating);
+  record.qty = normalizeNumber(record.qty);
+  record.name = record.name || getMaterialDisplayName(record.partNo, '');
+
+  let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
+  records.push(record);
+  localStorage.setItem('materialRecords', JSON.stringify(records));
+
+  await db.changeLog.add({
+      date: record.date + " " + new Date().toLocaleTimeString(),
+      partNo: record.partNo,
+      type: record.type,
+      amount: record.qty,
+      rating: record.evalType,
+      recordId: record.id,
+      note: record.orderNo + " / " + record.person + " / 操作人:" + (record.operator || "未記錄")
+  });
+  await syncInventoryFromERP();
+}
+
+async function processStockIn() {
+    const pNo = normalizePartNo(document.getElementById('transferPartNo').value);
     const qty = parseInt(document.getElementById('stockInQty').value);
     const staff = document.getElementById('stockInStaff').value;
     const date = document.getElementById('transferDate').value;
     const orderNo = document.getElementById('transferOrderNo').value;
-    const evalType = document.getElementById('transferEvalType').value;
+    const evalType = normalizeEvalType(document.getElementById('transferEvalType').value);
+    const operator = document.getElementById('operatorName')?.value || staff;
 
     if(!pNo || !qty || !staff) { alert("請填寫完整入庫資訊"); return; }
-    if(!materials[pNo]) { alert("料號不存在"); return; }
-
     const record = {
-        id: Date.now(),
-        date: date,
-        type: "進貨入庫",
-        orderNo: orderNo || "N/A",
-        person: "廠商/總處",
-        staff: staff,
-        partNo: pNo,
-        name: materials[pNo].name,
-        qty: qty, 
-        unit: "式",
-        evalType: evalType, 
-        timestamp: new Date().toISOString()
+        id: Date.now(), date: date, type: "進貨入庫", orderNo: orderNo || "N/A", person: "廠商/總處",
+        staff: staff, operator: operator, partNo: pNo, name: getMaterialDisplayName(pNo, selectedName),
+        qty: qty, unit: "式", evalType: evalType, timestamp: new Date().toISOString()
     };
-    saveRecordToLS(record);
+    await saveRecordToLS(record);
+    renderInventoryTable();
+    runAnalysis();
     alert("✅ 入庫成功！");
     renderLog();
 }
 
-function processTransfer() {
-    const pNo = document.getElementById('transferPartNo').value;
+async function processTransfer() {
+    const pNo = normalizePartNo(document.getElementById('transferPartNo').value);
     const qty = parseInt(document.getElementById('transferQty').value);
     const staff = document.getElementById('transferStaff').value;
     const target = document.getElementById('transferTargetUnit').value;
     const type = document.getElementById('transferType').value;
     const date = document.getElementById('transferDate').value;
     const orderNo = document.getElementById('transferOrderNo').value;
-    const evalType = document.getElementById('transferEvalType').value;
+    const evalType = normalizeEvalType(document.getElementById('transferEvalType').value);
+    const operator = document.getElementById('operatorName')?.value || staff;
 
     if(!pNo || !qty || !staff || !target) { alert("請填寫完整調撥資訊"); return; }
-
     const record = {
-        id: Date.now(),
-        date: date,
-        type: (type === 'transfer_in' ? "調撥移入" : "調撥移出"),
-        orderNo: orderNo || "N/A",
-        person: target,
-        staff: staff,
-        partNo: pNo,
-        name: materials[pNo] ? materials[pNo].name : "",
-        qty: qty,
-        unit: "式",
-        evalType: evalType,
-        timestamp: new Date().toISOString()
+        id: Date.now(), date: date, type: (type === 'transfer_in' ? "調撥移入" : "調撥移出"),
+        orderNo: orderNo || "N/A", person: target, staff: staff, operator: operator, partNo: pNo,
+        name: getMaterialDisplayName(pNo, selectedName), qty: qty, unit: "式",
+        evalType: evalType, timestamp: new Date().toISOString()
     };
-    saveRecordToLS(record);
+    await saveRecordToLS(record);
+    renderInventoryTable();
+    runAnalysis();
     alert("✅ 調撥紀錄已建立！");
     renderLog();
 }
 
-function processWarehouseTransfer() {
-    const pNo = document.getElementById('transferPartNo').value;
+async function processWarehouseTransfer() {
+    const pNo = normalizePartNo(document.getElementById('transferPartNo').value);
     const qty = parseInt(document.getElementById('warehouseQty').value);
     const staff = document.getElementById('warehouseStaff').value;
     const warehouse = document.getElementById('warehouseTarget').value;
     const type = document.getElementById('warehouseType').value;
     const date = document.getElementById('transferDate').value;
-    const evalType = document.getElementById('transferEvalType').value;
+    const evalType = normalizeEvalType(document.getElementById('transferEvalType').value);
+    const operator = document.getElementById('operatorName')?.value || staff;
+    
     if(!pNo || !qty) { alert("請填寫移轉資訊"); return; }
-
     const record = {
-        id: Date.now(),
-        date: date,
-        type: (type === 'transfer_in' ? "倉庫移入" : "倉庫移出"),
-        orderNo: "內部移轉",
-        person: warehouse,
-        staff: staff,
-        partNo: pNo,
-        name: materials[pNo] ? materials[pNo].name : "",
-        qty: qty,
-        unit: "式",
-        evalType: evalType,
-        timestamp: new Date().toISOString()
+        id: Date.now(), date: date, type: (type === 'transfer_in' ? "倉庫移入" : "倉庫移出"),
+        orderNo: "內部移轉", person: warehouse, staff: staff, operator: operator, partNo: pNo,
+        name: getMaterialDisplayName(pNo, selectedName), qty: qty, unit: "式",
+        evalType: evalType, timestamp: new Date().toISOString()
     };
-    saveRecordToLS(record);
+    await saveRecordToLS(record);
+    renderInventoryTable();
+    runAnalysis();
     alert("✅ 移轉成功！");
     renderLog();
 }
 
-// 儲存紀錄並同步寫入 IndexedDB 供對帳單使用
-function saveRecordToLS(record) {
-  let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
-  records.push(record);
-  localStorage.setItem('materialRecords', JSON.stringify(records));
-
-  // 寫入 Dexie 作為對帳報表來源
-  db.changeLog.add({
-      date: record.date + " " + new Date().toLocaleTimeString(),
-      partNo: record.partNo,
-      type: record.type,
-      amount: record.qty,
-      note: record.orderNo + " / " + record.person + " / " + record.evalType
-  }).catch(e => console.error("Dexie 寫入失敗", e));
+// ==========================================
+// 強化版 Excel 匯入 (修正：支援複合主鍵 + 防重複 + 失敗明細匯出)
+// ==========================================
+function normalizePartNo(v){
+    if(v===undefined || v===null) return '';
+    let s=String(v).trim();
+    s=s.replace(/\.0$/,'');  
+    s=s.replace(/\s/g,'');   
+    if(/^\d+$/.test(s)) s=s.padStart(10,'0');
+    return s;
 }
 
-// --- [2. 批次資料匯入功能 - Excel Parser] ---
-async function handleExcelImport(file) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+const EVAL_TYPE_OPTIONS = ['0新', '1舊', '2待修待驗', '3資產新', '4資產舊'];
+const EVAL_TYPE_ALIAS = {
+    '0': '0新', '0新': '0新', '新': '0新', '新品': '0新',
+    '1': '1舊', '1舊': '1舊', '舊': '1舊', '舊品': '1舊',
+    '2': '2待修待驗', '2待修待驗': '2待修待驗', '待修待驗': '2待修待驗', '待修': '2待修待驗', '待驗': '2待修待驗',
+    '3': '3資產新', '3資產新': '3資產新', '資產新': '3資產新',
+    '4': '4資產舊', '4資產舊': '4資產舊', '資產舊': '4資產舊'
+};
 
-            let stockSettings = JSON.parse(localStorage.getItem('initialStock')) || {};
+function normalizeEvalType(v){
+    if(v===undefined || v===null || String(v).trim()==='') return '0新';
+    let s = String(v).trim().replace(/\s/g,'');
+    s = s.replace(/\.0$/,'');
+    return EVAL_TYPE_ALIAS[s] || s;
+}
 
-            // 1. 將 Excel 資料寫入 localStorage 以維持原系統 UI 運作 (預設為 0新)
-            jsonData.forEach(item => {
-                let pNo = String(item['料號'] || item['材料代號'] || item['Material_No'] || '').trim();
-                let stock = Number(item['庫存'] || item['現存量'] || item['數量'] || 0);
-                if(pNo) {
-                    let key = `${pNo}_0新`;
-                    stockSettings[key] = stock;
-                }
-            });
-            localStorage.setItem('initialStock', JSON.stringify(stockSettings));
+function normalizeNumber(v){
+    if(v===undefined || v===null || v==='') return 0;
+    const n = Number(String(v).replace(/,/g,'').trim());
+    return Number.isFinite(n) ? n : 0;
+}
 
-            // 2. 將格式化資料寫入 IndexedDB 持久化備份
-            const formattedData = jsonData.map(item => ({
-                partNo: String(item['料號'] || item['材料代號'] || '').trim(),
-                name: item['品名'] || item['材料名稱'] || '未知品項',
-                stock: Number(item['庫存'] || item['現存量'] || item['數量'] || 0),
-                unit: item['單位'] || 'EA',
-                lastUpdate: new Date().toLocaleString()
-            })).filter(i => i.partNo !== "");
-            await db.materials.bulkPut(formattedData);
+function makeInventoryKey(partNo, evalType){
+    return `${normalizePartNo(partNo)}_${normalizeEvalType(evalType)}`;
+}
 
-            alert(`✅ 匯入成功！共更新 ${formattedData.length} 筆材料資料。`);
-            renderInventoryTable();
-        } catch(err) {
-            console.error(err);
-            alert("檔案解析失敗，請確認格式。");
-        }
+function getMaterialDisplayName(partNo, fallback=''){
+    partNo = normalizePartNo(partNo);
+    return fallback || (materials[partNo]?.name || partNo);
+}
+
+function getStockDelta(type, amount){
+    amount = normalizeNumber(amount);
+    if(['領料', '借用', '調撥移出', '倉庫移出'].includes(type)) return -amount;
+    if(['退料', '進貨入庫', '調撥移入', '倉庫移入'].includes(type)) return amount;
+    return 0;
+}
+
+async function upsertMaterialStock(item){
+    const partNo = normalizePartNo(item.partNo);
+    const rating = normalizeEvalType(item.rating ?? item.evalType);
+    if(!partNo || partNo.length !== 10) throw new Error(`料號格式錯誤：${item.partNo}`);
+    const payload = {
+        partNo, rating, name: String(item.name || getMaterialDisplayName(partNo, '') || ''),
+        erpStock: normalizeNumber(item.erpStock ?? item.stock ?? 0),
+        unit: item.unit || '', location: item.location || '', lastUpdate: new Date().toISOString()
     };
-    reader.readAsArrayBuffer(file);
+    const same = await db.materials.where('[partNo+rating]').equals([partNo, rating]).toArray();
+    if(same.length > 0){
+        await db.materials.update(same[0].id, payload);
+        if(same.length > 1){
+            await db.materials.bulkDelete(same.slice(1).map(x => x.id));
+        }
+        return same[0].id;
+    }
+    return await db.materials.add(payload);
 }
 
-// --- [4. 產出差異比對表 (Reconciliation Report)] ---
-async function exportReconciliationReport() {
-    const logs = await db.changeLog.toArray();
-    if (logs.length === 0) {
-        alert("目前沒有任何異動紀錄需要回填。");
-        return;
-    }
+async function refreshEvalTypeOptionsForPartNo(partNo, selectId){
+    partNo = normalizePartNo(partNo);
+    const select = document.getElementById(selectId);
+    if(!select || partNo.length !== 10) return;
+    const exists = new Set();
+    try {
+        const rows = await db.materials.where('partNo').equals(partNo).toArray();
+        rows.forEach(r => exists.add(normalizeEvalType(r.rating)));
+        const logs = await db.changeLog.where('partNo').equals(partNo).toArray();
+        logs.forEach(r => exists.add(normalizeEvalType(r.rating ?? r.evalType)));
+    } catch(e) { console.warn('評價類型載入失敗', e); }
 
-    const reportData = logs.map(l => ({
-        "發生時間": l.date,
-        "材料料號": l.partNo,
-        "異動類型": l.type,
-        "異動數量": l.amount,
-        "事由/工程編號": l.note,
-        "ERP狀態": "待輸入"
+    const ordered = EVAL_TYPE_OPTIONS.filter(x => exists.has(x));
+    if(ordered.length === 0) ordered.push(...EVAL_TYPE_OPTIONS);
+    const current = normalizeEvalType(select.value || ordered[0]);
+    select.innerHTML = ordered.map(x => `<option value="${x}">${x}</option>`).join('');
+    select.value = ordered.includes(current) ? current : ordered[0];
+
+    const hint = document.getElementById('safeEvalHint');
+    if(hint && selectId === 'safeEvalType') {
+        hint.innerText = exists.size ? `此料號目前有 ${ordered.length} 種評價類型可選` : '尚無庫存紀錄，先以標準五種評價類型建立預警';
+    }
+}
+
+async function migrateLegacyLocalStorage(){
+    let records = JSON.parse(localStorage.getItem('materialRecords') || '[]');
+    let changed = false;
+    records = records.map(r => {
+        const n = {...r};
+        const p = normalizePartNo(n.partNo);
+        const e = normalizeEvalType(n.evalType ?? n.rating);
+        if(n.partNo !== p || n.evalType !== e) changed = true;
+        n.partNo = p; n.evalType = e; n.qty = normalizeNumber(n.qty);
+        return n;
+    });
+    if(changed) localStorage.setItem('materialRecords', JSON.stringify(records));
+
+    const safe = JSON.parse(localStorage.getItem('safeStock') || '{}');
+    const migrated = {};
+    let safeChanged = false;
+    Object.entries(safe).forEach(([key, value]) => {
+        if(key.includes('_')) {
+            const [p, ...rest] = key.split('_');
+            migrated[makeInventoryKey(p, rest.join('_') || '0新')] = normalizeNumber(value);
+        } else {
+            migrated[makeInventoryKey(key, '0新')] = normalizeNumber(value);
+            safeChanged = true;
+        }
+    });
+    if(safeChanged) localStorage.setItem('safeStock', JSON.stringify(migrated));
+}
+
+async function normalizeDexieExistingData(){
+    try {
+        const mats = await db.materials.toArray();
+        for(const m of mats){
+            await db.materials.update(m.id, {
+                partNo: normalizePartNo(m.partNo), rating: normalizeEvalType(m.rating ?? m.evalType),
+                erpStock: normalizeNumber(m.erpStock ?? m.stock ?? 0),
+                unit: m.unit || '', lastUpdate: m.lastUpdate || new Date().toISOString()
+            });
+        }
+        const logs = await db.changeLog.toArray();
+        for(const l of logs){
+            await db.changeLog.update(l.id, {
+                partNo: normalizePartNo(l.partNo), rating: normalizeEvalType(l.rating ?? l.evalType),
+                amount: normalizeNumber(l.amount ?? l.qty ?? 0)
+            });
+        }
+    } catch(e) { console.warn('舊資料標準化失敗', e); }
+}
+
+function findColumn(row, list){
+    let keys=Object.keys(row);
+    for(let k of keys){
+        let a=k.replace(/\s/g,'').toLowerCase();
+        for(let n of list){
+            if(a.includes(n.replace(/\s/g,'').toLowerCase())) return k;
+        }
+    }
+    return null;
+}
+
+async function calculateFileHash(file) {
+    const buffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function saveBeforeImportSnapshot(){
+    let data=await db.materials.toArray();
+    localStorage.setItem('beforeImportStock',JSON.stringify(data));
+}
+
+async function handleExcelImport(file){
+    if(!file) return;
+    const status = document.getElementById('importStatus');
+    try {
+        status.innerText = "讀取 Excel 中，請稍候...";
+        const fileHash = await calculateFileHash(file);
+        const existingImport = await db.importHistory.where('fileHash').equals(fileHash).first();
+        if(existingImport) {
+            const confirmReimport = confirm(`⚠️ 此檔案已於 ${existingImport.importDate} 由操作人 ${existingImport.operator} 匯入過。\n確定要重新匯入嗎？系統會以料號+評價類型覆蓋更新 Excel 底數，不會重複疊加底數。`);
+            if(!confirmReimport) { status.innerText = "已取消匯入 (檔案重複)"; return; }
+        }
+
+        await saveBeforeImportSnapshot();
+        const operator = document.getElementById('operatorName')?.value || "未記錄";
+        const importDate = new Date().toLocaleString('zh-TW');
+        const workbook = XLSX.read(await file.arrayBuffer(), {type:'array'});
+        let totalRows = 0, fail = [];
+        const importMap = {};
+        const partNoSheetMap = {};
+
+        workbook.SheetNames.forEach(sheetName => {
+            const sheet = workbook.Sheets[sheetName];
+            const rows = XLSX.utils.sheet_to_json(sheet, {defval:''});
+            rows.forEach((r, idx) => {
+                totalRows++;
+                const partCol = findColumn(r, ['物料編號','料號','物料','MATNR','Material']);
+                const nameCol = findColumn(r, ['名稱規範','名稱','品名','規格','MAKTX']);
+                const stockCol = findColumn(r, ['庫存量','庫存','數量','LABST','自由使用']);
+                const evalCol = findColumn(r, ['評價類型','評價','評價別','BWTAR']);
+                const unitCol = findColumn(r, ['單位','基本單位','MEINS']);
+                const locCol = findColumn(r, ['儲格','儲位','庫位','倉位','Storage']);
+                
+                const partNo = normalizePartNo(partCol ? r[partCol] : '');
+                const evalType = normalizeEvalType(evalCol ? r[evalCol] : '0新');
+                const stock = normalizeNumber(stockCol ? r[stockCol] : 0);
+                const name = String(nameCol ? r[nameCol] : (materials[partNo]?.name || '')).trim();
+                const unit = String(unitCol ? r[unitCol] : '').trim();
+                const location = String(locCol ? r[locCol] : '').trim();
+
+                if(!partNo){ fail.push({reason:'無料號', sheetSource:sheetName, row:idx+2, rawData:JSON.stringify(r)}); return; }
+                if(partNo.length !== 10){ fail.push({reason:'料號格式錯誤', sheetSource:sheetName, row:idx+2, partNo, evalType, rawData:JSON.stringify(r)}); return; }
+
+                const key = makeInventoryKey(partNo, evalType);
+                if(!importMap[key]){ importMap[key] = {partNo, rating:evalType, name, erpStock:0, unit, location, sheets:new Set(), rows:0}; }
+                importMap[key].erpStock += stock;
+                importMap[key].name = name || importMap[key].name;
+                importMap[key].unit = unit || importMap[key].unit;
+                importMap[key].location = [importMap[key].location, location].filter(Boolean).join(',');
+                importMap[key].sheets.add(sheetName);
+                importMap[key].rows++;
+                partNoSheetMap[key] = Array.from(importMap[key].sheets).join(',');
+            });
+        });
+
+        let success = 0;
+        for(const item of Object.values(importMap)){
+            await upsertMaterialStock({ partNo: item.partNo, rating: item.rating, name: item.name, erpStock: item.erpStock, unit: item.unit, location: item.location });
+            if(item.name && !materials[item.partNo]) { materials[item.partNo] = {name:item.name, category:''}; }
+            success++;
+        }
+
+        await db.importHistory.add({ fileName: file.name, fileHash, importDate, operator, totalRows, successCount: success, failCount: fail.length });
+        await syncInventoryFromERP();
+        renderInventoryTable();
+        runAnalysis();
+
+        alert(`Excel原始列數：${totalRows}\n成功匯入庫存鍵值：${success}\n失敗：${fail.length}\n\n說明：同一料號 + 評價類型若出現在多個儲格，系統會自動彙總庫存量。`);
+        status.innerText = `匯入完成 - 成功:${success} 失敗:${fail.length}；庫存表已刷新`;
+
+        await exportStockDifferenceReport(importDate, operator, partNoSheetMap);
+        if(fail.length > 0) exportFailureDetails(fail, file.name);
+    } catch(error) {
+        console.error('Excel 匯入失敗', error);
+        status.innerText = '❌ 匯入失敗：' + error.message;
+        alert('❌ 匯入失敗：' + error.message + '\n\n請按 F12 查看 Console 詳細錯誤。');
+    }
+}
+
+function exportFailureDetails(failList, fileName) {
+    const data = failList.map((item, index) => ({
+        '序號': index + 1, '失敗原因': item.reason, 'Sheet來源': item.sheetSource,
+        '料號': item.partNo || '', '評價類型': item.evalType || '', '原始資料': item.rawData || ''
     }));
-
-    const ws = XLSX.utils.json_to_sheet(reportData);
+    const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "今日異動回填清單");
-    const fileName = `台電異動報告_${new Date().toISOString().slice(0,10)}.xlsx`;
-    XLSX.writeFile(wb, fileName);
-    
-    if(confirm("對帳單已匯出。是否要清空已匯出的離線紀錄？\n(注意：這不影響歷史紀錄，僅清除待回填清單)")) {
-        await db.changeLog.clear();
+    XLSX.utils.book_append_sheet(wb, ws, '匯入失敗明細');
+    XLSX.writeFile(wb, `匯入失敗明細_${fileName}_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+async function exportStockDifferenceReport(importDate, operator, partNoSheetMap = {}){
+    let before = JSON.parse(localStorage.getItem('beforeImportStock') || '[]');
+    let after = await db.materials.toArray();
+    let map = {};
+
+    before.forEach(x => {
+        const p = normalizePartNo(x.partNo);
+        const e = normalizeEvalType(x.rating ?? x.evalType);
+        const k = makeInventoryKey(p, e);
+        map[k] = {料號:p, 評價:e, 匯入前:normalizeNumber(x.erpStock ?? x.stock ?? 0), Excel庫存:0};
+    });
+    after.forEach(x => {
+        const p = normalizePartNo(x.partNo);
+        const e = normalizeEvalType(x.rating ?? x.evalType);
+        const k = makeInventoryKey(p, e);
+        if(!map[k]) map[k] = {料號:p, 評價:e, 匯入前:0, Excel庫存:0};
+        map[k].Excel庫存 = normalizeNumber(x.erpStock ?? x.stock ?? 0);
+    });
+    let report = [];
+    Object.values(map).forEach(x => {
+        let d = x.Excel庫存 - x.匯入前;
+        if(d !== 0){
+            let key = makeInventoryKey(x.料號, x.評價);
+            report.push({ ...x, 差異:d, 匯入日期: importDate || new Date().toLocaleString('zh-TW'), 操作人: operator || "未記錄", Sheet來源: partNoSheetMap[key] || "未知" });
+        }
+    });
+    const ws = XLSX.utils.json_to_sheet(report);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '庫存差異');
+    XLSX.writeFile(wb, 'Excel庫存差異報表.xlsx');
+}
+
+// ==========================================
+// 庫存同步與計算 
+// ==========================================
+async function syncInventoryFromERP(){
+    const dbMaterials = await db.materials.toArray();
+    const logs = await db.changeLog.toArray();
+    let map = {};
+
+    for(const m of dbMaterials){
+        const pNo = normalizePartNo(m.partNo);
+        const evalType = normalizeEvalType(m.rating ?? m.evalType);
+        if(!pNo) continue;
+        const key = makeInventoryKey(pNo, evalType);
+        const init = normalizeNumber(m.erpStock ?? m.stock ?? 0);
+        if(!map[key]){
+            map[key] = { pNo, name: getMaterialDisplayName(pNo, m.name || ''), evalType, init:0, change:0, total:0, unit:m.unit || '', lastUpdate:m.lastUpdate || '' };
+        }
+        map[key].init += init;
+        map[key].name = getMaterialDisplayName(pNo, m.name || map[key].name);
     }
+
+    for(const l of logs){
+        const pNo = normalizePartNo(l.partNo);
+        const evalType = normalizeEvalType(l.rating ?? l.evalType);
+        if(!pNo) continue;
+        const key = makeInventoryKey(pNo, evalType);
+        if(!map[key]){
+            map[key] = { pNo, name: getMaterialDisplayName(pNo, ''), evalType, init:0, change:0, total:0, unit:'', lastUpdate:'' };
+        }
+        map[key].change += getStockDelta(l.type, l.amount);
+    }
+
+    Object.values(map).forEach(item => {
+        item.init = normalizeNumber(item.init);
+        item.change = normalizeNumber(item.change);
+        item.total = item.init + item.change;
+    });
+    localStorage.setItem("inventoryCache", JSON.stringify(map));
+    return map;
 }
 
-function setInitialStock() {
-  const pNo = document.getElementById('stockPartNo').value;
-  const qty = parseInt(document.getElementById('stockInitQty').value);
-  const evalType = document.getElementById('stockEvalType').value;
+function getInventoryMap(){ return JSON.parse(localStorage.getItem("inventoryCache")||"{}"); }
 
-  if(!pNo || isNaN(qty)) { alert("請輸入正確料號與數量"); return; }
+async function setInitialStock(){
+    const pNo = normalizePartNo(document.getElementById('stockPartNo').value);
+    const qty = normalizeNumber(document.getElementById('stockInitQty').value);
+    const evalType = normalizeEvalType(document.getElementById('stockEvalType').value);
+    const name = document.getElementById('stockSelectedName').innerText || getMaterialDisplayName(pNo, '');
 
-  let stockSettings = JSON.parse(localStorage.getItem('initialStock')) || {};
-  let key = `${pNo}_${evalType}`;
-  stockSettings[key] = qty;
-  
-  localStorage.setItem('initialStock', JSON.stringify(stockSettings));
-  alert(`✅ 已設定 ${pNo} (${evalType}) 初始庫存為 ${qty}`);
-  renderInventoryTable();
+    if(!pNo || pNo.length !== 10 || !Number.isFinite(qty)){ alert("料號或數量錯誤"); return; }
+    await upsertMaterialStock({partNo:pNo, rating:evalType, name, erpStock:qty});
+    await syncInventoryFromERP();
+    renderInventoryTable();
+    runAnalysis();
+    alert(`庫存設定完成：${pNo} / ${evalType} / 初始 ${qty}`);
 }
 
-function deleteInitialStock() {
-    const pNo = document.getElementById('stockPartNo').value;
-    const evalType = document.getElementById('stockEvalType').value;
+async function deleteInitialStock() {
+    const pNo = normalizePartNo(document.getElementById('stockPartNo').value);
+    const evalType = normalizeEvalType(document.getElementById('stockEvalType').value);
     if(!pNo) { alert("請先輸入料號"); return; }
-    
-    if(confirm(`確定要刪除 ${pNo} (${evalType}) 的初始設定嗎？\n(這將使初始值歸零)`)) {
-        let stockSettings = JSON.parse(localStorage.getItem('initialStock')) || {};
-        let key = `${pNo}_${evalType}`;
-        delete stockSettings[key];
-        localStorage.setItem('initialStock', JSON.stringify(stockSettings));
-        alert("已刪除該筆初始設定");
+    if(confirm(`確定要刪除 ${pNo} (${evalType}) 的初始設定嗎？\n(這將使初始值歸零，但保留異動紀錄)`)) {
+        await db.materials.where('[partNo+rating]').equals([pNo, evalType]).delete();
+        await syncInventoryFromERP();
         renderInventoryTable();
+        runAnalysis();
+        alert("已刪除該筆初始設定");
     }
 }
 
-function clearAllInitialStock() {
+async function clearAllInitialStock() {
     if(confirm("⚠️ 警告：這將清空所有材料的「初始庫存」設定！\n(異動紀錄將保留，但計算結果會改變)\n\n確定執行？")) {
-        localStorage.removeItem('initialStock');
+        await db.materials.clear();
+        await syncInventoryFromERP();
         renderInventoryTable();
+        runAnalysis();
         alert("已清空所有初始庫存。");
     }
 }
 
-function getInventoryMap() {
-  let stock = {};
-  let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
-  let initials = JSON.parse(localStorage.getItem('initialStock')) || {};
-  
-  for (let key in initials) {
-    let [pNo, ...rest] = key.split('_');
-    let eType = rest.join('_');
-    if (!eType) eType = "0新";
-
-    stock[key] = {
-      pNo: pNo,
-      evalType: eType,
-      name: materials[pNo] ? materials[pNo].name : "未知",
-      init: initials[key],
-      change: 0,
-      total: initials[key]
-    };
-  }
-
-  records.forEach(r => {
-    let rEvalType = r.evalType || "0新";
-    let key = `${r.partNo}_${rEvalType}`;
-
-    if (!stock[key]) {
-      stock[key] = {
-        pNo: r.partNo,
-        evalType: rEvalType,
-        name: materials[r.partNo] ? materials[r.partNo].name : "未知",
-        init: 0,
-        change: 0,
-        total: 0
-      };
-    }
-
-    if (["退料", "進貨入庫", "調撥移入", "倉庫移入"].includes(r.type)) {
-      stock[key].change += r.qty;
-      stock[key].total += r.qty;
-    } else if (["領料", "借用", "調撥移出", "倉庫移出"].includes(r.type)) {
-      stock[key].change -= r.qty;
-      stock[key].total -= r.qty;
-    }
-  });
-  return stock;
+async function renderInventoryTable(){
+    await syncInventoryFromERP();
+    const tbody=document.getElementById('inventoryBody');
+    if(!tbody) return;
+    tbody.innerHTML="";
+    const filter=document.getElementById('filterStockInput')?.value.toLowerCase()||"";
+    Object.values(getInventoryMap())
+    .filter(x=>!filter || x.pNo.toLowerCase().includes(filter) || String(x.name||'').toLowerCase().includes(filter) || String(x.evalType||'').toLowerCase().includes(filter))
+    .forEach(x=>{
+        tbody.innerHTML+=`
+        <tr>
+        <td>${x.pNo}</td>
+        <td>${x.evalType}</td>
+        <td>${x.name}</td>
+        <td>${x.init}</td>
+        <td style="color:${x.change < 0 ? 'red' : '#27ae60'}">${x.change}</td>
+        <td><b style="color:${x.total < 0 ? 'red' : '#1a202c'}">${x.total}</b></td>
+        </tr>`;
+    });
 }
 
-function renderInventoryTable() {
-  const tbody = document.getElementById('inventoryBody');
-  const filter = document.getElementById('filterStockInput').value.toLowerCase();
-  const inventory = getInventoryMap();
-  tbody.innerHTML = "";
-
-  let list = Object.values(inventory).sort((a, b) => {
-      if (a.pNo !== b.pNo) return a.pNo.localeCompare(b.pNo);
-      return a.evalType.localeCompare(b.evalType);
-  });
-
-  list.forEach(item => {
-    if (filter && !item.pNo.includes(filter) && !item.name.includes(filter)) return;
-
-    let statusClass = "status-ok";
-    let statusText = "充足";
-    if (item.total <= 0) { statusClass = "status-low"; statusText = "缺料"; }
-    else if (item.total < 3) { statusClass = "status-warn"; statusText = "偏低"; }
-
-    let tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${item.pNo}</td>
-      <td style="color:#2980b9; font-weight:bold;">${item.evalType}</td>
-      <td>${item.name}</td>
-      <td>${item.init}</td>
-      <td style="color:${item.change >= 0 ? 'green':'red'}">${item.change > 0 ? '+'+item.change : item.change}</td>
-      <td style="font-weight:900; font-size:1.1rem;">
-        ${item.total} <span class="status-badge ${statusClass}">${statusText}</span>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
+// ==========================================
+// 資料庫備份與還原
+// ==========================================
+async function backupDatabase() {
+    try {
+        const backupData = {
+            materials: await db.materials.toArray(), changeLog: await db.changeLog.toArray(),
+            importHistory: await db.importHistory.toArray(), emergency_logs: await db.emergency_logs.toArray(),
+            materialRecords: JSON.parse(localStorage.getItem('materialRecords')) || [],
+            safeStock: JSON.parse(localStorage.getItem('safeStock')) || {},
+            inventoryCache: JSON.parse(localStorage.getItem('inventoryCache')) || {},
+            backupDate: new Date().toISOString(), version: "V6_ERP_CompositeIndex"
+        };
+        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `材料管理系統備份_${new Date().toISOString().slice(0,10)}.json`;
+        a.click(); URL.revokeObjectURL(url);
+        document.getElementById('backupStatus').innerText = "✅ 備份完成"; alert("✅ 資料庫備份成功！");
+    } catch (error) {
+        console.error("備份失敗:", error);
+        document.getElementById('backupStatus').innerText = "❌ 備份失敗"; alert("❌ 備份失敗：" + error.message);
+    }
 }
 
+async function restoreDatabase(file) {
+    if(!file) return;
+    if(!confirm("⚠️ 警告：還原將覆蓋現有資料！\n\n確定要還原此備份檔嗎？")) return;
+    try {
+        const text = await file.text(); const backupData = JSON.parse(text);
+        await db.materials.clear(); await db.changeLog.clear(); await db.importHistory.clear(); await db.emergency_logs.clear();
+        
+        if(backupData.materials && backupData.materials.length > 0) await db.materials.bulkAdd(backupData.materials);
+        if(backupData.changeLog && backupData.changeLog.length > 0) await db.changeLog.bulkAdd(backupData.changeLog);
+        if(backupData.importHistory && backupData.importHistory.length > 0) await db.importHistory.bulkAdd(backupData.importHistory);
+        if(backupData.emergency_logs && backupData.emergency_logs.length > 0) await db.emergency_logs.bulkAdd(backupData.emergency_logs);
+
+        if(backupData.materialRecords) localStorage.setItem('materialRecords', JSON.stringify(backupData.materialRecords));
+        if(backupData.safeStock) localStorage.setItem('safeStock', JSON.stringify(backupData.safeStock));
+        if(backupData.inventoryCache) localStorage.setItem('inventoryCache', JSON.stringify(backupData.inventoryCache));
+
+        document.getElementById('backupStatus').innerText = "✅ 還原完成";
+        alert("✅ 資料庫還原成功！\n\n備份日期: " + (backupData.backupDate || "未知"));
+        await migrateLegacyLocalStorage(); await normalizeDexieExistingData(); await syncInventoryFromERP();
+        renderLog(); renderInventoryTable(); runAnalysis();
+    } catch (error) {
+        console.error("還原失敗:", error);
+        document.getElementById('backupStatus').innerText = "❌ 還原失敗"; alert("❌ 還原失敗：" + error.message);
+    }
+}
+
+// ==========================================
+// 歷史紀錄管理
+// ==========================================
 function renderLog() {
   const list = document.getElementById('logList');
   let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
@@ -1409,38 +1813,42 @@ function renderLog() {
   list.innerHTML = "";
   records.forEach((r, index) => {
     let evalDisplay = r.evalType ? `<span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:0.8em; margin-left:5px;">${r.evalType}</span>` : "";
-
     let item = document.createElement('div');
     item.className = "record-li";
     item.dataset.search = (r.person + r.staff + r.partNo + r.date).toLowerCase();
     item.innerHTML = `
       <button class="btn-delete" onclick="deleteRecord(${r.id})">刪除</button>
-      <div style="font-weight:900; color:var(--ukiyo-deep-blue)">
-        ${r.date} | 【${r.type}】 ${r.partNo} ${r.name} 
-      </div>
+      <div style="font-weight:900; color:var(--ukiyo-deep-blue)">${r.date} | 【${r.type}】 ${r.partNo} ${r.name} </div>
       <div style="margin-top:5px; color:#555;">
         數量: <span style="color:#d35400; font-weight:bold;">${r.qty} ${r.unit}</span> ${evalDisplay} | 
-        對象: ${r.person} | 經辦: ${r.staff} | 單號: ${r.orderNo}
-      </div>
-    `;
+        對象: ${r.person} | 經辦: ${r.staff} ${r.operator ? `| 操作人: ${r.operator}` : ''} | 單號: ${r.orderNo}
+      </div>`;
     list.appendChild(item);
   });
 }
 
-function deleteRecord(id) {
+async function deleteRecord(id) {
   if(!confirm("確定刪除此紀錄？將影響庫存計算。")) return;
   let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
-  records = records.filter(r => r.id !== id);
+  const target = records.find(r => String(r.id) === String(id));
+  records = records.filter(r => String(r.id) !== String(id));
   localStorage.setItem('materialRecords', JSON.stringify(records));
-  renderLog();
-  renderInventoryTable();
+
+  await db.changeLog.where('recordId').equals(id).delete();
+  if(target){
+      const sameLogs = await db.changeLog.where('partNo').equals(normalizePartNo(target.partNo)).toArray();
+      const maybe = sameLogs.filter(l => l.type === target.type && normalizeNumber(l.amount) === normalizeNumber(target.qty) && String(l.date || '').includes(target.date));
+      if(maybe.length === 1) await db.changeLog.delete(maybe[0].id);
+  }
+  await syncInventoryFromERP();
+  renderLog(); renderInventoryTable(); runAnalysis();
 }
 
-function deleteAllRecords() {
+async function deleteAllRecords() {
     if(confirm("🚨 危險操作：這將刪除「所有」歷史進出紀錄！(包含輸入、調撥、進貨)\n此動作無法復原，確定嗎？")) {
         localStorage.removeItem('materialRecords');
-        renderLog();
-        renderInventoryTable();
+        await db.changeLog.clear(); await syncInventoryFromERP();
+        renderLog(); renderInventoryTable(); runAnalysis();
         alert("已清空所有紀錄。");
     }
 }
@@ -1454,25 +1862,24 @@ function filterRecords() {
   document.querySelectorAll('.record-li').forEach(item => {
     let txt = item.innerText.toLowerCase();
     let dateTxt = item.querySelector('div').innerText; 
-    
     let matchPerson = !pName || txt.includes(pName);
     let matchStaff = !sName || txt.includes(sName);
     let matchPart = !pNo || txt.includes(pNo);
     let matchDate = !month || dateTxt.includes(month);
-
     item.style.display = (matchPerson && matchStaff && matchPart && matchDate) ? 'block' : 'none';
   });
 }
 
 function clearFilters() {
-  document.getElementById('searchPerson').value = "";
-  document.getElementById('searchStaff').value = "";
-  document.getElementById('searchPartNo').value = "";
-  document.getElementById('searchMonth').value = "";
+  document.getElementById('searchPerson').value = ""; document.getElementById('searchStaff').value = "";
+  document.getElementById('searchPartNo').value = ""; document.getElementById('searchMonth').value = "";
   document.getElementById('searchNameDisplay').innerText = "";
   filterRecords();
 }
 
+// ==========================================
+// 匯出功能
+// ==========================================
 function openExportModal() { document.getElementById('exportModal').style.display = 'flex'; }
 function closeExportModal() { document.getElementById('exportModal').style.display = 'none'; }
 
@@ -1481,27 +1888,14 @@ function confirmExport() {
   const start = document.getElementById('exportStart').value;
   const end = document.getElementById('exportEnd').value;
   if(start && end) {
-     const sDate = new Date(start);
-     const eDate = new Date(end);
-     records = records.filter(r => {
-        let rDate = new Date(r.date);
-        return rDate >= sDate && rDate <= eDate;
-     });
+     const sDate = new Date(start); const eDate = new Date(end);
+     records = records.filter(r => { let rDate = new Date(r.date); return rDate >= sDate && rDate <= eDate; });
   }
-
   const checkboxes = document.querySelectorAll('.export-col:checked');
   const cols = Array.from(checkboxes).map(cb => cb.value);
-  const colMap = {
-    date: "日期", type: "類型", orderNo: "單號", partNo: "料號",
-    name: "品名", qty: "數量", unit: "單位", person: "對象",
-    staff: "經辦", evalType: "評價類型", timestamp: "時間戳記"
-  };
+  const colMap = { date: "日期", type: "類型", orderNo: "單號", partNo: "料號", name: "品名", qty: "數量", unit: "單位", person: "對象", staff: "經辦", evalType: "評價類型", timestamp: "時間戳記" };
   let data = records.map(r => {
-    let row = {};
-    cols.forEach(col => {
-      row[colMap[col]] = r[col] || "";
-    });
-    return row;
+    let row = {}; cols.forEach(col => { row[colMap[col]] = r[col] || ""; }); return row;
   });
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
@@ -1510,104 +1904,365 @@ function confirmExport() {
   closeExportModal();
 }
 
+async function exportReconciliationReport(){
+    const logs=await db.changeLog.toArray();
+    const today=new Date().toISOString().slice(0,10);
+    const data=logs.filter(x=>x.date.includes(today)).map(x=>({ 日期:x.date, 類型:x.type, 料號:x.partNo, 數量:x.amount, 評價:normalizeEvalType(x.rating)||"", 備註:x.note||"" }));
+    const ws=XLSX.utils.json_to_sheet(data); const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,"今日異動"); XLSX.writeFile(wb,"今日異動清單.xlsx");
+}
+
+// ==========================================
+// 分析與預測
+// ==========================================
 function setSafetyStock() {
-  const pNo = document.getElementById('safePartNo').value;
-  const qty = document.getElementById('safeQty').value;
-  if(!pNo || !qty) return;
+  const pNo = normalizePartNo(document.getElementById('safePartNo').value);
+  const evalType = normalizeEvalType(document.getElementById('safeEvalType').value);
+  const qty = normalizeNumber(document.getElementById('safeQty').value);
+  if(!pNo || pNo.length !== 10) { alert('請輸入完整10碼料號'); return; }
+  if(!Number.isFinite(qty) || qty < 0) { alert('請輸入正確安全存量'); return; }
+
   let safe = JSON.parse(localStorage.getItem('safeStock')) || {};
-  safe[pNo] = parseInt(qty);
+  safe[makeInventoryKey(pNo, evalType)] = qty;
   localStorage.setItem('safeStock', JSON.stringify(safe));
-  
-  alert(`✅ 已設定 ${pNo} 安全存量為 ${qty}`);
+  alert(`✅ 已設定 ${pNo} / ${evalType} 安全存量為 ${qty}`);
   runAnalysis();
 }
 
 function runAnalysis() {
   const report = document.getElementById('analysisReport');
+  if(!report) return;
+
   const safe = JSON.parse(localStorage.getItem('safeStock')) || {};
   const inventory = getInventoryMap();
   let html = "";
-  
-  let totalValidStock = {};
-  for(let key in inventory) {
-      let item = inventory[key];
-      if (item.evalType === "0新" || item.evalType === "3資產新") {
-          if (!totalValidStock[item.pNo]) totalValidStock[item.pNo] = 0;
-          totalValidStock[item.pNo] += item.total;
-      }
-  }
 
-  for(let pNo in safe) {
-    let current = totalValidStock[pNo] || 0;
-    let limit = safe[pNo];
-    let name = materials[pNo] ? materials[pNo].name : pNo;
-    if(current < limit) {
-       html += `
-         <div style="background:#fff; border-left:5px solid red; padding:15px; margin-bottom:10px; border-radius:5px;">
-            <div style="font-weight:bold; color:#c0392b;">⚠️ 庫存不足警報</div>
-            <div>${pNo} ${name}</div>
-            <div>目前新品庫存: <strong>${current}</strong> (安全存量: ${limit})</div>
-            <div style="font-size:0.8rem; color:#666;">建議盡快請購或調撥</div>
-         </div>
-       `;
-    }
-  }
-  
-  if(html === "") html = "<div style='text-align:center; color:green; padding:20px;'>✅ 目前所有新品庫存皆在安全水位之上</div>";
+  Object.entries(safe).forEach(([key, limit]) => {
+    const parts = key.split('_');
+    const pNo = normalizePartNo(parts[0]);
+    const evalType = normalizeEvalType(parts.slice(1).join('_') || '0新');
+    const invKey = makeInventoryKey(pNo, evalType);
+    const item = inventory[invKey] || {pNo, evalType, name:getMaterialDisplayName(pNo, ''), total:0, init:0, change:0};
+    const current = normalizeNumber(item.total); limit = normalizeNumber(limit);
+    const name = item.name || getMaterialDisplayName(pNo, '');
+    const isLow = current < limit;
+    
+    html += `
+      <div style="background:#fff; border-left:5px solid ${isLow ? 'red' : '#27ae60'}; padding:15px; margin-bottom:10px; border-radius:5px; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+        <div style="font-weight:bold; color:${isLow ? '#c0392b' : '#27ae60'};">${isLow ? '⚠️ 庫存不足警報' : '✅ 庫存水位正常'}</div>
+        <div><strong>${pNo}</strong> ${name}</div>
+        <div>評價類型：<strong>${evalType}</strong></div>
+        <div>目前庫存：<strong>${current}</strong>（初始 ${item.init || 0} / 異動 ${item.change || 0}）</div>
+        <div>安全存量：<strong>${limit}</strong></div>
+        <div style="font-size:0.8rem; color:#666;">${isLow ? '建議盡快請購、調撥或檢查待修待驗轉態。' : '無需立即補貨。'}</div>
+      </div>`;
+  });
+
+  if(html === "") html = "<div style='text-align:center; color:#666; padding:20px;'>尚未設定安全存量。請輸入料號、選擇評價類型後設定預警值。</div>";
   report.innerHTML = html;
 }
 
 function calculateUsageHistory() {
-    let inputVal = document.getElementById('historySearchInput').value;
-    if(!selectedPartNo && inputVal.length===10 && materials[inputVal]) {
-        selectMaterial(inputVal, 'history');
-    }
-
+    let inputVal = normalizePartNo(document.getElementById('historySearchInput').value);
+    let rawEvalTypeFilter = document.getElementById('historyEvalType').value;
+    let evalTypeFilter = rawEvalTypeFilter ? normalizeEvalType(rawEvalTypeFilter) : '';
+    
+    if(!selectedPartNo && inputVal.length===10 && materials[inputVal]) selectMaterial(inputVal, 'history');
     if(!selectedPartNo) { alert("請先搜尋或選擇料號"); return; }
     
     document.getElementById('historyResult').style.display = "block";
     let records = JSON.parse(localStorage.getItem('materialRecords')) || [];
-    let targets = records.filter(r => r.partNo === selectedPartNo && r.type === "領料");
-    let total = 0;
-    let monthly = new Array(12).fill(0);
-    let quarterly = new Array(4).fill(0);
-    let years = new Set();
+    
+    let targets = records.filter(r => r.partNo === selectedPartNo && r.type === "領料" && (!evalTypeFilter || normalizeEvalType(r.evalType) === evalTypeFilter));
+    let total = 0, monthly = new Array(12).fill(0), quarterly = new Array(4).fill(0), years = new Set();
     targets.forEach(r => {
-        let d = new Date(r.date);
-        let qty = parseInt(r.qty);
-        total += qty;
-        monthly[d.getMonth()] += qty;
-        quarterly[Math.floor(d.getMonth() / 3)] += qty;
-        years.add(d.getFullYear());
+        let d = new Date(r.date); let qty = parseInt(r.qty);
+        total += qty; monthly[d.getMonth()] += qty; quarterly[Math.floor(d.getMonth() / 3)] += qty; years.add(d.getFullYear());
     });
+    
     document.getElementById('totalUsage').innerText = total;
     document.getElementById('avgYearly').innerText = years.size > 0 ? (total / years.size).toFixed(1) : total;
-    
-    document.getElementById('season1').innerText = quarterly[0];
-    document.getElementById('season2').innerText = quarterly[1];
-    document.getElementById('season3').innerText = quarterly[2];
-    document.getElementById('season4').innerText = quarterly[3];
+    document.getElementById('season1').innerText = quarterly[0]; document.getElementById('season2').innerText = quarterly[1];
+    document.getElementById('season3').innerText = quarterly[2]; document.getElementById('season4').innerText = quarterly[3];
     
     let mHtml = "";
     ["一","二","三","四","五","六","七","八","九","十","十一","十二"].forEach((m, i) => {
-        let val = monthly[i];
-        let barH = total > 0 ? (val/total)*50 : 0; 
-        mHtml += `
-            <div>
-                <div style="height:30px; display:flex; align-items:flex-end; justify-content:center;">
-                    <div style="width:10px; background:#3498db; height:${Math.max(barH, 2)}px;"></div>
-                </div>
-                <div style="font-weight:bold;">${val}</div>
-                <div style="color:#888;">${m}月</div>
+        let val = monthly[i]; let barH = total > 0 ? (val/total)*50 : 0; 
+        mHtml += `<div>
+            <div style="height:30px; display:flex; align-items:flex-end; justify-content:center;">
+                <div style="width:10px; background:#3498db; height:${Math.max(barH, 2)}px;"></div>
             </div>
-        `;
+            <div style="font-weight:bold;">${val}</div><div style="color:#888;">${m}月</div>
+        </div>`;
     });
     document.getElementById('monthlyStats').innerHTML = mHtml;
 }
 
-function toggleSignature(el) {
-    let span = document.getElementById('sigName');
-    span.hidden = !span.hidden;
+function toggleSignature(el) { let span = document.getElementById('sigName'); span.hidden = !span.hidden; }
+
+// ==========================================
+// 簽名板功能 (保留原作者功能)
+// ==========================================
+document.addEventListener("DOMContentLoaded", function () {
+    const nameInput = document.getElementById("personName");
+    if (!nameInput) return;
+
+    const signatureContainer = document.createElement("div");
+    signatureContainer.className = "signature-block";
+    signatureContainer.style.cssText = "margin-top: 15px; width: 100%;";
+    signatureContainer.innerHTML = `
+        <label style="font-weight: bold; color: var(--ukiyo-deep-blue, #1D3B56); display: block; margin-bottom: 5px;">
+            領/退/借用人簽名 <span style="font-weight: normal; font-size: 0.85em; color: #7f8c8d;">(非必填)</span>
+        </label>
+        <div style="position: relative; border: 1px solid #ccc; border-radius: 8px; background-color: #fff; width: 100%; height: 130px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+            <canvas id="signature-canvas" style="display: block; cursor: crosshair; touch-action: none; width: 100%; height: 100%;"></canvas>
+            <button type="button" id="clear-btn" style="position: absolute; right: 8px; bottom: 8px; font-size: 11px; padding: 4px 10px; background: #f8f9fa; border: 1px solid #cbd5e1; border-radius: 4px; z-index: 50; cursor: pointer;">清除</button>
+        </div>
+        <input type="hidden" id="signature-data" name="signature_data">
+    `;
+
+    nameInput.parentNode.appendChild(signatureContainer);
+    const canvas = document.getElementById("signature-canvas");
+    const clearBtn = document.getElementById("clear-btn");
+    const signatureInput = document.getElementById("signature-data");
+    const ctx = canvas.getContext("2d");
+    
+    let isDrawing = false, hasSigned = false;
+
+    function resizeCanvas() {
+        const rect = canvas.parentNode.getBoundingClientRect();
+        canvas.width = rect.width; canvas.height = 130;
+        ctx.strokeStyle = "#1a202c"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    }
+    setTimeout(resizeCanvas, 150); window.addEventListener('resize', resizeCanvas);
+
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startDrawing(e) { isDrawing = true; hasSigned = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); if (e.touches && e.cancelable) e.preventDefault(); }
+    function draw(e) { if (!isDrawing) return; const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); if (e.touches && e.cancelable) e.preventDefault(); }
+    function stopDrawing() { if (!isDrawing) return; isDrawing = false; if (hasSigned) { signatureInput.value = canvas.toDataURL("image/png"); } else { signatureInput.value = ""; } }
+
+    canvas.addEventListener("mousedown", startDrawing, { passive: false }); canvas.addEventListener("mousemove", draw, { passive: false }); window.addEventListener("mouseup", stopDrawing);
+    canvas.addEventListener("touchstart", startDrawing, { passive: false }); canvas.addEventListener("touchmove", draw, { passive: false }); canvas.addEventListener("touchend", stopDrawing);
+    clearBtn.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); ctx.clearRect(0, 0, canvas.width, canvas.height); hasSigned = false; signatureInput.value = ""; });
+});
+
+// ==========================================
+// ⚡ 颱風戰地快登模組核心邏輯驅動
+// ==========================================
+const TAIPOWER_EMERGENCY_COMMON = [
+    { partNo: "0321001110", shortName: "懸垂礙子" },
+    { partNo: "0321002220", shortName: "裝腳礙子" },
+    { partNo: "0412005550", shortName: "2.4M鋼心橫擔" },
+    { partNo: "0561003330", shortName: "熔絲鏈開關" },
+    { partNo: "0102004440", shortName: "鋁線 60SQ" },
+    { partNo: "0102005550", shortName: "風雨線 22SQ" },
+    { partNo: "0901002210", shortName: "PVC 絕緣膠帶" }
+];
+
+function initEmergencyModule() {
+    const container = document.getElementById('quickDeckContainer');
+    if (!container) return;
+    
+    container.innerHTML = TAIPOWER_EMERGENCY_COMMON.map(item => `
+        <button type="button" onclick="selectQuickMaterial('${item.partNo}', '${item.shortName}')"
+                style="padding: 15px 20px; background: var(--ukiyo-deep-blue); color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; flex: 1 1 calc(33% - 10px); min-width: 100px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+            ${item.shortName}
+        </button>
+    `).join('');
+    
+    initEmergencySignatureCanvas();
+    renderEmergencyLiveDashboard();
+}
+
+function selectQuickMaterial(partNo, shortName) {
+    document.getElementById('m_partNo_hidden').value = partNo;
+    document.getElementById('m_matSearchInput').value = `${shortName} (${partNo})`;
+    if (navigator.vibrate) navigator.vibrate(50); 
+}
+
+function adjustEmergencyQty(amount) {
+    const qtyInput = document.getElementById('m_quantity');
+    let val = parseFloat(qtyInput.value) || 0;
+    val = Math.max(0, val + amount);
+    qtyInput.value = val === 0 ? "" : val;
+}
+
+async function searchMaterialFuzzy(keyword) {
+    const dropdown = document.getElementById('searchResultDropdown');
+    if (!keyword || keyword.trim() === "") { dropdown.style.display = 'none'; return; }
+    
+    const upperKey = keyword.toUpperCase();
+    const matches = await db.materials.filter(m => (m.name && m.name.toUpperCase().includes(upperKey)) || (m.partNo && m.partNo.includes(upperKey))).limit(6).toArray();
+    
+    if (matches.length === 0) {
+        dropdown.innerHTML = `<div style="padding:12px; color:var(--danger-red); font-weight:bold; background:#fff;">❌ 找不到對應材料，請確認輸入</div>`;
+        dropdown.style.display = 'block'; return;
+    }
+    
+    dropdown.innerHTML = matches.map(m => `
+        <div onclick="selectFuzzyMaterial('${m.partNo}', '${m.name}')" style="padding:15px; border-bottom:1px solid #eee; background:#fff; cursor:pointer; font-size:0.95rem; line-height:1.4;">
+            <strong>📦 ${m.name}</strong><br><span style="font-size:0.8rem; color:#666;">料號：${m.partNo} | 當前庫存：${m.erpStock || 0} ${m.unit || '個'}</span>
+        </div>
+    `).join('');
+    dropdown.style.display = 'block';
+}
+
+function selectFuzzyMaterial(partNo, name) {
+    document.getElementById('m_partNo_hidden').value = partNo;
+    document.getElementById('m_matSearchInput').value = `${name} (${partNo})`;
+    document.getElementById('searchResultDropdown').style.display = 'none';
+}
+
+let emIsDrawing = false, emCtx;
+function initEmergencySignatureCanvas() {
+    const canvas = document.getElementById('emergencySignatureCanvas');
+    const clearBtn = document.getElementById('clearEmergencySignBtn');
+    if (!canvas) return;
+    
+    emCtx = canvas.getContext('2d');
+    emCtx.strokeStyle = '#1D3B56'; emCtx.lineWidth = 3;
+    
+    function getTouchPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+    
+    function startDraw(e) { emIsDrawing = true; const pos = getTouchPos(e); emCtx.beginPath(); emCtx.moveTo(pos.x, pos.y); if (e.cancelable) e.preventDefault(); }
+    function draw(e) { if (!emIsDrawing) return; const pos = getTouchPos(e); emCtx.lineTo(pos.x, pos.y); emCtx.stroke(); if (e.cancelable) e.preventDefault(); }
+    function stopDraw() { if (!emIsDrawing) return; emIsDrawing = false; document.getElementById('emergencySignatureInput').value = canvas.toDataURL("image/png"); }
+    
+    canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', draw); window.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false }); canvas.addEventListener('touchmove', draw, { passive: false }); canvas.addEventListener('touchend', stopDraw);
+    
+    clearBtn.addEventListener('click', () => {
+        emCtx.clearRect(0, 0, canvas.width, canvas.height); document.getElementById('emergencySignatureInput').value = "";
+    });
+}
+
+async function submitEmergencyRecord() {
+    const teamName = document.getElementById('m_teamName').value.trim();
+    const partNo = document.getElementById('m_partNo_hidden').value;
+    const matSearchInput = document.getElementById('m_matSearchInput').value;
+    const quantity = parseFloat(document.getElementById('m_quantity').value);
+    const evalType = document.getElementById('m_evalType').value;
+    const signatureBase64 = document.getElementById('emergencySignatureInput').value;
+    
+    if (!teamName || !matSearchInput || isNaN(quantity) || quantity <= 0) {
+        alert("⚠️ 請確實填寫【工班】、選取【材料】並輸入【大於0的數量】！"); return;
+    }
+    
+    let finalPartNo = partNo, finalMatName = matSearchInput;
+    if (!finalPartNo) {
+        finalPartNo = "UNKNOWN"; finalMatName = matSearchInput;
+    } else {
+        const detail = await db.materials.where('partNo').equals(finalPartNo).first();
+        if (detail) finalMatName = detail.name;
+    }
+    
+    const logEntry = {
+        timestamp: new Date().toISOString(), dateStr: new Date().toLocaleDateString('zh-TW'),
+        teamName: teamName, partNo: finalPartNo, matName: finalMatName, quantity: quantity,
+        unit: "個", evalType: evalType, signature: signatureBase64 || null, status: "Typhoon_Pending", erpOrderNo: "" 
+    };
+    
+    try {
+        await db.emergency_logs.add(logEntry);
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]); 
+        document.getElementById('m_partNo_hidden').value = ""; document.getElementById('m_matSearchInput').value = "";
+        document.getElementById('m_quantity').value = ""; document.getElementById('clearEmergencySignBtn').click();
+        alert("✅ 戰地臨時發料成功登記！");
+        renderEmergencyLiveDashboard();
+    } catch (err) { alert("儲存至 Dexie 失敗：" + err); }
+}
+
+async function renderEmergencyLiveDashboard() {
+    const dashboard = document.getElementById('emergencyLiveDashboard');
+    if (!dashboard) return;
+    const logs = await db.emergency_logs.orderBy('id').reverse().toArray();
+    
+    if (logs.length === 0) {
+        dashboard.innerHTML = `<div style="text-align:center; color:#999; padding:20px; background:#fff; border-radius:8px;">當前無戰地發料紀錄</div>`; return;
+    }
+    
+    dashboard.innerHTML = logs.map(log => `
+        <div style="background:#fff; border-left:6px solid ${log.status === 'Archived' ? 'var(--safe-green)' : '#e74c3c'}; padding:15px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.05); position:relative; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#666;">
+                <span>⏱️ ${new Date(log.timestamp).toLocaleTimeString()} | 📅 ${log.dateStr}</span>
+                <span style="font-weight:bold; color:${log.status === 'Archived' ? 'green' : 'red'};">${log.status === 'Archived' ? '✅ 已核銷歸檔' : '⚠️ 颱風待核銷'}</span>
+            </div>
+            <div style="font-size:1.1rem;">
+                <strong>工班：${log.teamName}</strong> 領用 <span style="color:#d32f2f; font-weight:bold;">${log.matName} × ${log.quantity} ${log.unit}</span> (${log.evalType})
+            </div>
+            <div style="font-size:0.85rem; color:#555;">台電標準料號：<code>${log.partNo}</code></div>
+            ${log.signature ? `
+            <div style="margin-top:5px;">
+                <span style="font-size:0.8rem; color:#888; display:block;">工班現場手簽憑據：</span>
+                <img src="${log.signature}" style="height:45px; border:1px solid #eee; background:#fafafa; border-radius:4px;" />
+            </div>` : ''}
+            ${log.status === 'Typhoon_Pending' ? `
+            <div style="margin-top:8px; padding-top:8px; border-top:1px dashed #eee; display:flex; gap:5px; align-items:center;">
+                <input type="text" id="erp_input_${log.id}" placeholder="請輸入對應的 ERP 正式單號" style="padding:6px; font-size:0.85rem; width:200px;" />
+                <button type="button" onclick="reconcileSingleLog(${log.id})" style="padding:6px 12px; background:var(--excel-green); color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.85rem;">對帳確認 ✔️</button>
+            </div>
+            ` : `<div style="font-size:0.85rem; color:green; font-weight:bold;">已對齊 ERP 單號：${log.erpOrderNo}</div>`}
+            <button type="button" onclick="deleteEmergencyLog(${log.id})" style="position:absolute; top:12px; right:12px; background:none; border:none; color:#bbb; cursor:pointer; font-size:1rem;">✕</button>
+        </div>
+    `).join('');
+}
+
+async function reconcileSingleLog(id) {
+    const erpNo = document.getElementById(`erp_input_${id}`).value.trim();
+    if (!erpNo) { alert("請輸入真實的台電 ERP 系統發料單號，才能完成核銷！"); return; }
+    
+    await db.emergency_logs.update(id, { status: "Archived", erpOrderNo: erpNo });
+    alert("核銷成功！該筆臨時紀錄已正式歸檔洗白。");
+    renderEmergencyLiveDashboard();
+}
+
+async function deleteEmergencyLog(id) {
+    if (confirm("確定要刪除這筆戰地發料紀錄嗎？(簽名資料將永久遺失)")) {
+        await db.emergency_logs.delete(id); renderEmergencyLiveDashboard();
+    }
+}
+
+function exportEmergencyLogsJSON() {
+    db.emergency_logs.toArray().then(data => {
+        if (data.length === 0) { alert("目前這台手機上沒有任何發料紀錄可供匯出。"); return; }
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = `Xinying_Emergency_Logs_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+    });
+}
+
+function importAndMergeEmergencyJSON(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+            if (!Array.isArray(importedData)) { alert("錯誤：檔案格式不符合材料系統標準規格！"); return; }
+            
+            let importCount = 0;
+            for (let entry of importedData) {
+                delete entry.id; 
+                const dup = await db.emergency_logs.where('timestamp').equals(entry.timestamp).and(x => x.teamName === entry.teamName && x.partNo === entry.partNo).first();
+                if (!dup) { await db.emergency_logs.add(entry); importCount++; }
+            }
+            alert(`✅ 成功合併其餘手機資料！本次共匯入 ${importCount} 筆全新戰地發料帳目。`);
+            renderEmergencyLiveDashboard();
+        } catch (err) { alert("讀取 JSON 檔案失敗，請檢查檔案是否損毀：" + err); }
+    };
+    reader.readAsText(file);
 }
 </script>
 </body>
