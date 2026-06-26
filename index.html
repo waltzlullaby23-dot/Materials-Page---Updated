@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>材料管理系統 - 整合強化版 V6 (戰地極限完整版)</title>
+  <title>材料管理系統</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
@@ -209,8 +209,8 @@
 
   <div class="content-wrapper">
     <header>
-      <div style="font-weight:900; font-size: 1.5rem; letter-spacing: 2px;">材料管理系統 - 整合強化版 V6 (戰地極限完整版)</div>
-      <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.9;">Excel 智慧匯入 + Dexie複合索引 + 戰地極限快登 + 離線對帳核銷</div>
+      <div style="font-weight:900; font-size: 1.5rem; letter-spacing: 2px;">材料管理系統 </div>
+      <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.9;"></div>
     </header>
 
     <div class="nav-tabs">
@@ -220,17 +220,17 @@
       <button class="nav-btn nav-btn-transfer" onclick="switchTab('transfer')">🚚 進貨/調撥</button>
       <button class="nav-btn nav-btn-history" onclick="switchTab('history')">📜 歷史用料紀錄</button>
       <button class="nav-btn" onclick="switchTab('analysis')">📊 分析與預測</button>
-      <button class="nav-btn nav-btn-emergency" onclick="switchTab('emergency')">⚡ 戰地快登</button>
+      <button class="nav-btn nav-btn-emergency" onclick="switchTab('emergency')">⚡ 災害(特殊時期)應用</button>
     </div>
 
     <div id="tab-emergency" class="container-3d">
-      <h3 class="section-title" style="border-left-color: #e74c3c;">⚡ 颱風天現場緊急發料快速登記</h3>
-      <p style="font-size:0.85rem; color:#666; margin-top:-10px; margin-bottom:20px;">※ 本介面專為手機單手操作設計。免背料號、免掃描，大按鈕點選，自動綁定簽名。</p>
+      <h3 class="section-title" style="border-left-color: #e74c3c;">⚡ 災害現場緊急發料快速登記</h3>
+      <p style="font-size:0.85rem; color:#666; margin-top:-10px; margin-bottom:20px;">※ 本介面專為手機操作設計。免背料號，自動綁定簽名。</p>
       
       <form id="emergencyForm" onsubmit="event.preventDefault();">
         <div style="margin-bottom: 15px;">
           <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">👷 領料工班 / 外包商名稱</label>
-          <input type="text" id="m_teamName" placeholder="例如：新營維護班、施工七班、大自然營造" required style="border: 2px solid var(--ukiyo-mid-blue); font-size:1.1rem; padding:15px;" />
+          <input type="text" id="m_teamName" placeholder="例如：某區處承攬商、某區處施工班" required style="border: 2px solid var(--ukiyo-mid-blue); font-size:1.1rem; padding:15px;" />
         </div>
 
         <div style="margin-bottom: 15px;">
@@ -241,7 +241,7 @@
 
         <div style="margin-bottom: 15px; position: relative;">
           <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">🔍 其他物料搜尋 (輸入中文品名或部分料號)</label>
-          <input type="text" id="m_matSearchInput" placeholder="輸入關鍵字，例如：礙子、橫擔、60SQ..." oninput="searchMaterialFuzzy(this.value)" style="font-size:1.1rem; padding:12px;" />
+          <input type="text" id="m_matSearchInput" placeholder="輸入關鍵字，例如：礙子、橫擔、變壓器..." oninput="searchMaterialFuzzy(this.value)" style="font-size:1.1rem; padding:12px;" />
           <input type="hidden" id="m_partNo_hidden" />
           <div id="searchResultDropdown" style="display:none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 250px; overflow-y: auto; background: white; border: 2px solid var(--ukiyo-deep-blue); box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 9999; border-radius: 0 0 8px 8px;"></div>
         </div>
@@ -261,12 +261,13 @@
               <option value="0新" selected>0新</option>
               <option value="1舊">1舊</option>
               <option value="3資產新">3資產新</option>
+              <option value="4資產舊">4資產舊</option>
             </select>
           </div>
         </div>
 
         <div style="margin-top: 20px; margin-bottom: 20px;">
-          <label style="font-weight: bold; color: #e74c3c;">✍️ 現場工班領料手指電子簽名</label>
+          <label style="font-weight: bold; color: #e74c3c;">✍️ 現場工班領料電子簽名</label>
           <div style="background:#fff; border:2px dashed #999; border-radius:8px; padding:5px; text-align:center;">
             <canvas id="emergencySignatureCanvas" width="400" height="150" style="width:100%; height:150px; background:#fcfcfc; cursor:crosshair; touch-action:none;"></canvas>
             <input type="hidden" id="emergencySignatureInput" />
@@ -276,10 +277,10 @@
           </div>
         </div>
 
-        <button type="button" class="btn-save" style="background: linear-gradient(45deg, #e74c3c, #c0392b); padding:18px; font-size:1.2rem;" onclick="submitEmergencyRecord()">确认發料登記 💾</button>
+        <button type="button" class="btn-save" style="background: linear-gradient(45deg, #e74c3c, #c0392b); padding:18px; font-size:1.2rem;" onclick="submitEmergencyRecord()">發料登記 💾</button>
       </form>
 
-      <h3 class="section-title" style="border-left-color: #2980b9; margin-top:40px;">🔄 戰地離線紀錄管理與核銷中央console</h3>
+      <h3 class="section-title" style="border-left-color: #2980b9; margin-top:40px;">🔄 離線紀錄管理與核銷console</h3>
       <div style="background:#e8f4f8; padding:15px; border-radius:10px; margin-bottom:20px; border:1px solid #b8d4e3; display:flex; gap:10px; flex-wrap:wrap;">
         <button type="button" onclick="exportEmergencyLogsJSON()" style="background:#27ae60; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; cursor:pointer;">📥 匯出這台手機發料檔 (.json)</button>
         <button type="button" onclick="document.getElementById('importMergeInput').click()" style="background:#2980b9; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; cursor:pointer;">📤 匯入並合併其餘手機檔案</button>
@@ -287,7 +288,7 @@
       </div>
 
       <div style="margin-top:20px;">
-        <strong>📋 當前戰地發料即時動態 (最新5筆 / 附核銷功能)</strong>
+        <strong>📋 當前發料即時動態 (最新5筆 / 附核銷功能)</strong>
         <div id="emergencyLiveDashboard" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;"></div>
       </div>
     </div>
@@ -677,6 +678,8 @@ db.version(2).stores({
 const rawData = {
   A: `1030420013	懸垂礙子 C型 10000磅 6"φ 灰色
 1030420014	懸垂礙子 C型 15000磅 φ10" 灰色
+1030420013	懸垂礙子 C型 10000磅 6"φ 灰色
+1030500009	聚合柱型礙子 22.8KV
 1030480000	聚合裝腳礙子 11.4KV 夾線型
 1030480007	防盬裝腳礙子 11.4KV 無腳
 1030500000	聚合柱型礙子 11.4kV
@@ -894,6 +897,7 @@ const rawData = {
 1000010066	改良套管型桿上變壓器 單相 6.9kV 240/120V 25kVA
 1000010067	密封型桿上變壓器 單相 6.9kV 240/120V 25kVA 不鏽鋼
 1000010068	非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 25kVA
+1000010072	桿上變壓器 單相 6.9kV 240/120V 50kVA
 1000010074	改良套管型桿上變壓器 單相 6.9kV 240/120V 50kVA
 1000010075	密封型桿上變壓器 單相 6.9kV 240/120V 50kVA 不鏽鋼
 1000010076	非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 50kVA
@@ -903,9 +907,14 @@ const rawData = {
 1000010082	非晶質鐵心桿上變壓器 單相 6.9kV 240/120V 100kVA
 1000010083	改良套管型桿上變壓器 單相 6.9kV 240/120V 167kVA
 1000010127	亭置式變壓器 單相 6.9/13.8kV 25kVA 直式高燃點一般型附分接頭
+1000010130	亭置式變壓器 單相 6.9/13.8kV 25kVA 直式高燃點不鏽鋼附分接頭
 1000010131	亭置式變壓器 單相 6.9/13.8kV 25kVA 直式附分接頭
 1000010133	亭置式變壓器 單相 6.9/13.8kV 50kVA 直式高燃點一般型附分接頭
+1000010136	亭置式變壓器 單相 6.9/13.8kV 50kVA 直式高燃點不鏽鋼附分接頭
 1000010139	亭置式變壓器 單相 6.9/13.8kV 100kVA直式高燃點一般型附分接頭
+1000010142	亭置式變壓器 單相 6.9/13.8kV 100kVA直式高燃點不鏽鋼附分接頭
+1000010146	亭置式變壓器 單相 6.9/13.8kV 167kVA直式高燃點一般型附分接頭
+1000010149	亭置式變壓器 單相 6.9/13.8kV 167kVA直式高燃點不鏽鋼附分接頭
 1000010171	亭置式變壓器 三相 12/24kV 500kVA 高燃點一般型附分接頭
 1000010217	桿上變壓器 單相 6.9kV 240/120V 100kVA 不鏽鋼
 1000010218	桿上變壓器 單相 6.9kV 240/120V 50kVA 不鏽鋼
@@ -915,8 +924,10 @@ const rawData = {
 1004030006	高壓電容器 單相 6.9kV 200kVAR 屋外型
 1008010002	電容器用油開關 單相 14.4kV 200A 手動/電動 115Vac
 1008040003	地下四路自動線路開關 三相 24kV 600A 2S2F 24V簡易型(I量測)
-1008040009	地下四路自動線路開關 三相24kV600A 2S2F 24V標準型(V、I量測)
 1008080005	亭置式氣封開關 三相 24kV 四路 2-600A 2-200A SF6絕緣
+1008080007	亭置式開關 3相 24kV 四路 2-600A 2-200A SF6絕緣低碳鋼型
+1008040009	地下四路自動線路開關 三相24kV600A 2S2F 24V標準型(V、I量測)
+1008040012	地下四路自動線路開關 三相24kV600A 3S1F 24V標準型(V、I量測)
 1008080013	亭置式開關 3相 24kV 二路 2-200A SF6絕緣 低碳鋼型
 1008080016	亭置式氣封開關 三相 24kV 四路 3-600A 1-200A SF6絕緣
 1030240010	變壓器絕緣油 35kV以上/2±0.03㎜ 145℃
@@ -925,11 +936,16 @@ const rawData = {
 1112000018	預力電桿 12m 配電 圓型 C級
 1112000019	預力電桿 14m 配電 圓型 C級
 1112000035	預力電桿 12m 配電 圓型 E級
+1112000036	預力電桿 14m 配電 圓型 E級
 1112100000	水泥腳木 空心圓形G3 φ150×1000㎜ 支線用
 1124020001	人孔蓋(含外蓋及蓋座)MC-150型外蓋φ908×80㎜蓋座φ1200×150㎜
-1124020059	手孔蓋墊座 方型 1210x810x200㎜ 混凝土
+1124020045	手孔蓋HR150外蓋1068×668×80㎜座1210×810×150㎜
 1124060002	預力混凝土基樁 6000x250x50㎜
-3008240007	空油桶 <各種規格> R-1301`,
+1016030040	高壓配電箱 屋外型 不鏽鋼 A類x1 單具組
+1016030042	高壓配電箱 屋外型 不鏽鋼 B類J型
+1016030043	高壓配電箱 屋外型 不鏽鋼 B類P型
+1016030053	高壓配電箱 屋外型 不鏽鋼 D類x1 單具組`,
+
     H: `1008040010	架空自動線路開關 三相 15kV 600A 24Vdc 標準型 閂鎖型無控制箱
 1008040014	架空自動線路開關 三相 25.8kV 600A 24Vdc 標準型閂鎖型無控制箱
 1008060002	手動型線路負載啟斷開關 三相 15kV 600A 屋外型 SF6
