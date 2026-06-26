@@ -229,18 +229,18 @@
       
       <form id="emergencyForm" onsubmit="event.preventDefault();">
         <div style="margin-bottom: 15px;">
-          <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">👷 領料工班 / 外包商名稱</label>
+          <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">👷 領料工班 / 包商名稱</label>
           <input type="text" id="m_teamName" placeholder="例如：某區處承攬商、某區處施工班" required style="border: 2px solid var(--ukiyo-mid-blue); font-size:1.1rem; padding:15px;" />
         </div>
 
         <div style="margin-bottom: 15px;">
-          <label style="font-weight: bold; color: var(--ukiyo-deep-blue); display:block; margin-bottom:5px;">🎯 防災常備物料快捷區 (免打字點選)</label>
+          <label style="font-weight: bold; color: var(--ukiyo-deep-blue); display:block; margin-bottom:5px;">🎯 災害常用材料快捷區 (免打字點選)</label>
           <div id="quickDeckContainer" style="display: flex; flex-wrap: wrap; gap: 8px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
             </div>
         </div>
 
         <div style="margin-bottom: 15px; position: relative;">
-          <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">🔍 其他物料搜尋 (輸入中文品名或部分料號)</label>
+          <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">🔍 材料搜尋 (輸入材料名稱或部分料號)</label>
           <input type="text" id="m_matSearchInput" placeholder="輸入關鍵字，例如：礙子、橫擔、變壓器..." oninput="searchMaterialFuzzy(this.value)" style="font-size:1.1rem; padding:12px;" />
           <input type="hidden" id="m_partNo_hidden" />
           <div id="searchResultDropdown" style="display:none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 250px; overflow-y: auto; background: white; border: 2px solid var(--ukiyo-deep-blue); box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 9999; border-radius: 0 0 8px 8px;"></div>
@@ -2069,17 +2069,20 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ==========================================
-// ⚡ 颱風戰地快登模組核心邏輯驅動
+// ⚡ 戰地快登模組核心邏輯驅動
 // ==========================================
 const TAIPOWER_EMERGENCY_COMMON = [
-    { partNo: "0321001110", shortName: "懸垂礙子" },
-    { partNo: "0321002220", shortName: "裝腳礙子" },
-    { partNo: "0412005550", shortName: "2.4M鋼心橫擔" },
+    { partNo: "1030420013", shortName: "懸垂礙子 C型 10000磅 6"φ 灰色" },
+    { partNo: "1030480007", shortName: "防盬裝腳礙子 11.4KV 無腳" },
+    { partNo: "1102050097", shortName: "600V PVC風雨線 1C 銅 22㎜2 黑色" },
     { partNo: "0561003330", shortName: "熔絲鏈開關" },
-    { partNo: "0102004440", shortName: "鋁線 60SQ" },
-    { partNo: "0102005550", shortName: "風雨線 22SQ" },
-    { partNo: "0901002210", shortName: "PVC 絕緣膠帶" }
-];
+    { partNo: "1102050090", shortName: "600V PVC鋁風雨線 1C 鋁 AWG #2 藍色" },
+    { partNo: "1100040000", shortName: "鋼心鋁線 AWG #2 6/1" },
+    { partNo: "1108000001", shortName: "軟銅紮線 2.6㎜φ 軟銅" },
+    { partNo: "1102050209", shortName: "600V PVC接戶電纜 3C 銅 8㎜2" },
+    { partNo: "1120340011", shortName: "輕鋼橫擔 L2400×75×75×T2.3㎜" },
+    { partNo: "1000010066", shortName: "改良套管型桿上變壓器 單相 6.9kV 240/120V 25kVA" },
+    ];
 
 function initEmergencyModule() {
     const container = document.getElementById('quickDeckContainer');
