@@ -2326,6 +2326,42 @@ function importAndMergeEmergencyJSON(file) {
     };
     reader.readAsText(file);
 }
+// 登入驗證（帳號+密碼完整版：已加入永久保留宣告）
+function checkLogin() {
+    const user = document.getElementById('loginUsername').value.trim();
+    const pass = document.getElementById('loginPassword').value;
+    
+    if (user === "justdoit" && pass === "elegant168") {
+        sessionStorage.setItem('sys_logged_in', 'true');
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('loginUsername').value = "";
+        document.getElementById('loginPassword').value = "";
+        document.getElementById('loginError').style.display = 'none';
+    } else {
+        document.getElementById('loginError').style.display = 'block';
+    }
+}
+
+// 網頁載入完成自動執行
+window.addEventListener('DOMContentLoaded', () => {
+    // 執行瀏覽器永久保留資料庫宣告
+    if (navigator.storage && navigator.storage.persist) {
+        navigator.storage.persist().then(granted => {
+            if (granted) {
+                console.log("瀏覽器已同意永久保留此系統的資料庫，不會被自動清空。");
+            } else {
+                console.warn("瀏覽器拒絕永久保留，資料在空間不足時可能會有風險。");
+            }
+        });
+    }
+
+    // 自動判斷當前會話是否已經登入過
+    if (sessionStorage.getItem('sys_logged_in') === 'true') {
+        if (document.getElementById('loginOverlay')) {
+            document.getElementById('loginOverlay').style.display = 'none';
+        }
+    }
+});
 </script>
 </body>
 </html>
