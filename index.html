@@ -274,15 +274,18 @@
           <div id="searchResultDropdown" style="display:none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 250px; overflow-y: auto; background: white; border: 2px solid var(--ukiyo-deep-blue); box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 9999; border-radius: 0 0 8px 8px;"></div>
         </div>
 
-        <div class="form-row" style="grid-template-columns: 1.5fr 1fr;">
-          <div>
-            <label style="font-weight: bold;">🔢 發放數量</label>
-            <div style="display:flex; gap:5px;">
-              <button type="button" onclick="adjustEmergencyQty(-1)" style="padding:10px 15px; background:#ccc; border:none; border-radius:5px; font-weight:bold; font-size:1.2rem;">-</button>
-              <input type="number" id="m_quantity" min="0.1" step="any" placeholder="請輸入數量" required style="text-align:center; font-size:1.2rem; font-weight:bold;" />
-              <button type="button" onclick="adjustEmergencyQty(1)" style="padding:10px 15px; background:#ccc; border:none; border-radius:5px; font-weight:bold; font-size:1.2rem;">+</button>
-            </div>
-          </div>
+        <div>
+  <label style="font-weight: bold;">🔢 發放數量與單位</label>
+  <div style="display:flex; gap:5px; align-items: center;">
+    <button type="button" onclick="adjustEmergencyQty(-1)" style="padding:10px 15px; background:#ccc; border:none; border-radius:5px; font-weight:bold; font-size:1.2rem; cursor:pointer;">-</button>
+    
+    <input type="number" id="m_quantity" min="0.1" step="any" placeholder="數量" required style="flex: 1; text-align:center; font-size:1.2rem; font-weight:bold; padding: 8px 0; min-width: 70px;" />
+    
+    <input type="text" id="m_unit" placeholder="單位" style="width: 75px; text-align:center; font-size:1.1rem; font-weight:bold; padding: 10px 5px; border: 1px solid #ccc; border-radius: 5px; background-color: var(--ukiyo-foam, #F0F4F5); color: var(--ukiyo-deep-blue, #1D3B56);" />
+    
+    <button type="button" onclick="adjustEmergencyQty(1)" style="padding:10px 15px; background:#ccc; border:none; border-radius:5px; font-weight:bold; font-size:1.2rem; cursor:pointer;">+</button>
+  </div>
+</div>
           <div>
             <label style="font-weight: bold;">🏷️ 評價類型</label>
             <select id="m_evalType" style="padding:12px;">
