@@ -60,14 +60,21 @@
     }
     @keyframes moveWave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-    /* Excel 匯出按鈕 */
+    /* 右側專業工具欄 */
+    .utility-rail {
+      position: fixed; top: 20px; right: 20px; z-index: 1000;
+      width: 210px; padding: 16px; box-sizing: border-box;
+      background: rgba(255,255,255,0.92); border: 1px solid rgba(255,255,255,0.95);
+      border-radius: 18px; box-shadow: 0 14px 34px rgba(29,59,86,0.2);
+      backdrop-filter: blur(12px);
+    }
+    .utility-title { color: var(--ukiyo-deep-blue); font-size: .78rem; font-weight: 900; letter-spacing: .12em; margin: 0 0 12px; }
     .excel-btn {
-      position: fixed;
-      top: 20px; left: 20px; z-index: 1000;
+      width: 100%;
       background-color: var(--excel-green); color: white; border: 2px solid white;
-      padding: 10px 20px; border-radius: 30px;
+      padding: 12px 16px; border-radius: 12px;
       font-weight: 900; cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+      box-shadow: 0 6px 14px rgba(33,115,70,0.22); display: flex; align-items: center; justify-content:center; gap: 8px; transition: all 0.3s ease;
     }
     .excel-btn:hover { transform: scale(1.05); background-color: #1e6b40; }
 
@@ -94,7 +101,7 @@
     .btn-modal-confirm { background: var(--excel-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
     /* UI 內容層 */
-    .content-wrapper { position: relative; z-index: 10; padding: 20px 16px 80px; max-width: 950px; margin: 0 auto; }
+    .content-wrapper { position: relative; z-index: 10; padding: 20px 16px 80px; max-width: 1120px; margin: 0 260px 0 20px; }
     header { background: var(--ukiyo-deep-blue); color: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 10px 25px rgba(29, 59, 86, 0.5); border: 2px solid #D4AF37; margin-bottom: 25px; }
 
     .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
@@ -146,7 +153,8 @@
     .mode-btn { flex: 1; padding: 10px; text-align: center; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 0.9rem; }
     .mode-btn.active { background: white; color: var(--ukiyo-deep-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-    .ukiyo-signature { position: fixed; left: 20px; bottom: 20px; z-index: 100; font-weight: 900; padding: 10px; background: #F2E6D9; border: 2px solid #1D3B56; border-radius: 5px; transform: rotate(-5deg); cursor: pointer; box-shadow: 3px 3px 0px #1D3B56; }
+    .ukiyo-signature { margin-top: 14px; font-weight: 900; padding: 12px; background: #F2E6D9; border: 1px solid #d8c2a8; border-radius: 12px; cursor: pointer; box-shadow: 0 5px 12px rgba(29,59,86,.12); color:var(--ukiyo-deep-blue); text-align:center; }
+    .input-policy-note { margin: 8px 0 20px; padding: 11px 14px; border-radius: 10px; background: #edf7f1; border: 1px solid #badcc7; color: #225f3a; font-size: .88rem; line-height: 1.55; }
 
     .multi-material-list { margin-top: 15px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; background: #f9f9f9; }
     .multi-material-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: white; border-radius: 5px; margin-bottom: 8px; border-left: 3px solid var(--ukiyo-mid-blue); }
@@ -155,9 +163,10 @@
     @media (max-width: 600px) { 
       .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; } 
       .nav-btn { font-size: 0.9rem; padding: 8px 12px; }
-      .excel-btn { top: auto; bottom: 80px; right: 20px; left: auto; border-radius: 50%; width: 50px; height: 50px; padding: 0; justify-content: center; }
-      .excel-btn span { display: none; }
-      .excel-btn::after { content: "📊"; font-size: 1.5rem; }
+      .utility-rail { position:relative; top:auto; right:auto; width:auto; margin:14px 16px 0; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+      .utility-title { grid-column:1/-1; margin-bottom:0; }
+      .ukiyo-signature { margin-top:0; }
+      .content-wrapper { margin:0; padding-top:14px; }
       .checkbox-grid { grid-template-columns: 1fr; }
       .container-3d { padding: 20px; }
       .stock-table th, .stock-table td { font-size: 0.85rem; padding: 8px; }
@@ -190,9 +199,13 @@
   </div>
 </div>
 
-  <button class="excel-btn" onclick="openExportModal()">
-    <span>📊 匯出資料</span>
-  </button>
+  <aside class="utility-rail" aria-label="系統工具">
+    <div class="utility-title">SYSTEM TOOLS · 系統工具</div>
+    <button class="excel-btn" onclick="openExportModal()"><span>📊 匯出資料</span></button>
+    <div class="ukiyo-signature" onclick="toggleSignature(this)" title="點擊顯示設計人">
+      設計人：<span id="sigName" hidden>三木</span>
+    </div>
+  </aside>
 
   <div id="exportModal" class="modal-overlay">
     <div class="modal-content">
@@ -345,6 +358,7 @@
     <div id="tab-input" class="container-3d active">
       <form id="materialForm">
         <h3 class="section-title">壹、基本資訊</h3>
+        <div class="input-policy-note">✓ 支援未入帳材料先行登錄：即使系統尚無庫存或數量不足，也可儲存本頁紀錄；待正式入帳後，庫存會依後續異動自動回復。</div>
         <div class="form-row">
           <div><label>異動日期</label><input type="date" id="mainDate" required /></div>
           <div><label>作業類型</label>
@@ -682,10 +696,6 @@
       </div>
       <div id="analysisReport"></div>
     </div>
-  </div>
-
-  <div class="ukiyo-signature" onclick="toggleSignature(this)">
-    設計人：<span id="sigName" hidden>三木</span>
   </div>
 
 <script>
@@ -1380,14 +1390,15 @@ async function submitBatchRecords() {
       signature, source: 'normal', timestamp: new Date().toISOString()
   }));
 
+  // 一般資料輸入允許「材料已到貨、ERP 尚未入帳」的時間差。
+  // 仍計算不足項目供完成提示使用，但不阻擋儲存；調撥與災害發料流程維持原有防超發檢查。
   const shortage = await findStockShortages(records);
-  if(shortage.length > 0) {
-      alert('❌ 庫存不足，已取消儲存：\n\n' + shortage.join('\n'));
-      return;
-  }
 
   await saveRecordsBatch(records);
-  alert(`✅ 已成功儲存 ${records.length} 筆物料紀錄！`);
+  const pendingNotice = shortage.length
+    ? `\n\n⚠️ 其中 ${shortage.length} 項目前尚未入帳或庫存不足，紀錄已先建立；請於入帳後再核對即時庫存。`
+    : '';
+  alert(`✅ 已成功儲存 ${records.length} 筆物料紀錄！${pendingNotice}`);
   batchMaterials = [];
   renderBatchList();
   document.getElementById('materialForm').reset();
