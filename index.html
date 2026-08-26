@@ -138,6 +138,18 @@
     .nav-btn-history { border-left:3px solid #b778d0; }
     .nav-btn-emergency { border-left:3px solid #ff6b67; }
 
+    /* =========================================================
+       V7 災害應用：語音材料搜尋
+       ========================================================= */
+    .voice-panel { background:#fff7e6; border:1px solid #f5c15f; border-radius:12px; padding:12px; margin:10px 0 14px; box-shadow:0 2px 8px rgba(0,0,0,.04); }
+    .voice-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .voice-btn { border:none; border-radius:10px; padding:12px 16px; font-weight:900; cursor:pointer; background:linear-gradient(45deg,#e74c3c,#f39c12); color:white; box-shadow:0 5px 12px rgba(231,76,60,.18); }
+    .voice-btn.secondary { background:#34495e; }
+    .voice-btn.listening { animation:pulseVoice 1s infinite; }
+    .voice-btn:disabled { opacity:.55; cursor:not-allowed; }
+    @keyframes pulseVoice { 0% { transform:scale(1); box-shadow:0 0 0 0 rgba(231,76,60,.36); } 70% { transform:scale(1.02); box-shadow:0 0 0 10px rgba(231,76,60,0); } 100% { transform:scale(1); box-shadow:0 0 0 0 rgba(231,76,60,0); } }
+    #voiceStatus { margin-top:8px; font-size:.88rem; color:#7a4b00; line-height:1.45; }
+
     .container-3d { background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid var(--glass-border); margin-bottom: 30px; display: none; }
     .container-3d.active { display: block; animation: fadeIn 0.5s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -330,10 +342,19 @@
         </div>
 
         <div style="margin-bottom: 15px; position: relative;">
-          <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">🔍 材料搜尋（輸入材料名稱或部分料號）</label>
-          <input type="text" id="m_matSearchInput" placeholder="輸入關鍵字，例如：礙子、橫擔、變壓器..." oninput="searchMaterialFuzzy(this.value)" style="font-size:1.1rem; padding:12px;" />
+          <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">🔍 材料搜尋（輸入材料名稱、部分料號或使用語音）</label>
+          <input type="text" id="m_matSearchInput" placeholder="輸入或說出材料，例如：3C、3C8、改良、改良25..." oninput="searchMaterialFuzzy(this.value)" style="font-size:1.1rem; padding:12px;" />
+          <div class="voice-panel">
+            <div style="font-weight:900; color:#7a4b00;">🎙️ 災害語音快速找料</div>
+            <div style="font-size:.88rem; color:#6b5a3a; margin-top:4px;">直接說材料關鍵字，不必慢慢打字；例如「3C」會列出 3C 8mm²、3C 22mm²；「改良」會列出 25 / 50 / 100 / 167 kVA。</div>
+            <div class="voice-actions">
+              <button type="button" id="voiceStartBtn" class="voice-btn" onclick="startEmergencyVoiceInput()">🎙️ 開始語音搜尋</button>
+              <button type="button" id="voiceStopBtn" class="voice-btn secondary" onclick="stopEmergencyVoiceInput()">⏹ 停止辨識</button>
+            </div>
+            <div id="voiceStatus">等待語音搜尋。建議使用 Chrome / Edge，並允許麥克風權限。</div>
+          </div>
           <input type="hidden" id="m_partNo_hidden" />
-          <div id="searchResultDropdown" style="display:none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 250px; overflow-y: auto; background: white; border: 2px solid var(--ukiyo-deep-blue); box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 9999; border-radius: 0 0 8px 8px;"></div>
+          <div id="searchResultDropdown" style="display:none; position:absolute; top:100%; left:0; width:100%; max-height:360px; overflow-y:auto; background:white; border:2px solid var(--ukiyo-deep-blue); box-shadow:0 8px 16px rgba(0,0,0,0.2); z-index:9999; border-radius:0 0 8px 8px;"></div>
         </div>
 
         <div>
@@ -457,16 +478,13 @@
               </select>
             </div>
           </div>
-          <button type="button" class="btn-save" style="width:100%; background:linear-gradient(45deg,#3498db,#2980b9);" onclick="addMaterialToBatch()">➕ 加入目前材料至批次清單</button>
+          <button type="button" class="btn-save" style="width:100%; background:linear-gradient(45deg,#3498db,#2980b9);" onclick="addMaterialToBatch()">➕ 加入批次清單</button>
         </div>
 
         <div id="batchMaterialList" class="multi-material-list" style="display:none;">
           <div style="font-weight:bold; margin-bottom:10px; color:var(--ukiyo-deep-blue);">📋 批次清單 (<span id="batchCount">0</span>/20)</div>
           <div id="batchItems"></div>
-          <div style="display:flex; gap:10px; margin-top:10px;">
-            <button type="button" class="btn-save" style="flex:1; background:linear-gradient(45deg,#27ae60,#229954);" onclick="submitBatchRecords()" id="saveBatchBtn">💾 儲存目前清單 (0筆)</button>
-            <button type="button" class="btn-save" style="flex:1; background:linear-gradient(45deg,#3498db,#2980b9);" onclick="continueBatchInput()">➕ 繼續加入材料</button>
-          </div>
+          <button type="button" class="btn-save" style="width:100%; margin-top:10px; background:linear-gradient(45deg,#27ae60,#1e8449);" onclick="submitBatchRecords()">💾 儲存目前批次清單（<span id="batchSaveCount">0</span>筆）</button>
           <button type="button" class="btn-danger" style="width:100%; margin-top:10px;" onclick="clearBatch()">🗑️ 清空批次清單</button>
         </div>
       </form>
@@ -1363,39 +1381,35 @@ function addMaterialToBatch() {
   if(!selectedPartNo || !Number.isFinite(qty) || qty <= 0 || !unit.trim()) {
     alert("請填寫完整材料資訊，數量必須大於0");
     return;
-  }
+}
 
   batchMaterials.push({ partNo: selectedPartNo, name: selectedName, qty: qty, unit: unit, evalType: evalType });
   renderBatchList();
-
+  
   document.getElementById('qty').value = "";
   document.getElementById('unit').value = "";
   selectedPartNo = "";
   selectedName = "";
   document.getElementById('qtySection').style.display = "none";
-
   if(batchMaterials.length >= MAX_BATCH) {
-    alert(`已達上限 ${MAX_BATCH} 筆，請直接儲存目前批次清單`);
+    alert(`已達 ${MAX_BATCH} 筆上限，請確認批次清單後直接儲存。`);
+  } else {
+    const inputAgain = confirm(`已加入第 ${batchMaterials.length} 筆材料。\n\n按「確定」繼續加入下一筆；按「取消」保留目前清單並直接查看儲存按鈕。`);
+    if(inputAgain) {
+      const cat = document.getElementById('category_input');
+      if(cat) cat.focus();
+    }
   }
-}
-
-function continueBatchInput() {
-  if(batchMaterials.length >= MAX_BATCH) {
-    alert(`已達上限 ${MAX_BATCH} 筆，請先儲存目前批次清單`);
-    return;
-  }
-  document.getElementById('category_input').focus();
-  document.getElementById('materialsContainer_input').scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 function renderBatchList() {
   const container = document.getElementById('batchMaterialList');
   const itemsDiv = document.getElementById('batchItems');
   const countSpan = document.getElementById('batchCount');
-  const saveBtn = document.getElementById('saveBatchBtn');
   container.style.display = batchMaterials.length > 0 ? "block" : "none";
   countSpan.innerText = batchMaterials.length;
-  if(saveBtn) saveBtn.innerText = `💾 儲存目前清單 (${batchMaterials.length}筆)`;
+  const batchSaveCount = document.getElementById('batchSaveCount');
+  if(batchSaveCount) batchSaveCount.innerText = batchMaterials.length;
   itemsDiv.innerHTML = "";
   batchMaterials.forEach((item, index) => {
     const div = document.createElement('div');
@@ -1425,8 +1439,7 @@ function clearBatch() {
 
 async function submitBatchRecords() {
   if(batchMaterials.length === 0) {
-    alert("批次清單為空");
-    return;
+    alert("批次清單為空"); return;
   }
 
   const date = document.getElementById('mainDate').value;
@@ -1437,8 +1450,7 @@ async function submitBatchRecords() {
   const operator = document.getElementById('operatorName').value.trim();
   const signature = document.getElementById('signature-data')?.value || '';
   if(!date || !type || !orderNo || !person || !staff || !operator) {
-    alert("請先填寫基本資訊 (日期、作業類型、單號、領用人、經辦人、操作人)");
-    return;
+    alert("請先填寫基本資訊 (日期、作業類型、單號、領用人、經辦人、操作人)"); return;
   }
 
   const records = batchMaterials.map((item, index) => ({
@@ -1448,29 +1460,15 @@ async function submitBatchRecords() {
       signature, source: 'normal', timestamp: new Date().toISOString()
   }));
 
-  // 庫存不足只做提示，不得阻擋一般資料輸入的正式儲存。
-  let shortage = [];
-  try {
-    shortage = await findStockShortages(records);
-  } catch(error) {
-    console.warn('庫存檢查失敗，仍允許儲存一般發料紀錄：', error);
-  }
+  // 一般資料輸入允許「材料已到貨、ERP 尚未入帳」的時間差。
+  // 仍計算不足項目供完成提示使用，但不阻擋儲存；調撥與災害發料流程維持原有防超發檢查。
+  const shortage = await findStockShortages(records);
 
-  try {
-    await saveRecordsBatch(records);
-  } catch(error) {
-    console.error('發料紀錄儲存失敗：', error);
-    alert(`❌ 儲存失敗：${error.message || error}`);
-    return;
-  }
-
+  await saveRecordsBatch(records);
   const pendingNotice = shortage.length
-    ? `
-
-⚠️ 其中 ${shortage.length} 項目前尚未入帳或庫存不足，紀錄已先建立；請於入帳後再核對即時庫存。`
+    ? `\n\n⚠️ 其中 ${shortage.length} 項目前尚未入帳或庫存不足，紀錄已先建立；請於入帳後再核對即時庫存。`
     : '';
   alert(`✅ 已成功儲存 ${records.length} 筆物料紀錄！${pendingNotice}`);
-
   batchMaterials = [];
   renderBatchList();
   document.getElementById('materialForm').reset();
@@ -1826,26 +1824,24 @@ async function normalizeDexieExistingData(){
 }
 
 function findColumn(row, list){
-    const normalizeHeader = value => String(value ?? '').replace(/[\s_\-]/g,'').toLowerCase();
     const keys = Object.keys(row);
-    const aliases = [...list]
-      .map(n => ({raw:String(n), norm:normalizeHeader(n)}))
-      .filter(x => x.norm)
-      .sort((a,b) => b.norm.length - a.norm.length);
+    const normalizeHeader = value => String(value || '').replace(/\s/g,'').replace(/[（）()\[\]【】]/g,'').toLowerCase();
+    const normalizedMap = keys.map(key => ({ key, norm: normalizeHeader(key) }));
+    const targets = list.map(normalizeHeader).filter(Boolean);
 
-    // 1) 優先完全相符，避免「庫存」誤抓到「庫存WBS」。
-    for(const key of keys){
-      const normalizedKey = normalizeHeader(key);
-      const exact = aliases.find(alias => normalizedKey === alias.norm);
-      if(exact) return key;
+    // 第一優先：完整欄名完全相同。避免「庫存WBS」被誤判成「庫存量」。
+    for(const target of targets){
+        const exact = normalizedMap.find(x => x.norm === target);
+        if(exact) return exact.key;
     }
 
-    // 2) 再做包含比對，且優先較長、較具體的欄位名稱。
-    for(const alias of aliases){
-      const matched = keys.find(key => normalizeHeader(key).includes(alias.norm));
-      if(matched) return matched;
-    }
-    return null;
+    // 第二優先：模糊包含，並以較長關鍵字優先。
+    const ranked = [];
+    normalizedMap.forEach(x => targets.forEach(target => {
+        if(x.norm.includes(target)) ranked.push({key:x.key, score:target.length * 10});
+    }));
+    ranked.sort((a,b) => b.score - a.score);
+    return ranked[0]?.key || null;
 }
 
 async function calculateFileHash(file) {
@@ -1888,7 +1884,7 @@ async function handleExcelImport(file){
                 const partCol = findColumn(r, ['物料編號','料號','物料','MATNR','Material']);
                 
                 const nameCol = findColumn(r, ['名稱規範','名稱','品名','規格','MAKTX']);
-                const stockCol = findColumn(r, ['庫存量','自由使用','可用庫存','LABST','數量','庫存']);
+                const stockCol = findColumn(r, ['庫存量','庫存','數量','LABST','自由使用']);
                 const evalCol = findColumn(r, ['評價類型','評價','評價別','BWTAR']);
                 const unitCol = findColumn(r, ['單位','基本單位','MEINS']);
                 const locCol = findColumn(r, ['儲格','儲位','庫位','倉位','Storage']);
@@ -2526,7 +2522,11 @@ function selectFuzzyMaterial(partNo, name, unit = '') {
     document.getElementById('m_partNo_hidden').value = normalizePartNo(partNo);
     document.getElementById('m_matSearchInput').value = `${name} (${normalizePartNo(partNo)})`;
     if(unit && !document.getElementById('m_unit').value.trim()) document.getElementById('m_unit').value = unit;
-    document.getElementById('searchResultDropdown').style.display = 'none';
+    const dropdown = document.getElementById('searchResultDropdown');
+    if(dropdown) dropdown.style.display = 'none';
+    const status = document.getElementById('voiceStatus');
+    if(status) status.textContent = `已選擇：${name}（${normalizePartNo(partNo)}）`;
+    if(navigator.vibrate) navigator.vibrate(40);
 }
 
 function resetEmergencyMaterialEntry() {
@@ -2605,6 +2605,100 @@ function clearEmergencyBatch() {
     emergencyBatchMaterials = [];
     renderEmergencyBatchList();
 }
+
+/* =========================================================
+   災害語音材料搜尋 V7
+   - 說「3C」：列出 3C 8mm²、3C 22mm²
+   - 說「3C8」：優先帶出 3C 8mm²
+   - 說「改良」：列出改良 25 / 50 / 100 / 167 kVA
+   - 說「改良25」：優先帶出 25 kVA
+   ========================================================= */
+function normalizeVoiceMaterialText(value) {
+    let s = String(value || '').trim().toUpperCase();
+    const zhNums = {'零':'0','〇':'0','一':'1','壹':'1','二':'2','兩':'2','貳':'2','三':'3','參':'3','四':'4','肆':'4','五':'5','伍':'5','六':'6','陸':'6','七':'7','柒':'7','八':'8','捌':'8','九':'9','玖':'9'};
+    s = s.replace(/[零〇一壹二兩貳三參四肆五伍六陸七柒八捌九玖]/g, ch => zhNums[ch] || ch);
+    s = s.replace(/三C|三西|三芯/g,'3C').replace(/二C|二芯/g,'2C')
+      .replace(/防鹽|防盐/g,'防盬').replace(/接戶線|接户线|接戶電線|接户电线/g,'接戶電纜')
+      .replace(/風雨線|风雨线/g,'風雨線').replace(/變壓器|变压器/g,'變壓器')
+      .replace(/公厘|平方公厘|平方毫米/g,'㎜2').replace(/MM2|MM²|平方/g,'㎜2')
+      .replace(/千伏安/g,'KVA').replace(/KVA/g,'KVA').replace(/KV/g,'KV')
+      .replace(/\s+/g,'').replace(/[，,。．.、;；:：/／|｜]+/g,' ');
+    return s.trim();
+}
+
+function voiceAliasPartNo(query) {
+    const q = normalizeVoiceMaterialText(query);
+    if(!q) return '';
+    if(/3C8|3芯8/.test(q)) return '1102050209';
+    if(/3C22|3芯22/.test(q)) return '1102050211';
+    if(q.includes('改良') && q.includes('25')) return '1000010066';
+    if(q.includes('改良') && q.includes('50')) return '1000010074';
+    if(q.includes('改良') && q.includes('100')) return '1000010080';
+    if(q.includes('改良') && q.includes('167')) return '1000010083';
+    if(q.includes('防盬') && (q.includes('礙子') || q.includes('裝腳'))) return '1030480007';
+    return '';
+}
+
+function scoreVoiceCandidate(query, candidate) {
+    const q = normalizeVoiceMaterialText(query), partNo = normalizePartNo(candidate.partNo), name = normalizeVoiceMaterialText(candidate.name || '');
+    if(!q || !name) return 0;
+    let score = 0;
+    if(partNo && q.includes(partNo)) score += 300;
+    if(partNo && partNo.includes(q)) score += 180;
+    if(name === q) score += 220;
+    if(name.includes(q)) score += 120;
+    if(q === '3C' && name.includes('3C')) score += 320;
+    if(q === '改良' && name.includes('改良')) score += 320;
+    if(q.includes('3C') && name.includes('3C')) score += 80;
+    if(q.includes('改良') && name.includes('改良')) score += 80;
+    ['8㎜2','22㎜2','25KVA','50KVA','100KVA','167KVA','600V','PVC','接戶電纜','變壓器','改良'].forEach(token => { if(q.includes(token) && name.includes(token)) score += 40; });
+    q.split(/[\s]+/).filter(Boolean).forEach(t => { if(t && name.includes(t)) score += Math.min(55,10+t.length*4); if(t && partNo.includes(t)) score += 24; });
+    return score;
+}
+
+async function findVoiceMaterialMatches(rawText, limit = 12) {
+    const aliasPartNo = voiceAliasPartNo(rawText), merged = new Map();
+    const allDb = await db.materials.toArray();
+    allDb.forEach(m => { const pNo = normalizePartNo(m.partNo); if(pNo) merged.set(pNo,m); });
+    Object.entries(materials).forEach(([partNo,m]) => { const pNo=normalizePartNo(partNo); if(pNo && !merged.has(pNo)) merged.set(pNo,{partNo:pNo,name:m.name,unit:''}); });
+    if(aliasPartNo && !merged.has(aliasPartNo)) merged.set(aliasPartNo,{partNo:aliasPartNo,name:materials[aliasPartNo]?.name || '',unit:''});
+    const normalized = normalizeVoiceMaterialText(rawText);
+    return Array.from(merged.values()).map(m => ({...m,partNo:normalizePartNo(m.partNo),_score:scoreVoiceCandidate(normalized,m)})).filter(m => m.partNo && m._score>0).sort((a,b)=>b._score-a._score).slice(0,limit);
+}
+
+function renderVoiceCandidateDropdown(matches, sourceText) {
+    const dropdown=document.getElementById('searchResultDropdown'); if(!dropdown) return;
+    dropdown.innerHTML=`<div style="padding:10px 12px;background:#fff7e6;border-bottom:1px solid #f5c15f;font-weight:900;color:#7a4b00;">🎙️ 語音：「${escapeHtml(sourceText)}」候選材料（${matches.length}）</div>${matches.map(m=>{const en=encodeURIComponent(String(m.name||''));const eu=encodeURIComponent(String(m.unit||''));return `<div onclick="selectFuzzyMaterial('${normalizePartNo(m.partNo)}', decodeURIComponent('${en}'), decodeURIComponent('${eu}'))" style="padding:15px;border-bottom:1px solid #eee;background:#fff;cursor:pointer;font-size:.95rem;line-height:1.45;"><strong>📦 ${escapeHtml(m.name||'未知品名')}</strong><br><span style="font-size:.8rem;color:#666;">料號：${escapeHtml(m.partNo)} ${m.unit?`| 單位：${escapeHtml(m.unit)}`:''}</span></div>`;}).join('')}`;
+    dropdown.style.display='block';
+}
+
+async function applyVoiceSearchText(transcript) {
+    const input=document.getElementById('m_matSearchInput'), status=document.getElementById('voiceStatus'); if(!input) return;
+    const text=String(transcript||'').trim(); if(!text) return; input.value=text;
+    if(status) status.textContent=`已辨識：「${text}」；正在比對材料主檔...`;
+    const matches=await findVoiceMaterialMatches(text,12);
+    if(matches.length===0){ if(status) status.textContent=`找不到「${text}」對應材料，請換另一種說法。`; await searchMaterialFuzzy(text); return; }
+    renderVoiceCandidateDropdown(matches,text);
+    const normalized=normalizeVoiceMaterialText(text), alias=voiceAliasPartNo(text), broadKeyword=(normalized==='3C'||normalized==='改良');
+    if(!broadKeyword && (matches[0]._score>=180 || alias)){ selectFuzzyMaterial(matches[0].partNo,matches[0].name,matches[0].unit||''); if(status) status.textContent=`已帶入：${matches[0].name}（${matches[0].partNo}）；請輸入數量與單位。`; }
+    else if(status) status.textContent=`找到 ${matches.length} 筆候選材料，請直接點選要發放的材料。`;
+}
+
+let emergencyVoiceRecognition=null, emergencyVoiceListening=false;
+function getSpeechRecognitionEngine(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
+function startEmergencyVoiceInput(){
+    const Recognition=getSpeechRecognitionEngine(), status=document.getElementById('voiceStatus'), btn=document.getElementById('voiceStartBtn');
+    if(!Recognition){ const msg='此瀏覽器不支援語音辨識。建議使用 Chrome 或 Edge，並以 HTTPS 或 localhost 開啟。'; if(status) status.textContent=msg; alert(msg); return; }
+    if(emergencyVoiceListening && emergencyVoiceRecognition) return;
+    emergencyVoiceRecognition=new Recognition(); emergencyVoiceRecognition.lang='zh-TW'; emergencyVoiceRecognition.continuous=false; emergencyVoiceRecognition.interimResults=true; emergencyVoiceRecognition.maxAlternatives=3;
+    let finalText='';
+    emergencyVoiceRecognition.onstart=()=>{ emergencyVoiceListening=true; if(btn) btn.classList.add('listening'); if(status) status.textContent='🎙️ 語音辨識中：請直接說「3C」、「3C 8」、「改良」、「改良 25」等材料關鍵字。'; };
+    emergencyVoiceRecognition.onresult=event=>{ let interimText=''; for(let i=event.resultIndex;i<event.results.length;i++){ const transcript=event.results[i][0].transcript.trim(); if(event.results[i].isFinal) finalText+=transcript; else interimText+=transcript; } const showText=finalText||interimText; if(showText){ const input=document.getElementById('m_matSearchInput'); if(input) input.value=showText; if(status) status.textContent=`辨識中：「${showText}」`; } };
+    emergencyVoiceRecognition.onerror=event=>{ emergencyVoiceListening=false; if(btn) btn.classList.remove('listening'); const msg=event.error==='not-allowed'?'麥克風權限被拒絕，請允許瀏覽器使用麥克風。':`語音辨識錯誤：${event.error}`; if(status) status.textContent=msg; };
+    emergencyVoiceRecognition.onend=async()=>{ emergencyVoiceListening=false; if(btn) btn.classList.remove('listening'); if(finalText.trim()) await applyVoiceSearchText(finalText.trim()); else if(status) status.textContent='未收到完整語音，請再按一次「開始語音搜尋」。'; };
+    try{ emergencyVoiceRecognition.start(); }catch(e){ emergencyVoiceListening=false; if(btn) btn.classList.remove('listening'); if(status) status.textContent='語音啟動失敗，請稍候再試。'; console.warn('SpeechRecognition start failed:',e); }
+}
+function stopEmergencyVoiceInput(){ if(emergencyVoiceRecognition){ try{emergencyVoiceRecognition.stop();}catch(e){} } emergencyVoiceListening=false; const btn=document.getElementById('voiceStartBtn'); if(btn) btn.classList.remove('listening'); const status=document.getElementById('voiceStatus'); if(status) status.textContent='語音辨識已停止。'; }
 
 let emIsDrawing = false, emCtx;
 let emergencySignatureInitialized = false;
