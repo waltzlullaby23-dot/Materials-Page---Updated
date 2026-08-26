@@ -392,8 +392,8 @@
         </div>
 
         <div style="margin-bottom: 15px; position: relative;">
-          <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">🔍 材料搜尋（輸入材料名稱、部分料號或使用語音）</label>
-          <input type="text" id="m_matSearchInput" placeholder="輸入或說出材料，例如：3C8接戶線、改良25KV變壓器..." oninput="searchMaterialFuzzy(this.value)" style="font-size:1.1rem; padding:12px;" />
+          <label style="font-weight: bold; color: var(--ukiyo-deep-blue);">🔍 材料搜尋（輸入材料名稱／料號／語音；找不到也可直接記錄）</label>
+          <input type="text" id="m_matSearchInput" placeholder="輸入材料名稱，例如：防水電纜、臨時配電箱；找不到也可直接記錄" oninput="searchMaterialFuzzy(this.value)" style="font-size:1.1rem; padding:12px;" />
           <input type="hidden" id="m_partNo_hidden" />
           <div class="voice-panel">
             <strong>🎙️ 語音發料搜尋</strong>
@@ -402,9 +402,10 @@
               <button type="button" class="voice-btn secondary" onclick="stopEmergencyVoiceInput()">停止</button>
               <button type="button" class="voice-btn secondary" onclick="clearEmergencyVoiceInput()">清除語音文字</button>
             </div>
-            <div id="voiceStatus">可直接說：「3C8接戶線」、「3C22接戶線」、「改良25KV變壓器」、「防鹽礙子」。語音只負責找材料，數量、單位、評價類型仍手動確認。</div>
+            <div id="voiceStatus">可直接說：「3C8接戶線」、「改良25KV變壓器」；若找不到正式材料，系統會保留現場原始名稱，讓你繼續輸入數量、單位、評價類型並建立待對料紀錄。</div>
           </div>
-          <div id="searchResultDropdown" style="display:none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 250px; overflow-y: auto; background: white; border: 2px solid var(--ukiyo-deep-blue); box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 9999; border-radius: 0 0 8px 8px;"></div>
+          <div id="searchResultDropdown" style="display:none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 300px; overflow-y: auto; background: white; border: 2px solid var(--ukiyo-deep-blue); box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 9999; border-radius: 0 0 8px 8px;"></div>
+          <div id="emergencyMaterialMatchStatus" style="margin-top:8px; font-size:.88rem; color:#64748b;"></div>
         </div>
 
         <div>
@@ -2649,36 +2650,105 @@ async function selectEmergencyCategoryMaterial(partNo, name) {
 
 async function searchMaterialFuzzy(keyword) {
     const dropdown = document.getElementById('searchResultDropdown');
-    if (!keyword || keyword.trim() === '') { dropdown.style.display = 'none'; return; }
-
-    const upperKey = keyword.trim().toUpperCase();
-    const dbMatches = await db.materials.filter(m => (m.name && m.name.toUpperCase().includes(upperKey)) || (m.partNo && m.partNo.includes(upperKey))).limit(10).toArray();
-    const merged = new Map();
-    dbMatches.forEach(m => merged.set(m.partNo, m));
-    Object.entries(materials).forEach(([partNo, m]) => {
-        if(merged.size >= 10) return;
-        if(partNo.includes(upperKey) || String(m.name || '').toUpperCase().includes(upperKey)) {
-            merged.set(partNo, {partNo, name:m.name, erpStock:0, unit:''});
-        }
-    });
-    const matches = Array.from(merged.values()).slice(0, 10);
-
-    if (matches.length === 0) {
-        dropdown.innerHTML = `<div style="padding:12px; color:var(--danger-red); font-weight:bold; background:#fff;">❌ 找不到對應材料，請確認輸入</div>`;
-        dropdown.style.display = 'block'; return;
+    const status = document.getElementById('emergencyMaterialMatchStatus');
+    const hidden = document.getElementById('m_partNo_hidden');
+    const text = String(keyword || '').trim();
+    if(!text) {
+        if(dropdown) dropdown.style.display = 'none';
+        if(status) status.textContent = '';
+        if(hidden) hidden.value = '';
+        return;
     }
 
-    dropdown.innerHTML = matches.map(m => {
-        const encodedName = encodeURIComponent(String(m.name || ''));
-        const encodedUnit = encodeURIComponent(String(m.unit || ''));
-        return `
-        <div onclick="selectFuzzyMaterial('${normalizePartNo(m.partNo)}', decodeURIComponent('${encodedName}'), decodeURIComponent('${encodedUnit}'))" style="padding:15px; border-bottom:1px solid #eee; background:#fff; cursor:pointer; font-size:0.95rem; line-height:1.4;">
-            <strong>📦 ${escapeHtml(m.name)}</strong><br><span style="font-size:0.8rem; color:#666;">料號：${escapeHtml(m.partNo)} | ERP底數：${normalizeNumber(m.erpStock)} ${escapeHtml(m.unit || '')}</span>
-        </div>`;
-    }).join('');
-    dropdown.style.display = 'block';
-}
+    // 使用者重新輸入時，先清掉舊的正式料號；只有真正選到正式材料才會再次設定。
+    if(hidden) hidden.value = '';
 
+    const upperKey = text.toUpperCase();
+    const normalizedKey = normalizeVoiceMaterialText(text);
+    const merged = new Map();
+
+    try {
+        const allDb = await db.materials.toArray();
+        allDb.forEach(m => {
+            const partNo = normalizePartNo(m.partNo);
+            const name = String(m.name || '');
+            const haystack = `${name} ${partNo}`.toUpperCase();
+            const normalizedName = normalizeVoiceMaterialText(name);
+            if(haystack.includes(upperKey) || normalizedName.includes(normalizedKey) || partNo.includes(upperKey.replace(/\s+/g,''))) {
+                if(partNo) merged.set(partNo, m);
+            }
+        });
+    } catch(e) {
+        console.warn('讀取ERP庫存材料搜尋失敗', e);
+    }
+
+    // 靜態材料主檔也一起比對，確保尚未匯入ERP底數的材料仍可找到。
+    Object.entries(materials).forEach(([partNo, m]) => {
+        const name = String(m.name || '');
+        const normalizedName = normalizeVoiceMaterialText(name);
+        if(partNo.includes(upperKey.replace(/\s+/g,'')) || name.toUpperCase().includes(upperKey) || normalizedName.includes(normalizedKey)) {
+            if(!merged.has(partNo)) merged.set(partNo, {partNo, name, erpStock:0, unit:'', category:m.category || ''});
+        }
+    });
+
+    const matches = Array.from(merged.values()).slice(0, 12);
+
+    // 使用者輸入完整正式品名或完整料號時，自動選定；模糊關鍵字仍保留候選清單供確認。
+    if(matches.length > 0) {
+        const exact = matches.find(m => {
+            const p = normalizePartNo(m.partNo);
+            const n = normalizeVoiceMaterialText(m.name || '');
+            return p === text.replace(/\s+/g, '') || n === normalizedKey;
+        });
+        if(exact) {
+            selectFuzzyMaterial(exact.partNo, exact.name, exact.unit || '');
+            if(status) status.textContent = `✅ 已自動找到正式材料：${exact.name}（${normalizePartNo(exact.partNo)}）。`;
+            return;
+        }
+    }
+
+    if(matches.length === 0) {
+        // 核心設計：找不到正式材料也不阻擋天災現場發料。
+        if(dropdown) {
+            dropdown.innerHTML = `
+              <div style="padding:12px 14px; background:#fff7e6; border-bottom:1px solid #f5c15f;">
+                <div style="font-weight:900; color:#7a4b00;">⚠️ 找不到正式材料主檔</div>
+                <div style="margin-top:5px; font-size:.88rem; color:#6b7280;">可以直接使用你輸入的材料名稱建立「待材料部門確認」紀錄，不會阻擋災害發料。</div>
+              </div>
+              <button type="button" onclick="useManualEmergencyMaterial()" style="width:100%; padding:15px; text-align:left; border:0; border-bottom:1px solid #eee; background:#f8fafc; cursor:pointer; color:#1D3B56;">
+                <strong>📝 直接以「${escapeHtml(text)}」記錄</strong><br>
+                <span style="font-size:.82rem; color:#b45309;">料號：待材料部門確認｜數量、單位、評價類型照常輸入</span>
+              </button>
+            `;
+            dropdown.style.display = 'block';
+        }
+        if(status) status.textContent = `未找到「${text}」的正式材料；可直接以使用者輸入名稱建立待確認紀錄。`;
+        return;
+    }
+
+    if(dropdown) {
+        dropdown.innerHTML = `
+          <div style="padding:10px 12px; background:#eef6ff; border-bottom:1px solid #c7ddf7; font-weight:900; color:#1D3B56;">
+            🔎 找到 ${matches.length} 筆相符材料；請選擇正式材料
+          </div>
+          ${matches.map(m => {
+            const encodedName = encodeURIComponent(String(m.name || ''));
+            const encodedUnit = encodeURIComponent(String(m.unit || ''));
+            return `
+            <div onclick="selectFuzzyMaterial('${normalizePartNo(m.partNo)}', decodeURIComponent('${encodedName}'), decodeURIComponent('${encodedUnit}'))"
+                 style="padding:14px; border-bottom:1px solid #eee; background:#fff; cursor:pointer; font-size:.95rem; line-height:1.4;">
+              <strong>📦 ${escapeHtml(m.name || '未知品名')}</strong><br>
+              <span style="font-size:.8rem; color:#666;">料號：${escapeHtml(m.partNo)}${m.unit ? ` | 單位：${escapeHtml(m.unit)}` : ''}</span>
+            </div>`;
+          }).join('')}
+          <button type="button" onclick="useManualEmergencyMaterial()" style="width:100%; padding:13px; text-align:left; border:0; background:#fff7e6; cursor:pointer; color:#7a4b00;">
+            📝 不選正式材料，直接用「${escapeHtml(text)}」記錄（待材料部門確認）
+          </button>
+        `;
+        dropdown.style.display = 'block';
+    }
+    if(status) status.textContent = `已找到 ${matches.length} 筆相符材料；也可直接保留原輸入名稱，交由材料部門事後對料。`;
+}
 
 function normalizeVoiceMaterialText(value) {
     let s = String(value || '').trim().toUpperCase();
@@ -2765,8 +2835,8 @@ async function applyVoiceSearchText(transcript) {
 
     const matches = await findVoiceMaterialMatches(text, 8);
     if(matches.length === 0) {
-        if(status) status.textContent = `找不到「${text}」對應材料，請換另一種說法或手動輸入關鍵字。`;
-        await searchMaterialFuzzy(text);
+        useManualEmergencyMaterial();
+        if(status) status.textContent = `未找到正式材料；已保留「${text}」作為現場材料名稱，稍後由材料部門對料。`;
         return;
     }
 
@@ -2885,11 +2955,27 @@ function clearEmergencyVoiceInput() {
     if(status) status.textContent = '已清除。可再說：「3C8接戶線」、「改良25KV變壓器」。';
 }
 
+function useManualEmergencyMaterial() {
+    const input = document.getElementById('m_matSearchInput');
+    const hidden = document.getElementById('m_partNo_hidden');
+    const dropdown = document.getElementById('searchResultDropdown');
+    const status = document.getElementById('emergencyMaterialMatchStatus');
+    const text = String(input?.value || '').trim();
+    if(!text) return;
+
+    if(hidden) hidden.value = '';
+    if(dropdown) dropdown.style.display = 'none';
+    if(status) status.textContent = `📝 已採用現場輸入：「${text}」；本筆將標記為「待材料部門確認」。`;
+}
+
 function selectFuzzyMaterial(partNo, name, unit = '') {
-    document.getElementById('m_partNo_hidden').value = normalizePartNo(partNo);
-    document.getElementById('m_matSearchInput').value = `${name} (${normalizePartNo(partNo)})`;
+    const pNo = normalizePartNo(partNo);
+    document.getElementById('m_partNo_hidden').value = pNo;
+    document.getElementById('m_matSearchInput').value = `${name} (${pNo})`;
     if(unit && !document.getElementById('m_unit').value.trim()) document.getElementById('m_unit').value = unit;
     document.getElementById('searchResultDropdown').style.display = 'none';
+    const status = document.getElementById('emergencyMaterialMatchStatus');
+    if(status) status.textContent = `✅ 已找到正式材料：${name}（${pNo}）。`;
 }
 
 function resetEmergencyMaterialEntry() {
@@ -2898,6 +2984,8 @@ function resetEmergencyMaterialEntry() {
     document.getElementById('m_quantity').value = '';
     document.getElementById('m_unit').value = '';
     document.getElementById('searchResultDropdown').style.display = 'none';
+    const status = document.getElementById('emergencyMaterialMatchStatus');
+    if(status) status.textContent = '';
     const category = document.getElementById('emergencyCategory')?.value || '';
     if(category) renderEmergencyCategoryMaterials(category);
 }
@@ -2914,14 +3002,39 @@ async function addEmergencyMaterialToBatch() {
     const unit = document.getElementById('m_unit').value.trim();
     const evalType = normalizeEvalType(document.getElementById('m_evalType').value);
 
-    if(partNo.length !== 10 || !matSearchInput || !Number.isFinite(quantity) || quantity <= 0 || !unit) {
-        alert('⚠️ 請從清單選取正式材料，並輸入大於0的數量及單位。');
+    if(!matSearchInput || !Number.isFinite(quantity) || quantity <= 0 || !unit) {
+        alert('⚠️ 請輸入材料名稱（可使用正式材料、自然語言材料名稱或語音），並輸入大於0的數量及單位。');
         return;
     }
 
-    const detail = await db.materials.where('partNo').equals(partNo).first();
-    const name = detail?.name || materials[partNo]?.name || matSearchInput.replace(/\s*\([^)]*\)\s*$/, '');
-    emergencyBatchMaterials.push({ partNo, name, quantity, unit, evalType });
+    // 有正式料號：正常建立庫存可追蹤的材料紀錄。
+    if(partNo.length === 10) {
+        const detail = await db.materials.where('partNo').equals(partNo).first();
+        const name = detail?.name || materials[partNo]?.name || matSearchInput.replace(/\s*\([^)]*\)\s*$/, '');
+        emergencyBatchMaterials.push({
+            partNo,
+            name,
+            rawInputName: matSearchInput,
+            quantity,
+            unit,
+            evalType,
+            matchStatus: 'matched',
+            materialSource: 'master'
+        });
+    } else {
+        // 沒有相符材料：不阻擋現場作業，只把原始名稱完整留存，稍後由材料部門對料。
+        emergencyBatchMaterials.push({
+            partNo: '',
+            name: matSearchInput,
+            rawInputName: matSearchInput,
+            quantity,
+            unit,
+            evalType,
+            matchStatus: 'unresolved',
+            materialSource: 'manual'
+        });
+    }
+
     renderEmergencyBatchList();
     resetEmergencyMaterialEntry();
 
@@ -2941,11 +3054,17 @@ function renderEmergencyBatchList() {
 
     count.textContent = String(emergencyBatchMaterials.length);
     container.style.display = emergencyBatchMaterials.length ? 'block' : 'none';
-    items.innerHTML = emergencyBatchMaterials.map((item, index) => `
+    items.innerHTML = emergencyBatchMaterials.map((item, index) => {
+        const unresolved = item.matchStatus === 'unresolved' || !item.partNo;
+        const refText = unresolved ? '待材料部門確認' : escapeHtml(item.partNo);
+        const badge = unresolved
+          ? '<span style="background:#fff3cd; color:#856404; padding:3px 7px; border-radius:6px; font-weight:800; margin-left:6px;">待對料</span>'
+          : '<span style="background:#e8f5e9; color:#2e7d32; padding:3px 7px; border-radius:6px; font-weight:800; margin-left:6px;">已對料</span>';
+        return `
         <div class="multi-material-item" style="align-items:flex-start; gap:10px;">
           <div style="min-width:0; flex:1;">
             <span class="multi-material-count">${index + 1}</span>
-            <strong>${escapeHtml(item.partNo)}</strong>
+            <strong>${refText}</strong>${badge}
             <div style="margin-top:5px; color:#374151;">${escapeHtml(item.name)}</div>
             <div style="margin-top:5px; font-size:0.88rem;">
               <span style="color:#d35400; font-weight:bold;">${item.quantity} ${escapeHtml(item.unit)}</span>
@@ -2953,8 +3072,8 @@ function renderEmergencyBatchList() {
             </div>
           </div>
           <button type="button" onclick="removeEmergencyBatchItem(${index})" style="background:#c0392b; color:white; border:none; padding:7px 10px; border-radius:5px; font-weight:bold; cursor:pointer;">刪除</button>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
     if(submitBtn) submitBtn.textContent = `💾 儲存整張發料訂單（${emergencyBatchMaterials.length}筆）`;
 }
 
@@ -3019,52 +3138,70 @@ async function submitEmergencyOrder() {
     if(emergencyBatchMaterials.length === 0) { alert('⚠️ 本張訂單尚未加入材料。'); return; }
     if(emergencyBatchMaterials.length > MAX_EMERGENCY_BATCH) { alert(`單張訂單不可超過 ${MAX_EMERGENCY_BATCH} 筆。`); return; }
 
-    const confirmed = confirm(`確定儲存本張災害發料訂單？\n\n工班：${teamName}\n材料：${emergencyBatchMaterials.length} 筆\n\n即使材料尚未入帳也可先行登錄，系統會保留庫存異動供後續核銷。`);
+    const unresolvedCount = emergencyBatchMaterials.filter(item => item.matchStatus === 'unresolved' || !item.partNo).length;
+    const confirmed = confirm(`確定儲存本張災害發料訂單？\n\n工班：${teamName}\n材料：${emergencyBatchMaterials.length} 筆\n待材料部門確認：${unresolvedCount} 筆\n\n未找到正式料號的材料也會先照現場輸入名稱完整記錄；材料部門可於事後對料，不阻擋災害發料。`);
     if(!confirmed) return;
 
     const emergencyOrderId = createEmergencyOrderId();
     const dateStr = getTaipeiDateString();
     const baseTime = Date.now();
     const itemCount = emergencyBatchMaterials.length;
-    const records = emergencyBatchMaterials.map((item, index) => ({
-        id: baseTime + index + Math.random(),
-        date: dateStr, type: '領料', orderNo: '天災待核銷', person: teamName,
-        staff: '天災現場發料', operator: teamName, partNo: item.partNo,
-        name: item.name, qty: item.quantity, unit: item.unit, evalType: item.evalType,
-        signature: signatureBase64 || '', source: 'emergency',
-        emergencyOrderId, emergencyItemIndex: index + 1,
-        timestamp: new Date(baseTime + index).toISOString()
-    }));
+    const resolvedItems = emergencyBatchMaterials.filter(item => item.matchStatus !== 'unresolved' && item.partNo);
+    const unresolvedItems = emergencyBatchMaterials.filter(item => item.matchStatus === 'unresolved' || !item.partNo);
 
-    // 天災特殊時期允許先發料、後入帳；庫存不足僅提示，不阻擋建立訂單。
-    const shortage = await findStockShortages(records);
+    const records = resolvedItems.map((item, idx) => {
+        const originalIndex = emergencyBatchMaterials.indexOf(item);
+        return {
+            id: baseTime + idx + Math.random(), date: dateStr, type: '領料', orderNo: '天災待核銷', person: teamName,
+            staff: '天災現場發料', operator: teamName, partNo: item.partNo,
+            name: item.name, qty: item.quantity, unit: item.unit, evalType: item.evalType,
+            signature: signatureBase64 || '', source: 'emergency',
+            emergencyOrderId, emergencyItemIndex: originalIndex + 1,
+            timestamp: new Date(baseTime + idx).toISOString()
+        };
+    });
 
-    const logEntries = records.map((record, index) => ({
-        emergencyOrderId,
-        orderItemIndex: index + 1,
-        orderItemCount: itemCount,
-        timestamp: record.timestamp,
-        dateStr,
-        teamName,
-        partNo: record.partNo,
-        matName: record.name,
-        quantity: record.qty,
-        unit: record.unit,
-        evalType: record.evalType,
-        signature: signatureBase64 || null,
-        status: 'Typhoon_Pending',
-        erpOrderNo: '',
-        businessRecordId: record.id
-    }));
+    const shortage = records.length ? await findStockShortages(records) : [];
+    const recordByIndex = new Map(records.map(r => [r.emergencyItemIndex, r]));
+
+    const logEntries = emergencyBatchMaterials.map((item, index) => {
+        const record = recordByIndex.get(index + 1);
+        const unresolved = item.matchStatus === 'unresolved' || !item.partNo;
+        return {
+            emergencyOrderId,
+            orderItemIndex: index + 1,
+            orderItemCount: itemCount,
+            timestamp: record?.timestamp || new Date(baseTime + 1000 + index).toISOString(),
+            dateStr,
+            teamName,
+            partNo: unresolved ? '' : item.partNo,
+            matName: item.name,
+            rawInputName: item.rawInputName || item.name,
+            quantity: item.quantity,
+            unit: item.unit,
+            evalType: item.evalType,
+            signature: signatureBase64 || null,
+            status: unresolved ? 'Pending_Material_Mapping' : 'Typhoon_Pending',
+            materialSource: item.materialSource || (unresolved ? 'manual' : 'master'),
+            materialResolutionStatus: unresolved ? '待材料部門確認' : '已找到正式材料',
+            erpOrderNo: '',
+            businessRecordId: record?.id || null
+        };
+    });
 
     const insertedEmergencyIds = [];
+    const createdRecordIds = records.map(r => r.id);
     try {
-        await saveRecordsBatch(records);
+        if(records.length) await saveRecordsBatch(records);
         await db.transaction('rw', db.emergency_logs, async () => {
             for(const logEntry of logEntries) insertedEmergencyIds.push(await db.emergency_logs.add(logEntry));
         });
         await writeAuditLog('CREATE_EMERGENCY_ORDER', 'emergencyOrder', emergencyOrderId, teamName, {
-            itemCount, businessRecordIds: records.map(r => r.id), partNos: records.map(r => r.partNo)
+            itemCount,
+            matchedCount: resolvedItems.length,
+            unresolvedCount: unresolvedItems.length,
+            businessRecordIds: createdRecordIds,
+            unresolvedMaterialNames: unresolvedItems.map(item => item.name)
         });
 
         if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
@@ -3073,9 +3210,11 @@ async function submitEmergencyOrder() {
         resetEmergencyMaterialEntry();
         document.getElementById('m_teamName').value = '';
         document.getElementById('clearEmergencySignBtn').click();
-        const pendingNotice = shortage.length
-          ? `\n⚠️ ${shortage.length} 項尚未入帳或庫存不足，已先建立紀錄，請於後續入帳時核對。`
-          : '\n已同步更新即時庫存。';
+
+        const pendingParts = [];
+        if(shortage.length) pendingParts.push(`庫存提醒 ${shortage.length} 項`);
+        if(unresolvedCount) pendingParts.push(`待材料部門確認 ${unresolvedCount} 項`);
+        const pendingNotice = pendingParts.length ? `\n⚠️ ${pendingParts.join('、')}。` : '\n已同步更新即時庫存。';
         alert(`✅ 災害發料訂單已建立！\n訂單編號：${emergencyOrderId}\n材料筆數：${itemCount} 筆${pendingNotice}`);
         renderEmergencyLiveDashboard();
         renderInventoryTable();
@@ -3083,7 +3222,7 @@ async function submitEmergencyOrder() {
         runAnalysis();
     } catch(err) {
         if(insertedEmergencyIds.length) await db.emergency_logs.bulkDelete(insertedEmergencyIds);
-        await rollbackEmergencyBusinessRecords(records.map(r => r.id));
+        if(createdRecordIds.length) await rollbackEmergencyBusinessRecords(createdRecordIds);
         console.error('天災批次訂單儲存失敗', err);
         alert('❌ 整張天災發料訂單儲存失敗，系統已嘗試回復原狀：' + err.message);
     }
@@ -3130,7 +3269,7 @@ async function renderEmergencyLiveDashboard() {
             <div style="background:#1D3B56; color:white; border-radius:14px; text-align:center; padding:3px 4px; font-weight:bold;">${index + 1}</div>
             <div style="min-width:0;">
               <div style="font-weight:bold; color:#d32f2f;">${escapeHtml(log.matName)} × ${normalizeNumber(log.quantity)} ${escapeHtml(log.unit)}</div>
-              <div style="font-size:0.82rem; color:#666; margin-top:3px;">料號：<code>${escapeHtml(log.partNo)}</code>｜${escapeHtml(normalizeEvalType(log.evalType))}</div>
+              <div style="font-size:0.82rem; color:#666; margin-top:3px;">料號：<code>${escapeHtml(log.partNo || '待材料部門確認')}</code>｜${escapeHtml(normalizeEvalType(log.evalType))}${log.materialResolutionStatus ? `｜${escapeHtml(log.materialResolutionStatus)}` : ''}</div>
             </div>
             <button type="button" onclick="deleteEmergencyLog(${Number(log.id)})" style="background:#b03a2e; color:white; border:none; padding:6px 9px; border-radius:5px; font-weight:bold; cursor:pointer; font-size:0.8rem;">刪除此項</button>
           </div>`).join('');
@@ -3319,7 +3458,7 @@ async function exportEmergencyLogsExcel() {
             '發料日期': log.dateStr || getTaipeiDateString(new Date(log.timestamp)),
             '發料時間': log.timestamp ? new Date(log.timestamp).toLocaleTimeString('zh-TW', {hour12:false}) : '',
             '工班／包商': log.teamName || '',
-            '台電標準料號': normalizePartNo(log.partNo),
+            '台電標準料號': normalizePartNo(log.partNo) || '待材料部門確認',
             '材料名稱／規格': log.matName || '',
             '數量': normalizeNumber(log.quantity),
             '單位': log.unit || '',
