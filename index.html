@@ -7,6 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   
   <style>
     :root {
@@ -317,7 +319,8 @@
       </div>
       <div class="modal-footer">
         <button class="btn-modal-cancel" onclick="closeExportModal()">取消</button>
-        <button class="btn-modal-confirm" onclick="confirmExport()">確認匯出</button>
+        <button type="button" class="btn-modal-confirm" style="background:#8e44ad;" onclick="exportFilteredRecordsPDF()">📄 匯出PDF（含簽名）</button>
+        <button class="btn-modal-confirm" onclick="confirmExport()">📊 匯出Excel</button>
       </div>
     </div>
   </div>
@@ -375,6 +378,23 @@
         <div style="margin-bottom: 15px;">
           <label style="font-weight: bold; color: var(--ukiyo-deep-blue); display:block; margin-bottom:5px;">🎯 天災常用材料快捷區（免打字點選）</label>
           <div id="quickDeckContainer" style="display: flex; flex-wrap: wrap; gap: 8px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd;"></div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <label style="font-weight: bold; color: var(--ukiyo-deep-blue); display:block; margin-bottom:5px;">🗂️ 材料類別選擇（保留資料輸入的分類選料方式）</label>
+          <select id="category_emergency" onchange="renderMaterials('emergency')" style="font-size:1.05rem; padding:12px; width:100%;">
+            <option value="">-- 請選擇材料類別 --</option>
+            <option value="A">A 類（礙子）</option>
+            <option value="B">B 類（鐵件）</option>
+            <option value="C">C 類（線材）</option>
+            <option value="D">D 類（電表）</option>
+            <option value="F">F 類（變壓器）</option>
+            <option value="H">H 類（開關）</option>
+          </select>
+          <div id="materialsContainer_emergency" class="materials-container" style="display:none; max-height:230px; margin-top:8px;">
+            <div style="color:#888; text-align:center; padding:20px;">請先選擇材料類別</div>
+          </div>
+          <div style="font-size:0.82rem; color:#68737d; margin-top:6px;">可直接從類別清單點選材料；也可改用下方手動輸入或語音搜尋，三種方式可以交互使用。</div>
         </div>
 
         <div style="margin-bottom: 15px; position: relative;">
@@ -1372,23 +1392,78 @@ function setTransferMode(mode) {
 // 材料選擇與搜尋
 // ==========================================
 function renderMaterials(context) {
-  const cat = document.getElementById(`category_${context}`).value;
+  const categorySelect = document.getElementById(`category_${context}`);
   const container = document.getElementById(`materialsContainer_${context}`);
-  
-  container.innerHTML = "";
-  container.style.display = "flex";
+  if(!categorySelect || !container) return;
 
-  if (!cat) return;
+  const cat = categorySelect.value;
+  container.innerHTML = "";
+  container.style.display = cat ? "flex" : "none";
+
+  if (!cat) {
+    container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">請先選擇材料類別</div>';
+    return;
+  }
+
+  let count = 0;
   for (let pNo in materials) {
     if (materials[pNo].category === cat) {
-      let div = document.createElement('div');
+      const div = document.createElement('div');
       div.className = "material-btn";
-      div.id = `btn_${context}_${pNo}`; 
-      div.innerHTML = `<strong>${pNo}</strong><br>${materials[pNo].name}`;
-      div.onclick = function() { selectMaterial(pNo, context); };
+      div.id = `btn_${context}_${pNo}`;
+      div.innerHTML = `<strong>${escapeHtml(pNo)}</strong><br>${escapeHtml(materials[pNo].name || '')}`;
+      if(context === 'emergency') {
+        div.onclick = function() { selectEmergencyCategoryMaterial(pNo); };
+      } else {
+        div.onclick = function() { selectMaterial(pNo, context); };
+      }
       container.appendChild(div);
-}
+      count++;
+    }
   }
+
+  if(count === 0) {
+    container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">此類別目前沒有可選材料</div>';
+  }
+}
+
+async function selectEmergencyCategoryMaterial(pNo) {
+    pNo = normalizePartNo(pNo);
+    const mat = materials[pNo];
+    if(!mat) return;
+
+    const input = document.getElementById('m_matSearchInput');
+    const hidden = document.getElementById('m_partNo_hidden');
+    const dropdown = document.getElementById('searchResultDropdown');
+    const unitInput = document.getElementById('m_unit');
+    const container = document.getElementById('materialsContainer_emergency');
+
+    if(hidden) hidden.value = pNo;
+    if(input) input.value = `${mat.name || pNo} (${pNo})`;
+    if(dropdown) dropdown.style.display = 'none';
+    if(container) {
+        container.querySelectorAll('.material-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById(`btn_emergency_${pNo}`);
+        if(btn) {
+            btn.classList.add('active');
+            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    if(unitInput && !unitInput.value.trim()) {
+        let unit = String(mat.unit || '').trim();
+        if(!unit) {
+            try {
+                const detail = await db.materials.where('partNo').equals(pNo).first();
+                unit = String(detail?.unit || '').trim();
+            } catch(e) {}
+        }
+        if(unit) unitInput.value = unit;
+    }
+
+    const status = document.getElementById('voiceStatus');
+    if(status) status.textContent = `已選擇：${mat.name || pNo}（${pNo}）。請輸入數量、確認單位與評價類型。`;
+    if(navigator.vibrate) navigator.vibrate(40);
 }
 
 function selectMaterial(pNo, context) {
@@ -2335,6 +2410,46 @@ function confirmExport() {
   closeExportModal();
 }
 
+
+// ==========================================
+// 電子簽名 PDF 匯出
+// ==========================================
+function assertPdfLibraries(){
+  if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error('PDF元件尚未載入，請確認網路連線後重新整理頁面。');
+}
+function pdfSafe(v){ return String(v ?? '').replace(/[<>]/g,''); }
+function groupNormalRecordsForPDF(records){
+  const groups=new Map();
+  (records||[]).forEach(r=>{
+    const key=[r.date||'',r.orderNo||'',r.person||'',r.staff||'',r.operator||'',r.signature||''].join('||');
+    if(!groups.has(key)) groups.set(key,{date:r.date||'',orderNo:r.orderNo||'',person:r.person||'',staff:r.staff||'',operator:r.operator||'',signature:r.signature||'',records:[]});
+    groups.get(key).records.push(r);
+  });
+  return Array.from(groups.values());
+}
+function buildNormalPDFPage(g,pageNo,total){
+  const rows=g.records.map((r,i)=>`<tr><td>${i+1}</td><td>${pdfSafe(r.partNo)}</td><td>${pdfSafe(r.name)}</td><td>${pdfSafe(r.evalType)}</td><td>${pdfSafe(r.qty)}</td><td>${pdfSafe(r.unit)}</td></tr>`).join('');
+  const sign=g.signature?`<img src="${g.signature}" style="max-width:260px;max-height:90px;object-fit:contain;">`:'<span style="color:#999;">未簽名</span>';
+  return `<div style="width:794px;min-height:1123px;box-sizing:border-box;padding:42px 46px;background:#fff;color:#111;font-family:Arial,'Noto Sans TC',sans-serif;"><div style="border-bottom:3px solid #1D3B56;padding-bottom:10px;margin-bottom:16px;"><div style="font-size:25px;font-weight:900;color:#1D3B56;">MaterialMind 一般材料發料憑證</div><div style="font-size:12px;color:#666;margin-top:4px;">第 ${pageNo} / ${total} 張</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:13px;margin-bottom:16px;"><div><b>日期：</b>${pdfSafe(g.date)}</div><div><b>單號：</b>${pdfSafe(g.orderNo)}</div><div><b>領用人：</b>${pdfSafe(g.person)}</div><div><b>經辦：</b>${pdfSafe(g.staff)}</div><div><b>操作人：</b>${pdfSafe(g.operator)}</div><div><b>材料筆數：</b>${g.records.length}</div></div><table style="width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px;"><thead><tr style="background:#edf2f5;"><th style="border:1px solid #9aa8b2;padding:6px;width:7%;">項</th><th style="border:1px solid #9aa8b2;padding:6px;width:18%;">料號</th><th style="border:1px solid #9aa8b2;padding:6px;width:37%;">品名</th><th style="border:1px solid #9aa8b2;padding:6px;width:13%;">評價</th><th style="border:1px solid #9aa8b2;padding:6px;width:10%;">數量</th><th style="border:1px solid #9aa8b2;padding:6px;width:15%;">單位</th></tr></thead><tbody>${rows}</tbody></table><div style="margin-top:22px;border:1px solid #9aa8b2;border-radius:8px;padding:12px;"><div style="font-weight:900;color:#1D3B56;margin-bottom:7px;">領用人電子簽名</div><div style="height:95px;display:flex;align-items:center;justify-content:center;">${sign}</div></div><div style="margin-top:18px;font-size:11px;color:#666;line-height:1.7;">本憑證由 MaterialMind 系統產生；簽名影像為系統保存之現場電子簽名。</div></div>`;
+}
+function buildEmergencyPDFPage(g,pageNo,total){
+  const rows=g.logs.map((l,i)=>`<tr><td>${i+1}</td><td>${pdfSafe(normalizePartNo(l.partNo)||'待材料部門確認')}</td><td>${pdfSafe(l.matName||'')}</td><td>${pdfSafe(normalizeEvalType(l.evalType))}</td><td>${pdfSafe(l.quantity)}</td><td>${pdfSafe(l.unit||'')}</td><td>${l.status==='Archived'?'已核銷':'天災待核銷'}</td></tr>`).join('');
+  const sign=g.signature?`<img src="${g.signature}" style="max-width:270px;max-height:95px;object-fit:contain;">`:'<span style="color:#999;">未簽名</span>';
+  return `<div style="width:794px;min-height:1123px;box-sizing:border-box;padding:42px;background:#fff;color:#111;font-family:Arial,'Noto Sans TC',sans-serif;"><div style="border-bottom:4px solid #e74c3c;padding-bottom:10px;margin-bottom:16px;"><div style="font-size:24px;font-weight:900;color:#c0392b;">MaterialMind 天災緊急發料憑證</div><div style="font-size:12px;color:#666;margin-top:4px;">第 ${pageNo} / ${total} 張</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:13px;margin-bottom:16px;"><div><b>災害訂單：</b>${pdfSafe(g.orderId)}</div><div><b>日期：</b>${pdfSafe(g.dateStr)}</div><div><b>工班／包商：</b>${pdfSafe(g.teamName)}</div><div><b>ERP單號：</b>${pdfSafe(g.erpOrderNo||'待核銷')}</div><div><b>材料筆數：</b>${g.logs.length}</div><div><b>狀態：</b>${g.allArchived?'已核銷歸檔':'天災待核銷'}</div></div><table style="width:100%;border-collapse:collapse;table-layout:fixed;font-size:10.5px;"><thead><tr style="background:#fff0ed;"><th style="border:1px solid #b9a4a0;padding:5px;width:6%;">項</th><th style="border:1px solid #b9a4a0;padding:5px;width:17%;">台電料號</th><th style="border:1px solid #b9a4a0;padding:5px;width:30%;">材料名稱／規格</th><th style="border:1px solid #b9a4a0;padding:5px;width:13%;">評價</th><th style="border:1px solid #b9a4a0;padding:5px;width:9%;">數量</th><th style="border:1px solid #b9a4a0;padding:5px;width:9%;">單位</th><th style="border:1px solid #b9a4a0;padding:5px;width:16%;">核銷</th></tr></thead><tbody>${rows}</tbody></table><div style="margin-top:20px;border:2px dashed #c0392b;border-radius:8px;padding:12px;"><div style="font-weight:900;color:#c0392b;margin-bottom:7px;">現場工班電子簽名（整張訂單共用）</div><div style="height:100px;display:flex;align-items:center;justify-content:center;">${sign}</div></div><div style="margin-top:16px;font-size:11px;color:#555;line-height:1.7;">災害期間允許先發料、後入帳；顯示「待材料部門確認」之材料，保留現場原始名稱供後續對料與ERP核銷。</div></div>`;
+}
+async function renderPagesToPDF(pages,filename){
+  assertPdfLibraries();
+  const host=document.createElement('div'); host.style.cssText='position:fixed;left:-10000px;top:0;width:794px;background:#fff;z-index:-1;'; document.body.appendChild(host);
+  const {jsPDF}=window.jspdf; const pdf=new jsPDF({orientation:'p',unit:'mm',format:'a4',compress:true});
+  try{ for(let i=0;i<pages.length;i++){ host.innerHTML=pages[i]; const canvas=await html2canvas(host.firstElementChild,{scale:2,backgroundColor:'#fff',useCORS:true,logging:false}); if(i>0) pdf.addPage(); pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',0,0,210,297); } pdf.save(filename); } finally{ host.remove(); }
+}
+async function exportFilteredRecordsPDF(){
+  try{ let records=JSON.parse(localStorage.getItem('materialRecords'))||[]; const start=document.getElementById('exportStart')?.value,end=document.getElementById('exportEnd')?.value; if(start&&end){const s=new Date(start),e=new Date(end);records=records.filter(r=>{const d=new Date(r.date);return d>=s&&d<=e;});} if(!records.length){alert('目前沒有符合條件的資料可匯出PDF。');return;} const groups=groupNormalRecordsForPDF(records); await renderPagesToPDF(groups.map((g,i)=>buildNormalPDFPage(g,i+1,groups.length)),`MaterialMind_一般發料簽名憑證_${getTaipeiDateString()}.pdf`); }catch(e){console.error(e);alert('❌ 一般發料PDF匯出失敗：'+e.message);}
+}
+async function exportEmergencyLogsPDF(){
+  try{ const data=await db.emergency_logs.orderBy('id').toArray(); if(!data.length){alert('目前沒有災害發料紀錄可匯出PDF。');return;} const groups=groupEmergencyLogsByOrder(data); await renderPagesToPDF(groups.map((g,i)=>buildEmergencyPDFPage(g,i+1,groups.length)),`MaterialMind_天災發料簽名憑證_${getTaipeiDateString()}.pdf`); await writeAuditLog('EXPORT_EMERGENCY_PDF','emergencyLog','',document.getElementById('operatorName')?.value||'未記錄',{count:data.length,orderCount:groups.length}); }catch(e){console.error(e);alert('❌ 天災PDF匯出失敗：'+e.message);}
+}
+
 async function exportReconciliationReport(){
     const logs=await db.changeLog.toArray();
     const today=getTaipeiDateString();
@@ -3080,14 +3195,22 @@ async function addEmergencyMaterialToBatch() {
     const unit = document.getElementById('m_unit').value.trim();
     const evalType = normalizeEvalType(document.getElementById('m_evalType').value);
 
-    if(partNo.length !== 10 || !matSearchInput || !Number.isFinite(quantity) || quantity <= 0 || !unit) {
-        alert('⚠️ 請從清單選取正式材料，並輸入大於0的數量及單位。');
+    const unmatchedName = matSearchInput.replace(/\s*\([^)]*\)\s*$/, '').trim();
+    if(!matSearchInput || !Number.isFinite(quantity) || quantity <= 0 || !unit) {
+        alert('⚠️ 請輸入材料名稱、數量及單位。正式材料可由分類／搜尋／語音選取；找不到正式材料也可以直接用現場名稱登錄。');
         return;
     }
 
-    const detail = await db.materials.where('partNo').equals(partNo).first();
-    const name = detail?.name || materials[partNo]?.name || matSearchInput.replace(/\s*\([^)]*\)\s*$/, '');
-    emergencyBatchMaterials.push({ partNo, name, quantity, unit, evalType });
+    let name = unmatchedName;
+    if(partNo.length === 10) {
+        const detail = await db.materials.where('partNo').equals(partNo).first();
+        name = detail?.name || materials[partNo]?.name || unmatchedName;
+    }
+    emergencyBatchMaterials.push({
+        partNo: partNo.length === 10 ? partNo : '',
+        name, quantity, unit, evalType,
+        unmatched: partNo.length !== 10
+    });
     renderEmergencyBatchList();
     resetEmergencyMaterialEntry();
 
@@ -3111,8 +3234,8 @@ function renderEmergencyBatchList() {
         <div class="multi-material-item" style="align-items:flex-start; gap:10px;">
           <div style="min-width:0; flex:1;">
             <span class="multi-material-count">${index + 1}</span>
-            <strong>${escapeHtml(item.partNo)}</strong>
-            <div style="margin-top:5px; color:#374151;">${escapeHtml(item.name)}</div>
+            <strong>${item.partNo ? escapeHtml(item.partNo) : '<span style="color:#d35400;">待材料部門確認料號</span>'}</strong>
+            <div style="margin-top:5px; color:#374151;">${escapeHtml(item.name)}${item.unmatched ? ' <span style="background:#fff3cd; color:#8a5a00; padding:2px 6px; border-radius:4px; font-size:0.78rem;">待對料</span>' : ''}</div>
             <div style="margin-top:5px; font-size:0.88rem;">
               <span style="color:#d35400; font-weight:bold;">${item.quantity} ${escapeHtml(item.unit)}</span>
               <span style="background:#eee; padding:2px 7px; border-radius:4px; margin-left:6px;">${escapeHtml(item.evalType)}</span>
