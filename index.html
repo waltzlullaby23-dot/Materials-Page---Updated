@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- MaterialMind V8 FieldOps ||  -->
+<!-- MaterialMind -->
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>MaterialMind 台電智慧材料系統</title>
+  <title>MaterialMind  台電智慧材料系統</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
@@ -258,16 +258,17 @@
     .v8-status-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 14px;padding:10px 12px;background:#102f46;color:#fff;border-radius:12px;font-size:.86rem;font-weight:800}
     .v8-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.12)}
     .v8-pill.online{background:#176b45}.v8-pill.offline{background:#a53b31}.v8-pill.pending{background:#8a6511}
-    .v8-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0 18px}
-    .v8-kpi{background:white;border:1px solid #dfe8ee;border-radius:14px;padding:14px;box-shadow:0 5px 16px rgba(29,59,86,.08)}
-    .v8-kpi .label{font-size:.78rem;color:#61717c;font-weight:800}.v8-kpi .value{font-size:1.45rem;font-weight:900;color:#1D3B56;margin-top:5px}.v8-kpi .sub{font-size:.74rem;color:#798892;margin-top:4px}
+    .v8-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0 10px}
+    .v8-kpi{background:white;border:1px solid #dfe8ee;border-radius:14px;padding:14px;box-shadow:0 5px 16px rgba(29,59,86,.08);min-width:0}
+    .v8-kpi .label{font-size:.78rem;color:#61717c;font-weight:800}.v8-kpi .value{font-size:1.45rem;font-weight:900;color:#1D3B56;margin-top:5px}.v8-kpi .sub{font-size:.74rem;color:#798892;margin-top:4px;line-height:1.35}
+    .v8-kpi-explain{background:#f7fafb;border:1px solid #dfe8ee;border-left:4px solid #2A587A;border-radius:9px;padding:9px 12px;color:#60707b;font-size:.8rem;line-height:1.5;margin:0 0 16px}
     .v8-card{background:#fff;border:1px solid #dfe8ee;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 5px 16px rgba(29,59,86,.07)}
     .v8-card h4{margin:0 0 12px;color:#1D3B56}.v8-action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
     .v8-action{border:0;border-radius:12px;padding:15px 10px;font-weight:900;cursor:pointer;background:#eaf1f6;color:#173a54}
     .v8-table-wrap{overflow:auto;border:1px solid #e2e8ed;border-radius:12px}.v8-table{width:100%;border-collapse:collapse;min-width:880px}.v8-table th,.v8-table td{padding:10px;border-bottom:1px solid #edf1f4;text-align:left;font-size:.84rem}.v8-table th{background:#eef4f7;color:#1D3B56;position:sticky;top:0}.v8-negative{color:#c0392b;font-weight:900}.v8-positive{color:#1f7a4d;font-weight:900}.v8-warn{color:#9b6400;font-weight:900}
     .v8-inline-note{font-size:.82rem;line-height:1.55;color:#53636f;background:#f5f8fa;border-left:4px solid #2A587A;padding:10px 12px;border-radius:8px;margin:10px 0}
     .v8-mobile-only{display:none}
-    @media(max-width:760px){.v8-kpi-grid{grid-template-columns:1fr 1fr}.v8-action-grid{grid-template-columns:1fr}.v8-mobile-only{display:block}.v8-kpi .value{font-size:1.2rem}.container-3d{border-radius:14px}.v8-status-bar{position:sticky;top:4px;z-index:50}}
+    @media(max-width:760px){.v8-kpi-grid{grid-template-columns:1fr 1fr}.v8-action-grid{grid-template-columns:1fr}.v8-mobile-only{display:block}.v8-kpi .value{font-size:1.2rem}.v8-kpi{padding:11px}.v8-kpi .sub{font-size:.69rem}.container-3d{border-radius:14px}.v8-status-bar{position:sticky;top:4px;z-index:50}}
 
 </style>
 </head>
@@ -362,7 +363,7 @@
   <div class="content-wrapper">
     <header>
       <div style="font-weight:900; font-size: 1.5rem; letter-spacing: 2px;">台電材料管理系統</div>
-      <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.9;">MaterialMind V8 FieldOps · Offline-First</div>
+      <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.9;">MaterialMind V8.1 FieldOps · Offline-First</div>
     </header>
 
     <div class="nav-tabs" id="mainNavTabs">
@@ -392,10 +393,13 @@
       </div>
       <div class="v8-inline-note"><strong>四帳制：</strong>ERP帳面（最後快照）＋待過帳入庫－待過帳出庫＝現場推算庫存；在途材料另外顯示，抵達確認後才計入現場庫存。災害期間以「現場已發生」為核心，災後再與ERP核銷。</div>
       <div class="v8-kpi-grid">
-        <div class="v8-kpi"><div class="label">ERP帳面庫存</div><div id="kpiErpStock" class="value">0</div><div class="sub">最後一次Excel/人工快照</div></div>
-        <div class="v8-kpi"><div class="label">現場推算庫存</div><div id="kpiFieldStock" class="value">0</div><div class="sub">ERP + 尚未反映之現場流水</div></div>
-        <div class="v8-kpi"><div class="label">在途調入</div><div id="kpiTransitIn" class="value">0</div><div class="sub">尚未確認抵達，不計入可用量</div></div>
-        <div class="v8-kpi"><div class="label">待ERP處理筆數</div><div id="kpiPendingCount" class="value">0</div><div class="sub">快照後尚未反映之交易</div></div>
+        <div class="v8-kpi"><div class="label">可用材料品項</div><div id="kpiAvailableItems" class="value">0</div><div class="sub">有現場推算庫存的「料號＋評價」</div></div>
+        <div class="v8-kpi"><div class="label">低於安全庫存</div><div id="kpiLowStockItems" class="value">0</div><div class="sub">已設定安全庫存且目前低於門檻</div></div>
+        <div class="v8-kpi"><div class="label">在途調撥批次</div><div id="kpiTransitBatches" class="value">0</div><div class="sub">尚未確認抵達，不計入現場可用量</div></div>
+        <div class="v8-kpi"><div class="label">待ERP處理筆數</div><div id="kpiPendingCount" class="value">0</div><div class="sub">現場已發生、尚未完成ERP反映</div></div>
+      </div>
+      <div class="v8-kpi-explain">
+        <strong>現場庫存不以所有材料數量加總呈現。</strong> 不同材料的單位可能是「個、台、公尺、組」等，無法直接相加；實際數量請在下方「四帳庫存明細」依料號＋評價類型查看。
       </div>
 
       <div class="v8-card">
@@ -3847,7 +3851,7 @@ function importAndMergeEmergencyJSON(file) {
 }
 
 // ==========================================
-// V8 FieldOps：四帳制、在途、盤點、待ERP、離線狀態
+// V8.1 FieldOps：四帳制、在途、盤點、待ERP、離線狀態；首頁KPI不再加總不同單位庫存
 // ==========================================
 function v8TxId(prefix='TX') {
     const d = new Date();
@@ -3921,8 +3925,26 @@ async function v8BuildLedger(){
 }
 async function v8RefreshFieldOps(){
     v8SetConnectivity(); await syncInventoryFromERP(); const ledger=await v8BuildLedger(); const rows=Object.values(ledger); const safe=JSON.parse(localStorage.getItem('safeStock')||'{}');
-    const erp=rows.reduce((a,x)=>a+x.erp,0),field=rows.reduce((a,x)=>a+x.field,0),transit=rows.reduce((a,x)=>a+x.transit,0),pending=rows.reduce((a,x)=>a+(x.pendingIn?1:0)+(x.pendingOut?1:0),0);
-    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=Number(v).toLocaleString('zh-TW',{maximumFractionDigits:2})};set('kpiErpStock',erp);set('kpiFieldStock',field);set('kpiTransitIn',transit);set('kpiPendingCount',pending);
+    const availableItems=rows.filter(x=>v8Number(x.field)>0).length;
+    const lowStockItems=rows.filter(x=>{const limit=v8Number(safe[makeInventoryKey(x.partNo,x.rating)]);return limit>0&&v8Number(x.field)<limit;}).length;
+    const transitEvents=(await db.field_events.where('status').equals('IN_TRANSIT').toArray()).filter(x=>x.kind==='IN_TRANSIT_IN');
+    const transitBatches=transitEvents.length;
+    const pendingKeys=new Set();
+    const allFieldEvents=await db.field_events.toArray();
+    for(const e of allFieldEvents){
+        if(e.status==='ARRIVED_PENDING_ERP') pendingKeys.add(`record:${e.linkedRecordId ?? e.txId ?? e.id}`);
+    }
+    const allLogs=await db.changeLog.toArray();
+    for(const l of allLogs){
+        const p=normalizePartNo(l.partNo),r=normalizeEvalType(l.rating);
+        const k=makeInventoryKey(p,r);
+        const created=l.createdAt||deriveLegacyCreatedAt(l);
+        const snapAt=rows.find(x=>makeInventoryKey(x.partNo,x.rating)===k)?.snapshotAt||'';
+        if((!snapAt||created>snapAt) && getStockDelta(l.type,l.amount)!==0) pendingKeys.add(`record:${l.recordId ?? l.id}`);
+    }
+    const pending=pendingKeys.size;
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=Number(v).toLocaleString('zh-TW',{maximumFractionDigits:0})};
+    set('kpiAvailableItems',availableItems);set('kpiLowStockItems',lowStockItems);set('kpiTransitBatches',transitBatches);set('kpiPendingCount',pending);
     const latest=rows.map(x=>x.snapshotAt).filter(Boolean).sort().pop(); const sp=document.getElementById('v8SnapshotPill');if(sp)sp.textContent='ERP快照：'+(latest?new Date(latest).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):'尚未建立');
     const body=document.getElementById('v8LedgerBody');if(body)body.innerHTML=rows.sort((a,b)=>(b.pendingIn+b.pendingOut+b.transit)-(a.pendingIn+a.pendingOut+a.transit)).map(x=>{const limit=v8Number(safe[makeInventoryKey(x.partNo,x.rating)]);const low=limit>0&&x.field<limit;const st=low?'⚠ 低於安全存量':(x.pendingIn||x.pendingOut?'待ERP處理':'正常');return `<tr><td>${v8Esc(x.partNo)}</td><td>${v8Esc(x.rating)}</td><td>${v8Esc(x.name)}</td><td>${x.erp}</td><td class="v8-positive">+${x.pendingIn}</td><td class="v8-negative">-${x.pendingOut}</td><td class="${x.field<0?'v8-negative':''}">${x.field}</td><td class="v8-warn">${x.transit}</td><td>${limit||'-'}</td><td class="${low?'v8-negative':(x.pendingIn||x.pendingOut?'v8-warn':'')}">${st}</td></tr>`}).join('')||'<tr><td colspan="10">尚無庫存資料。請先匯入ERP Excel快照或建立初始庫存。</td></tr>';
     await v8RenderTransitList();
