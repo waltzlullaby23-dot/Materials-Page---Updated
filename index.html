@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<!-- MaterialMind -->
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>MaterialMind  台電智慧材料系統</title>
+  <title>MaterialMind </title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
@@ -29,7 +28,7 @@
     }
     
     body {
-      font-family: 'Noto Sans TC','Microsoft JhengHei','PingFang TC',system-ui,sans-serif;
+      font-family: 'Noto Sans TC', sans-serif;
       margin: 0; padding: 0;
       color: #1a202c;
       background-color: var(--ukiyo-sky);
@@ -253,28 +252,35 @@
       .container-3d { padding: 20px; }
       .stock-table th, .stock-table td { font-size: 0.85rem; padding: 8px; }
     }
-  
-    /* ===== V8 FieldOps：手機離線戰情與四帳制 ===== */
-    .v8-status-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 14px;padding:10px 12px;background:#102f46;color:#fff;border-radius:12px;font-size:.86rem;font-weight:800}
-    .v8-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.12)}
-    .v8-pill.online{background:#176b45}.v8-pill.offline{background:#a53b31}.v8-pill.pending{background:#8a6511}
-    .v8-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0 10px}
-    .v8-kpi{background:white;border:1px solid #dfe8ee;border-radius:14px;padding:14px;box-shadow:0 5px 16px rgba(29,59,86,.08);min-width:0}
-    .v8-kpi .label{font-size:.78rem;color:#61717c;font-weight:800}.v8-kpi .value{font-size:1.45rem;font-weight:900;color:#1D3B56;margin-top:5px}.v8-kpi .sub{font-size:.74rem;color:#798892;margin-top:4px;line-height:1.35}
-    .v8-kpi-explain{background:#f7fafb;border:1px solid #dfe8ee;border-left:4px solid #2A587A;border-radius:9px;padding:9px 12px;color:#60707b;font-size:.8rem;line-height:1.5;margin:0 0 16px}
-    .v8-card{background:#fff;border:1px solid #dfe8ee;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 5px 16px rgba(29,59,86,.07)}
-    .v8-card h4{margin:0 0 12px;color:#1D3B56}.v8-action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-    .v8-action{border:0;border-radius:12px;padding:15px 10px;font-weight:900;cursor:pointer;background:#eaf1f6;color:#173a54}
-    .v8-table-wrap{overflow:auto;border:1px solid #e2e8ed;border-radius:12px}.v8-table{width:100%;border-collapse:collapse;min-width:880px}.v8-table th,.v8-table td{padding:10px;border-bottom:1px solid #edf1f4;text-align:left;font-size:.84rem}.v8-table th{background:#eef4f7;color:#1D3B56;position:sticky;top:0}.v8-negative{color:#c0392b;font-weight:900}.v8-positive{color:#1f7a4d;font-weight:900}.v8-warn{color:#9b6400;font-weight:900}
-    .v8-inline-note{font-size:.82rem;line-height:1.55;color:#53636f;background:#f5f8fa;border-left:4px solid #2A587A;padding:10px 12px;border-radius:8px;margin:10px 0}
-    .v8-mobile-only{display:none}
-    @media(max-width:760px){.v8-kpi-grid{grid-template-columns:1fr 1fr}.v8-action-grid{grid-template-columns:1fr}.v8-mobile-only{display:block}.v8-kpi .value{font-size:1.2rem}.v8-kpi{padding:11px}.v8-kpi .sub{font-size:.69rem}.container-3d{border-radius:14px}.v8-status-bar{position:sticky;top:4px;z-index:50}}
 
-</style>
+    .nav-btn-tutorial { border-left:3px solid #5dade2; }
+    .tutorial-overlay { display:none; position:fixed; inset:0; z-index:12000; background:rgba(8,20,32,.72); backdrop-filter:blur(5px); align-items:center; justify-content:center; padding:16px; box-sizing:border-box; }
+    .tutorial-modal { width:min(980px,96vw); max-height:92vh; overflow:hidden; background:#fff; border-radius:18px; box-shadow:0 24px 60px rgba(0,0,0,.35); display:flex; flex-direction:column; }
+    .tutorial-header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:18px 20px; background:linear-gradient(135deg,#1D3B56,#2A587A); color:#fff; }
+    .tutorial-header-title { font-weight:900; font-size:1.2rem; }
+    .tutorial-close { border:0; background:rgba(255,255,255,.14); color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:20px; }
+    .tutorial-body { display:grid; grid-template-columns:260px 1fr; min-height:0; }
+    .tutorial-sidebar { background:#f4f7f9; border-right:1px solid #e1e7eb; padding:12px; overflow:auto; }
+    .tutorial-topic { width:100%; text-align:left; border:1px solid #dce4ea; background:#fff; color:#1D3B56; padding:11px 12px; border-radius:9px; margin-bottom:8px; cursor:pointer; font-weight:800; }
+    .tutorial-topic.active { background:#1D3B56; color:#fff; border-color:#1D3B56; }
+    .tutorial-content { padding:24px; overflow:auto; }
+    .tutorial-step-title { font-size:1.25rem; font-weight:900; color:#1D3B56; margin-bottom:10px; }
+    .tutorial-step-desc { color:#4a5568; line-height:1.8; margin-bottom:14px; }
+    .tutorial-card { background:#f8fafc; border:1px solid #dce4ea; border-radius:12px; padding:14px; margin:10px 0; }
+    .tutorial-card strong { color:#1D3B56; }
+    .tutorial-example { background:#fff7e6; border:1px solid #f5c15f; border-radius:10px; padding:12px; line-height:1.7; }
+    .tutorial-good { background:#edf7f1; border:1px solid #badcc7; border-radius:10px; padding:12px; color:#225f3a; line-height:1.7; }
+    .tutorial-warn { background:#fff0ed; border:1px solid #e8b7b0; border-radius:10px; padding:12px; color:#8a3328; line-height:1.7; }
+    .tutorial-footer { display:flex; justify-content:space-between; gap:10px; padding:14px 18px; border-top:1px solid #e5e7eb; background:#fff; }
+    .tutorial-footer button { border:none; border-radius:9px; padding:10px 16px; font-weight:900; cursor:pointer; }
+    .tutorial-prev { background:#e8edf1; color:#1D3B56; }
+    .tutorial-next { background:#1D3B56; color:#fff; }
+    @media(max-width:760px){ .tutorial-body{grid-template-columns:1fr;} .tutorial-sidebar{border-right:0;border-bottom:1px solid #e1e7eb; display:flex; gap:8px; overflow-x:auto;} .tutorial-topic{min-width:180px;margin-bottom:0;} .tutorial-content{padding:18px;} }
+  </style>
 </head>
 <body>
 
-<div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 30%, #f7f0e6, #E6D3A3); z-index: 999999; display: flex; justify-content: center; align-items: center; font-family: 'Noto Sans TC','Microsoft JhengHei','PingFang TC',system-ui,sans-serif;">
+<div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 30%, #f7f0e6, #E6D3A3); z-index: 999999; display: flex; justify-content: center; align-items: center; font-family: 'Noto Sans TC', sans-serif;">
   <div style="background: rgba(255, 255, 255, 0.96); padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.25); width: 90%; max-width: 400px; border: 2px solid #1D3B56; text-align: center;">
     <div style="font-size: 1.6rem; font-weight: 900; color: #1D3B56; margin-bottom: 5px; letter-spacing: 2px;">材料管理系統</div>
     <div style="font-size: 0.9rem; color: #666; margin-bottom: 8px;">請輸入帳密以進入系統</div>
@@ -301,7 +307,6 @@
   <aside class="utility-rail" aria-label="系統工具">
     <div class="utility-title">SYSTEM TOOLS · 系統工具</div>
     <button class="excel-btn" onclick="openExportModal()"><span>📊 匯出資料</span></button>
-    <button class="excel-btn" style="margin-top:8px;background:#34495e" onclick="v8Logout()"><span>🔒 登出</span></button>
     <div class="ukiyo-signature" onclick="toggleSignature(this)" title="點擊顯示設計人">
       設計人：<span id="sigName" hidden>三木</span>
     </div>
@@ -363,7 +368,7 @@
   <div class="content-wrapper">
     <header>
       <div style="font-weight:900; font-size: 1.5rem; letter-spacing: 2px;">台電材料管理系統</div>
-      <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.9;">MaterialMind V8.1 FieldOps · Offline-First</div>
+      <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.9;">MaterialMind </div>
     </header>
 
     <div class="nav-tabs" id="mainNavTabs">
@@ -378,76 +383,9 @@
       <button class="nav-btn nav-btn-transfer" onclick="switchTab('transfer')"><span class="nav-icon">🚚</span><span class="nav-label">進貨/調撥</span></button>
       <button class="nav-btn nav-btn-history" onclick="switchTab('history')"><span class="nav-icon">📜</span><span class="nav-label">歷史用料紀錄</span></button>
       <button class="nav-btn" onclick="switchTab('analysis')"><span class="nav-icon">📊</span><span class="nav-label">分析與預測</span></button>
-      <button class="nav-btn" onclick="switchTab('fieldops')"><span class="nav-icon">📡</span><span class="nav-label">現場材料戰情</span></button>
       <button class="nav-btn nav-btn-emergency" onclick="switchTab('emergency')"><span class="nav-icon">⚡</span><span class="nav-label">災害(特殊時期)應用</span></button>
+      <button class="nav-btn nav-btn-tutorial" onclick="openTutorial()"><span class="nav-icon">🎓</span><span class="nav-label">功能教學</span></button>
       <div class="nav-resize-handle" id="navResizeHandle" title="拖曳調整左側選單寬度"></div>
-    </div>
-
-
-    <div id="tab-fieldops" class="container-3d">
-      <h3 class="section-title" style="border-left-color:#0f7a67;">📡 MaterialMind FieldOps · 現場材料戰情中心</h3>
-      <div id="v8ConnectivityBar" class="v8-status-bar">
-        <span id="v8NetPill" class="v8-pill">網路狀態檢查中</span>
-        <span class="v8-pill pending">ERP：不需直連，以最後快照＋現場帳運作</span>
-        <span id="v8SnapshotPill" class="v8-pill">ERP快照：讀取中</span>
-      </div>
-      <div class="v8-inline-note"><strong>四帳制：</strong>ERP帳面（最後快照）＋待過帳入庫－待過帳出庫＝現場推算庫存；在途材料另外顯示，抵達確認後才計入現場庫存。災害期間以「現場已發生」為核心，災後再與ERP核銷。</div>
-      <div class="v8-kpi-grid">
-        <div class="v8-kpi"><div class="label">可用材料品項</div><div id="kpiAvailableItems" class="value">0</div><div class="sub">有現場推算庫存的「料號＋評價」</div></div>
-        <div class="v8-kpi"><div class="label">低於安全庫存</div><div id="kpiLowStockItems" class="value">0</div><div class="sub">已設定安全庫存且目前低於門檻</div></div>
-        <div class="v8-kpi"><div class="label">在途調撥批次</div><div id="kpiTransitBatches" class="value">0</div><div class="sub">尚未確認抵達，不計入現場可用量</div></div>
-        <div class="v8-kpi"><div class="label">待ERP處理筆數</div><div id="kpiPendingCount" class="value">0</div><div class="sub">現場已發生、尚未完成ERP反映</div></div>
-      </div>
-      <div class="v8-kpi-explain">
-        <strong>現場庫存不以所有材料數量加總呈現。</strong> 不同材料的單位可能是「個、台、公尺、組」等，無法直接相加；實際數量請在下方「四帳庫存明細」依料號＋評價類型查看。
-      </div>
-
-      <div class="v8-card">
-        <h4>🚚 在途材料登記（其他區處／總處／廠商送來）</h4>
-        <div class="form-row-4">
-          <div><label>料號</label><input id="v8TransitPartNo" maxlength="10" placeholder="10碼料號" oninput="handleUniversalInput(this.value,'fieldops')"></div>
-          <div><label>評價類型</label><select id="v8TransitEval"><option>0新</option><option>1舊</option><option>2待修待驗</option><option>3資產新</option><option>4資產舊</option></select></div>
-          <div><label>數量</label><input id="v8TransitQty" type="number" min="0.1" step="any"></div>
-          <div><label>來源單位</label><input id="v8TransitFrom" placeholder="例：嘉義區處"></div>
-        </div>
-        <div class="form-row">
-          <div><label>單號／車次／聯絡資訊</label><input id="v8TransitOrder" placeholder="可留空"></div>
-          <div><label>經辦人</label><input id="v8TransitOperator" placeholder="姓名"></div>
-        </div>
-        <button class="btn-save" onclick="v8CreateTransit()">建立在途調入</button>
-      </div>
-
-      <div class="v8-card">
-        <h4>📦 已到貨但ERP尚未過帳</h4>
-        <div class="form-row-4">
-          <div><label>料號</label><input id="v8ReceiptPartNo" maxlength="10" placeholder="10碼料號"></div>
-          <div><label>評價類型</label><select id="v8ReceiptEval"><option>0新</option><option>1舊</option><option>2待修待驗</option><option>3資產新</option><option>4資產舊</option></select></div>
-          <div><label>實收數量</label><input id="v8ReceiptQty" type="number" min="0.1" step="any"></div>
-          <div><label>來源</label><input id="v8ReceiptFrom" placeholder="區處/廠商/總處"></div>
-        </div>
-        <div class="form-row"><div><label>單號/備註</label><input id="v8ReceiptOrder"></div><div><label>經辦人</label><input id="v8ReceiptOperator"></div></div>
-        <button class="btn-save" onclick="v8QuickPendingReceipt()">確認現場到貨（列待ERP）</button>
-      </div>
-
-      <div class="v8-card">
-        <h4>🧮 實地盤點校正</h4>
-        <div class="form-row-4">
-          <div><label>料號</label><input id="v8CountPartNo" maxlength="10"></div>
-          <div><label>評價類型</label><select id="v8CountEval"><option>0新</option><option>1舊</option><option>2待修待驗</option><option>3資產新</option><option>4資產舊</option></select></div>
-          <div><label>實際盤點數</label><input id="v8CountQty" type="number" min="0" step="any"></div>
-          <div><label>盤點人</label><input id="v8CountOperator"></div>
-        </div>
-        <div><label>差異原因</label><input id="v8CountReason" placeholder="例：災害期間未即時登記、清點修正"></div>
-        <button class="btn-save" onclick="v8PhysicalCount()">建立盤點調整（保留差異流水）</button>
-      </div>
-
-      <div class="v8-card">
-        <h4>📋 在途批次</h4><div id="v8TransitList"></div>
-      </div>
-      <div class="v8-card">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center"><h4 style="margin:0">📊 四帳庫存明細</h4><button class="btn-search" onclick="v8ExportPendingERP()">匯出待ERP處理清單</button></div>
-        <div class="v8-table-wrap" style="margin-top:12px"><table class="v8-table"><thead><tr><th>料號</th><th>評價</th><th>品名</th><th>ERP帳</th><th>待入庫</th><th>待出庫</th><th>現場推算</th><th>在途</th><th>安全庫存</th><th>狀態</th></tr></thead><tbody id="v8LedgerBody"></tbody></table></div>
-      </div>
     </div>
 
     <div id="tab-emergency" class="container-3d">
@@ -983,18 +921,6 @@ db.version(4).stores({
     });
 });
 
-
-// V8 FieldOps：在途、盤點與離線現場事件。既有 changeLog 仍是庫存交易事實來源。
-db.version(5).stores({
-    materials: '++id, [partNo+rating], partNo, rating, name, erpStock, unit, location, snapshotAt, lastUpdate',
-    changeLog: '++id, date, createdAt, partNo, rating, type, amount, recordId, source, note',
-    importHistory: '++id, fileName, fileHash, importDate, snapshotAt, operator',
-    emergency_logs: '++id, emergencyOrderId, timestamp, dateStr, teamName, partNo, matName, quantity, status, erpOrderNo, businessRecordId',
-    audit_logs: '++id, timestamp, action, entityType, entityId, operator',
-    field_events: '++id, &txId, createdAt, kind, status, partNo, rating, operator, counterparty, orderNo',
-    physical_counts: '++id, createdAt, partNo, rating, operator'
-});
-
 // ==========================================
 // 原始資料庫 (靜態資料)
 // ==========================================
@@ -1474,7 +1400,6 @@ function switchTab(tabName) {
   if(tabName === 'inventory') renderInventoryTable();
   if(tabName === 'analysis') runAnalysis();
   if(tabName === 'emergency') setTimeout(initEmergencyModule, 50);
-  if(tabName === 'fieldops') setTimeout(v8RefreshFieldOps, 20);
 }
 
 function setTransferMode(mode) {
@@ -1988,8 +1913,8 @@ function getMaterialDisplayName(partNo, fallback=''){
 
 function getStockDelta(type, amount){
     amount = normalizeNumber(amount);
-    if(['領料', '借用', '調撥移出', '倉庫移出', '盤點減少'].includes(type)) return -amount;
-    if(['退料', '進貨入庫', '調撥移入', '倉庫移入', '盤點增加'].includes(type)) return amount;
+    if(['領料', '借用', '調撥移出', '倉庫移出'].includes(type)) return -amount;
+    if(['退料', '進貨入庫', '調撥移入', '倉庫移入'].includes(type)) return amount;
     return 0;
 }
 
@@ -2357,11 +2282,10 @@ async function backupDatabase() {
             materials: await db.materials.toArray(), changeLog: await db.changeLog.toArray(),
             importHistory: await db.importHistory.toArray(), emergency_logs: await db.emergency_logs.toArray(),
             audit_logs: await db.audit_logs.toArray(),
-            field_events: await db.field_events.toArray(), physical_counts: await db.physical_counts.toArray(),
             materialRecords: JSON.parse(localStorage.getItem('materialRecords')) || [],
             safeStock: JSON.parse(localStorage.getItem('safeStock')) || {},
             inventoryCache: JSON.parse(localStorage.getItem('inventoryCache')) || {},
-            backupDate: new Date().toISOString(), version: "V8.0_FieldOps_FourLedger_Offline"
+            backupDate: new Date().toISOString(), version: "V7.2_Emergency_Delete_Controls"
         };
         const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -2382,15 +2306,13 @@ async function restoreDatabase(file) {
     try {
         const text = await file.text(); const backupData = JSON.parse(text);
         await db.materials.clear();
-        await db.changeLog.clear(); await db.importHistory.clear(); await db.emergency_logs.clear(); await db.audit_logs.clear(); await db.field_events.clear(); await db.physical_counts.clear();
+        await db.changeLog.clear(); await db.importHistory.clear(); await db.emergency_logs.clear(); await db.audit_logs.clear();
         
         if(backupData.materials && backupData.materials.length > 0) await db.materials.bulkAdd(backupData.materials);
         if(backupData.changeLog && backupData.changeLog.length > 0) await db.changeLog.bulkAdd(backupData.changeLog);
         if(backupData.importHistory && backupData.importHistory.length > 0) await db.importHistory.bulkAdd(backupData.importHistory);
         if(backupData.emergency_logs && backupData.emergency_logs.length > 0) await db.emergency_logs.bulkAdd(backupData.emergency_logs);
         if(backupData.audit_logs && backupData.audit_logs.length > 0) await db.audit_logs.bulkAdd(backupData.audit_logs);
-        if(backupData.field_events && backupData.field_events.length > 0) await db.field_events.bulkAdd(backupData.field_events);
-        if(backupData.physical_counts && backupData.physical_counts.length > 0) await db.physical_counts.bulkAdd(backupData.physical_counts);
 
         if(backupData.materialRecords) localStorage.setItem('materialRecords', JSON.stringify(backupData.materialRecords));
         if(backupData.safeStock) localStorage.setItem('safeStock', JSON.stringify(backupData.safeStock));
@@ -3849,128 +3771,21 @@ function importAndMergeEmergencyJSON(file) {
     };
     reader.readAsText(file);
 }
-
-// ==========================================
-// V8.1 FieldOps：四帳制、在途、盤點、待ERP、離線狀態；首頁KPI不再加總不同單位庫存
-// ==========================================
-function v8TxId(prefix='TX') {
-    const d = new Date();
-    const stamp = [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0'),String(d.getHours()).padStart(2,'0'),String(d.getMinutes()).padStart(2,'0'),String(d.getSeconds()).padStart(2,'0')].join('');
-    const rand = Math.random().toString(36).slice(2,8).toUpperCase();
-    return `MM-${prefix}-${stamp}-${rand}`;
-}
-function v8Esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function v8Number(v){ const n=Number(v); return Number.isFinite(n)?n:0; }
-function v8SetConnectivity(){
-    const p=document.getElementById('v8NetPill'); if(!p)return;
-    const online=navigator.onLine;
-    p.className='v8-pill '+(online?'online':'offline');
-    p.textContent=online?'● 裝置目前有網路（現場帳仍可離線）':'● 離線作業中（資料保存在本機）';
-}
-window.addEventListener('online',()=>{v8SetConnectivity();v8RefreshFieldOps();});
-window.addEventListener('offline',()=>{v8SetConnectivity();v8RefreshFieldOps();});
-
-async function v8CreateFieldEvent(payload){
-    const row={txId:payload.txId||v8TxId('FIELD'),createdAt:new Date().toISOString(),status:payload.status||'OPEN',kind:payload.kind||'NOTE',partNo:normalizePartNo(payload.partNo),rating:normalizeEvalType(payload.rating),qty:v8Number(payload.qty),operator:String(payload.operator||'未記錄'),counterparty:String(payload.counterparty||''),orderNo:String(payload.orderNo||''),note:String(payload.note||''),linkedRecordId:payload.linkedRecordId||null,arrivedAt:payload.arrivedAt||'',erpOrderNo:payload.erpOrderNo||''};
-    if(row.partNo && row.partNo.length!==10) throw new Error('料號必須為10碼');
-    const id=await db.field_events.add(row);
-    await writeAuditLog('CREATE_FIELD_EVENT','fieldEvent',row.txId,row.operator,row);
-    return {...row,id};
-}
-
-async function v8CreateTransit(){
-    try{
-        const partNo=normalizePartNo(document.getElementById('v8TransitPartNo').value), rating=normalizeEvalType(document.getElementById('v8TransitEval').value), qty=v8Number(document.getElementById('v8TransitQty').value), from=document.getElementById('v8TransitFrom').value.trim(), operator=document.getElementById('v8TransitOperator').value.trim()||'未記錄', orderNo=document.getElementById('v8TransitOrder').value.trim();
-        if(partNo.length!==10||qty<=0||!from) return alert('請填寫10碼料號、正確數量與來源單位。');
-        const e=await v8CreateFieldEvent({kind:'IN_TRANSIT_IN',status:'IN_TRANSIT',partNo,rating,qty,counterparty:from,operator,orderNo});
-        alert(`✅ 已建立在途批次\n${e.txId}\n${partNo} / ${qty}\n貨到後請按「確認抵達」。`); await v8RefreshFieldOps();
-    }catch(err){alert('建立在途失敗：'+err.message)}
-}
-async function v8ConfirmTransit(id){
-    const e=await db.field_events.get(Number(id)); if(!e||e.status!=='IN_TRANSIT')return;
-    if(!confirm(`確認這批材料已實際抵達？\n${e.partNo} / ${e.qty}\n來源：${e.counterparty}\n\n確認後會列入「待ERP入庫」並立即增加現場推算庫存。`))return;
-    const record={id:Date.now()+Math.random(),date:getTaipeiDateString(),type:'進貨入庫',orderNo:e.orderNo||e.txId,person:e.counterparty||'支援單位',staff:e.operator,operator:e.operator,partNo:e.partNo,name:getMaterialDisplayName(e.partNo,''),qty:e.qty,unit:'式',evalType:e.rating,source:'field_pending_receipt',timestamp:new Date().toISOString(),fieldTxId:e.txId,postingStatus:'PENDING_ERP'};
-    await saveRecordToLS(record); await db.field_events.update(e.id,{status:'ARRIVED_PENDING_ERP',arrivedAt:new Date().toISOString(),linkedRecordId:record.id});
-    await writeAuditLog('CONFIRM_TRANSIT_ARRIVAL','fieldEvent',e.txId,e.operator,{linkedRecordId:record.id});
-    alert('✅ 已確認抵達，已納入現場推算庫存，並列為待ERP處理。'); await v8RefreshFieldOps(); renderInventoryTable(); runAnalysis();
-}
-async function v8CancelTransit(id){
-    const e=await db.field_events.get(Number(id)); if(!e||e.status!=='IN_TRANSIT')return;
-    const reason=prompt('請輸入取消原因：'); if(reason===null)return;
-    await db.field_events.update(e.id,{status:'CANCELLED',note:`${e.note||''} / 取消：${reason}`}); await writeAuditLog('CANCEL_TRANSIT','fieldEvent',e.txId,document.getElementById('operatorName')?.value||e.operator,{reason}); await v8RefreshFieldOps();
-}
-async function v8QuickPendingReceipt(){
-    const partNo=normalizePartNo(document.getElementById('v8ReceiptPartNo').value),rating=normalizeEvalType(document.getElementById('v8ReceiptEval').value),qty=v8Number(document.getElementById('v8ReceiptQty').value),from=document.getElementById('v8ReceiptFrom').value.trim(),operator=document.getElementById('v8ReceiptOperator').value.trim()||'未記錄',orderNo=document.getElementById('v8ReceiptOrder').value.trim();
-    if(partNo.length!==10||qty<=0||!from)return alert('請填寫10碼料號、數量與來源。');
-    const txId=v8TxId('REC');
-    const record={id:Date.now()+Math.random(),date:getTaipeiDateString(),type:'進貨入庫',orderNo:orderNo||txId,person:from,staff:operator,operator,partNo,name:getMaterialDisplayName(partNo,''),qty,unit:'式',evalType:rating,source:'field_pending_receipt',timestamp:new Date().toISOString(),fieldTxId:txId,postingStatus:'PENDING_ERP'};
-    await saveRecordToLS(record); await v8CreateFieldEvent({txId,kind:'PENDING_RECEIPT',status:'ARRIVED_PENDING_ERP',partNo,rating,qty,counterparty:from,operator,orderNo,linkedRecordId:record.id}); alert('✅ 現場到貨已登記；ERP未過帳前由MaterialMind現場帳追蹤。'); await v8RefreshFieldOps(); renderInventoryTable();
-}
-async function v8PhysicalCount(){
-    const partNo=normalizePartNo(document.getElementById('v8CountPartNo').value),rating=normalizeEvalType(document.getElementById('v8CountEval').value),actual=v8Number(document.getElementById('v8CountQty').value),operator=document.getElementById('v8CountOperator').value.trim()||'未記錄',reason=document.getElementById('v8CountReason').value.trim()||'現場盤點差異';
-    if(partNo.length!==10||actual<0)return alert('請填寫10碼料號與正確盤點數量。');
-    await syncInventoryFromERP(); const cur=getInventoryMap()[makeInventoryKey(partNo,rating)]?.total||0; const diff=actual-cur;
-    if(diff===0)return alert('✅ 實盤與系統現場推算一致，不需建立調整。');
-    if(!confirm(`系統現場推算：${cur}\n實際盤點：${actual}\n差異：${diff>0?'+':''}${diff}\n\n將建立不可隱藏的盤點差異流水，是否繼續？`))return;
-    const txId=v8TxId('COUNT'); const record={id:Date.now()+Math.random(),date:getTaipeiDateString(),type:diff>0?'盤點增加':'盤點減少',orderNo:txId,person:'實地盤點',staff:operator,operator,partNo,name:getMaterialDisplayName(partNo,''),qty:Math.abs(diff),unit:'式',evalType:rating,source:'physical_count',timestamp:new Date().toISOString(),fieldTxId:txId,postingStatus:'PENDING_ERP'};
-    await saveRecordToLS(record); await db.physical_counts.add({createdAt:new Date().toISOString(),partNo,rating,systemQty:cur,actualQty:actual,diff,operator,reason,txId,recordId:record.id}); await writeAuditLog('PHYSICAL_COUNT_ADJUSTMENT','material',makeInventoryKey(partNo,rating),operator,{systemQty:cur,actualQty:actual,diff,reason,txId}); alert('✅ 盤點差異已建立調整流水，原紀錄未被覆寫。'); await v8RefreshFieldOps(); renderInventoryTable();
-}
-
-async function v8BuildLedger(){
-    const mats=await db.materials.toArray(), logs=await db.changeLog.toArray(), events=await db.field_events.toArray(); const map={};
-    for(const m of mats){const p=normalizePartNo(m.partNo),r=normalizeEvalType(m.rating);if(!p)continue;const k=makeInventoryKey(p,r); if(!map[k])map[k]={partNo:p,rating:r,name:getMaterialDisplayName(p,m.name||''),erp:0,pendingIn:0,pendingOut:0,field:0,transit:0,snapshotAt:''};map[k].erp+=v8Number(m.erpStock);map[k].field=map[k].erp;if(m.snapshotAt&&m.snapshotAt>map[k].snapshotAt)map[k].snapshotAt=m.snapshotAt;}
-    for(const l of logs){const p=normalizePartNo(l.partNo),r=normalizeEvalType(l.rating);if(!p)continue;const k=makeInventoryKey(p,r);if(!map[k])map[k]={partNo:p,rating:r,name:getMaterialDisplayName(p,''),erp:0,pendingIn:0,pendingOut:0,field:0,transit:0,snapshotAt:''};const created=l.createdAt||deriveLegacyCreatedAt(l);if(map[k].snapshotAt&&created<=map[k].snapshotAt)continue;const d=getStockDelta(l.type,l.amount);if(d>0)map[k].pendingIn+=d;if(d<0)map[k].pendingOut+=Math.abs(d);map[k].field+=d;}
-    for(const e of events){if(e.kind!=='IN_TRANSIT_IN'||e.status!=='IN_TRANSIT')continue;const k=makeInventoryKey(normalizePartNo(e.partNo),normalizeEvalType(e.rating));if(!map[k])map[k]={partNo:e.partNo,rating:e.rating,name:getMaterialDisplayName(e.partNo,''),erp:0,pendingIn:0,pendingOut:0,field:0,transit:0,snapshotAt:''};map[k].transit+=v8Number(e.qty);}
-    return map;
-}
-async function v8RefreshFieldOps(){
-    v8SetConnectivity(); await syncInventoryFromERP(); const ledger=await v8BuildLedger(); const rows=Object.values(ledger); const safe=JSON.parse(localStorage.getItem('safeStock')||'{}');
-    const availableItems=rows.filter(x=>v8Number(x.field)>0).length;
-    const lowStockItems=rows.filter(x=>{const limit=v8Number(safe[makeInventoryKey(x.partNo,x.rating)]);return limit>0&&v8Number(x.field)<limit;}).length;
-    const transitEvents=(await db.field_events.where('status').equals('IN_TRANSIT').toArray()).filter(x=>x.kind==='IN_TRANSIT_IN');
-    const transitBatches=transitEvents.length;
-    const pendingKeys=new Set();
-    const allFieldEvents=await db.field_events.toArray();
-    for(const e of allFieldEvents){
-        if(e.status==='ARRIVED_PENDING_ERP') pendingKeys.add(`record:${e.linkedRecordId ?? e.txId ?? e.id}`);
+// 登入驗證（帳號+密碼完整版：已加入永久保留宣告）
+function checkLogin() {
+    const user = document.getElementById('loginUsername').value.trim();
+    const pass = document.getElementById('loginPassword').value;
+    
+    if (user === "justdoit" && pass === "elegant168") {
+        sessionStorage.setItem('sys_logged_in', 'true');
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('loginUsername').value = "";
+        document.getElementById('loginPassword').value = "";
+        document.getElementById('loginError').style.display = 'none';
+    } else {
+        document.getElementById('loginError').style.display = 'block';
     }
-    const allLogs=await db.changeLog.toArray();
-    for(const l of allLogs){
-        const p=normalizePartNo(l.partNo),r=normalizeEvalType(l.rating);
-        const k=makeInventoryKey(p,r);
-        const created=l.createdAt||deriveLegacyCreatedAt(l);
-        const snapAt=rows.find(x=>makeInventoryKey(x.partNo,x.rating)===k)?.snapshotAt||'';
-        if((!snapAt||created>snapAt) && getStockDelta(l.type,l.amount)!==0) pendingKeys.add(`record:${l.recordId ?? l.id}`);
-    }
-    const pending=pendingKeys.size;
-    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=Number(v).toLocaleString('zh-TW',{maximumFractionDigits:0})};
-    set('kpiAvailableItems',availableItems);set('kpiLowStockItems',lowStockItems);set('kpiTransitBatches',transitBatches);set('kpiPendingCount',pending);
-    const latest=rows.map(x=>x.snapshotAt).filter(Boolean).sort().pop(); const sp=document.getElementById('v8SnapshotPill');if(sp)sp.textContent='ERP快照：'+(latest?new Date(latest).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):'尚未建立');
-    const body=document.getElementById('v8LedgerBody');if(body)body.innerHTML=rows.sort((a,b)=>(b.pendingIn+b.pendingOut+b.transit)-(a.pendingIn+a.pendingOut+a.transit)).map(x=>{const limit=v8Number(safe[makeInventoryKey(x.partNo,x.rating)]);const low=limit>0&&x.field<limit;const st=low?'⚠ 低於安全存量':(x.pendingIn||x.pendingOut?'待ERP處理':'正常');return `<tr><td>${v8Esc(x.partNo)}</td><td>${v8Esc(x.rating)}</td><td>${v8Esc(x.name)}</td><td>${x.erp}</td><td class="v8-positive">+${x.pendingIn}</td><td class="v8-negative">-${x.pendingOut}</td><td class="${x.field<0?'v8-negative':''}">${x.field}</td><td class="v8-warn">${x.transit}</td><td>${limit||'-'}</td><td class="${low?'v8-negative':(x.pendingIn||x.pendingOut?'v8-warn':'')}">${st}</td></tr>`}).join('')||'<tr><td colspan="10">尚無庫存資料。請先匯入ERP Excel快照或建立初始庫存。</td></tr>';
-    await v8RenderTransitList();
 }
-async function v8RenderTransitList(){const box=document.getElementById('v8TransitList');if(!box)return;const arr=(await db.field_events.where('status').equals('IN_TRANSIT').toArray()).filter(x=>x.kind==='IN_TRANSIT_IN').sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));box.innerHTML=arr.map(e=>`<div class="record-li"><strong>${v8Esc(e.partNo)} / ${v8Esc(e.rating)}</strong> · ${e.qty}　<span class="v8-warn">在途</span><br><small>來源：${v8Esc(e.counterparty)}｜單號：${v8Esc(e.orderNo||'-')}｜${new Date(e.createdAt).toLocaleString('zh-TW')}</small><div style="display:flex;gap:8px;margin-top:8px"><button class="btn-search" onclick="v8ConfirmTransit(${e.id})">✓ 確認抵達</button><button class="btn-danger" onclick="v8CancelTransit(${e.id})">取消</button></div></div>`).join('')||'<div style="color:#68737d">目前沒有在途批次。</div>';}
-
-async function v8ExportPendingERP(){
-    if(typeof XLSX==='undefined')return alert('Excel函式庫尚未載入；請在有網路時先開啟一次系統，或改用已封裝函式庫的部署版本。');
-    const mats=await db.materials.toArray(),logs=await db.changeLog.toArray();const snap={};for(const m of mats){const k=makeInventoryKey(normalizePartNo(m.partNo),normalizeEvalType(m.rating));if(m.snapshotAt&&(!snap[k]||m.snapshotAt>snap[k]))snap[k]=m.snapshotAt;}
-    const pending=logs.filter(l=>{const k=makeInventoryKey(normalizePartNo(l.partNo),normalizeEvalType(l.rating));const c=l.createdAt||deriveLegacyCreatedAt(l);return !snap[k]||c>snap[k];}).map((l,i)=>({序號:i+1,交易時間:l.createdAt||l.date,料號:normalizePartNo(l.partNo),評價類型:normalizeEvalType(l.rating),作業:l.type,數量:v8Number(l.amount),方向:getStockDelta(l.type,l.amount)>=0?'入':'出',來源:l.source||'',單號與對象:l.note||'',狀態:'待ERP反映'}));
-    if(!pending.length)return alert('目前沒有快照後待ERP反映的交易。');const ws=XLSX.utils.json_to_sheet(pending),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'待ERP處理');XLSX.writeFile(wb,`MaterialMind_V8_待ERP處理_${getTaipeiDateString()}.xlsx`);await writeAuditLog('EXPORT_PENDING_ERP','reconciliation','',document.getElementById('operatorName')?.value||'未記錄',{count:pending.length});
-}
-
-// V8：離線本機身分驗證。首次使用自行建立本機帳號，避免把固定明碼帳密寫進原始碼。
-async function v8HashPassword(password,saltHex){
-    const enc=new TextEncoder(), salt=Uint8Array.from((saltHex.match(/.{2}/g)||[]).map(x=>parseInt(x,16))); const key=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveBits']); const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},key,256);return Array.from(new Uint8Array(bits)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-function v8RandomHex(n=16){const a=new Uint8Array(n);crypto.getRandomValues(a);return Array.from(a).map(b=>b.toString(16).padStart(2,'0')).join('');}
-async function checkLogin(){
-    const user=document.getElementById('loginUsername').value.trim(),pass=document.getElementById('loginPassword').value;const err=document.getElementById('loginError');
-    if(!user||pass.length<6){err.textContent='帳號不可空白；密碼至少6碼。';err.style.display='block';return;}
-    let cfg=JSON.parse(localStorage.getItem('mm_v8_local_auth')||'null');
-    if(!cfg){const salt=v8RandomHex(16),hash=await v8HashPassword(pass,salt);cfg={user,salt,hash,createdAt:new Date().toISOString(),role:'FIELD_ADMIN'};localStorage.setItem('mm_v8_local_auth',JSON.stringify(cfg));alert('✅ 已建立本機離線帳號。請妥善保管密碼；此帳號只存在本裝置，不等同台電正式SSO。');}
-    const hash=await v8HashPassword(pass,cfg.salt);if(user===cfg.user&&hash===cfg.hash){sessionStorage.setItem('sys_logged_in','true');sessionStorage.setItem('mm_user',user);document.getElementById('loginOverlay').style.display='none';document.getElementById('loginPassword').value='';err.style.display='none';await writeAuditLog('LOCAL_LOGIN','session','',user,{mode:'offline_local'});}else{err.textContent='❌ 帳號或密碼錯誤。';err.style.display='block';}
-}
-function v8Logout(){sessionStorage.removeItem('sys_logged_in');sessionStorage.removeItem('mm_user');location.reload();}
 
 // 網頁載入完成自動執行
 window.addEventListener('DOMContentLoaded', () => {
@@ -3985,13 +3800,6 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // V8離線登入提示：首次使用即建立此裝置本機帳號
-    const authCfg = JSON.parse(localStorage.getItem('mm_v8_local_auth') || 'null');
-    const loginHint = document.querySelector('#loginOverlay div div:nth-child(2)');
-    if(loginHint) loginHint.textContent = authCfg ? '本機離線登入（不需網路）' : '首次使用：請建立此裝置的本機離線帳號（密碼至少6碼）';
-    v8SetConnectivity();
-    setTimeout(()=>{ if(db.field_events) v8RefreshFieldOps().catch(console.warn); },100);
-
     // 自動判斷當前會話是否已經登入過
     if (sessionStorage.getItem('sys_logged_in') === 'true') {
         if (document.getElementById('loginOverlay')) {
@@ -3999,6 +3807,97 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+</script>
+
+<div id="tutorialOverlay" class="tutorial-overlay" onclick="if(event.target===this) closeTutorial()">
+  <div class="tutorial-modal" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+    <div class="tutorial-header">
+      <div><div id="tutorialTitle" class="tutorial-header-title">🎓 MaterialMind 功能教學</div><div style="font-size:.82rem;opacity:.88;margin-top:4px;">給第一次使用的人快速熟悉系統</div></div>
+      <button class="tutorial-close" onclick="closeTutorial()" title="關閉">×</button>
+    </div>
+    <div class="tutorial-body">
+      <div id="tutorialTopics" class="tutorial-sidebar"></div>
+      <div class="tutorial-content">
+        <div id="tutorialContent"></div>
+      </div>
+    </div>
+    <div class="tutorial-footer">
+      <button class="tutorial-prev" onclick="tutorialPrev()">← 上一步</button>
+      <div id="tutorialCounter" style="align-self:center;color:#667085;font-weight:800;"></div>
+      <button class="tutorial-next" onclick="tutorialNext()">下一步 →</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ==========================================
+// 🎓 功能教學模組
+// ==========================================
+const MATERIALMIND_TUTORIAL = [
+  {title:'系統首頁與選單', desc:'先認識左側功能選單。所有核心作業都由這裡進入。', cards:[
+    ['資料輸入','一般領料、借用、退料的正式登錄。'],
+    ['歷史查詢','依姓名、經辦人、料號與月份查詢既有紀錄。'],
+    ['即時庫存','查看料號＋評價類型的目前庫存與ERP快照。'],
+    ['進貨／調撥','處理進貨、單位調撥及倉庫間移轉。'],
+    ['歷史用料紀錄','做材料使用量、月份與季度分析。'],
+    ['分析與預測','設定安全存量並檢視低庫存預警。'],
+    ['災害（特殊時期）應用','災害現場快速發料，可用分類、手動搜尋或語音。']
+  ]},
+  {title:'資料輸入：一般發料', desc:'一般作業建議依「基本資訊 → 選材料 → 數量／單位／評價 → 加入批次 → 儲存」進行。', cards:[
+    ['材料類別','可用 A、B、C、D、F、H 類下拉選擇材料，再直接點選材料。'],
+    ['批次輸入','一張操作最多20筆，也支援只輸入1筆就直接儲存。'],
+    ['庫存不足','一般資料輸入可先登錄，系統會提示庫存不足或尚未入帳，不以此阻擋紀錄。'],
+    ['電子簽名','完成簽名後儲存；之後可輸出含簽名的PDF憑證。']
+  ], example:'例如：選 C 類 → 點選電纜 → 輸入 100 米 → 評價 0新 → 加入批次 → 儲存。'},
+  {title:'災害應用：最快速發料', desc:'災害模式的優先順序是「先快速紀錄、不要阻塞現場」。', cards:[
+    ['分類選擇','仍可像資料輸入一樣，用 A／B／C／D／F／H 分類快速找材料。'],
+    ['手動搜尋','輸入材料名稱或部分料號，系統列出候選材料。'],
+    ['語音搜尋','說出材料名稱或規格，例如「電纜」、「3C8」、「改良25」。'],
+    ['找不到正式材料','仍可用現場輸入名稱記錄，保留數量、單位、評價，事後由材料部門對料。'],
+    ['先發後入帳','災害期間即使庫存不足也可以建立災害發料訂單。']
+  ], example:'例如：說「電纜」→ 系統列出多個名稱含「電纜」的材料 → 現場人員點正確項目 → 填數量與單位 → 加入訂單。', warn:'模糊語音例如「電纜」不應直接自動選第一筆；應由使用者從候選清單確認。'},
+  {title:'語音辨識怎麼用', desc:'語音功能主要用來「快速找材料」，不是取代人工確認。', cards:[
+    ['模糊關鍵字','「電纜」「變壓器」「開關」這類詞會列出候選，不直接替你決定。'],
+    ['明確規格','「3C8接戶線」、「改良25KV變壓器」等明確描述可提高精準度。'],
+    ['中文數字','系統可處理「三C八」、「二二」等常見口語數字形式。'],
+    ['瀏覽器','建議使用支援 SpeechRecognition 的 Chrome 或 Edge，並允許麥克風權限。']
+  ], good:'現場最佳做法：先說大類→看候選→點選正確材料→再填數量、單位與評價。'},
+  {title:'電子簽名與PDF', desc:'電子簽名適合做正式憑證留存；Excel則偏向資料交換、對帳與分析。', cards:[
+    ['一般資料輸入','儲存時保存簽名資料，PDF可顯示實際手寫簽名。'],
+    ['災害應用','同一張災害訂單可共用現場工班簽名，PDF可作為事後核銷憑證。'],
+    ['Excel','目前主要輸出「電子簽名狀態」，不以儲存格文字取代簽名影像。']
+  ], good:'建議：ERP核銷／統計使用Excel；正式簽名憑證使用PDF。'},
+  {title:'庫存與Excel匯入', desc:'即時庫存是以料號＋評價類型分開控管。', cards:[
+    ['Excel匯入','匯入ERP快照時會解析物料編號、評價與庫存量等欄位。'],
+    ['評價類型','0新、1舊、2待修待驗、3資產新、4資產舊分開計算。'],
+    ['庫存異動','發料、退料、進貨與調撥會形成異動紀錄。'],
+    ['安全庫存','可針對不同料號＋評價設定個別預警值。']
+  ]},
+  {title:'第一次使用建議流程', desc:'不熟悉系統的人，建議先依下面順序操作。', cards:[
+    ['Step 1','進入「資料輸入」，先填日期、單號、人員。'],
+    ['Step 2','用分類選擇找到材料，不熟料號時不要硬背10碼。'],
+    ['Step 3','填數量、單位、評價，必要時簽名。'],
+    ['Step 4','只有一筆也可以儲存；多筆可以累積到20筆。'],
+    ['Step 5','完成後到「歷史查詢」確認紀錄，到「即時庫存」核對異動。'],
+    ['Step 6','需要正式簽名憑證時，輸出PDF。']
+  ]}
+];
+let tutorialIndex=0;
+function renderTutorial(){
+  const topicBox=document.getElementById('tutorialTopics'), content=document.getElementById('tutorialContent'), counter=document.getElementById('tutorialCounter');
+  if(!topicBox||!content) return;
+  topicBox.innerHTML=MATERIALMIND_TUTORIAL.map((t,i)=>`<button class="tutorial-topic ${i===tutorialIndex?'active':''}" onclick="tutorialGo(${i})">${i+1}. ${escapeHtml(t.title)}</button>`).join('');
+  const t=MATERIALMIND_TUTORIAL[tutorialIndex];
+  content.innerHTML=`<div class="tutorial-step-title">${escapeHtml(t.title)}</div><div class="tutorial-step-desc">${escapeHtml(t.desc)}</div>${(t.cards||[]).map(([a,b])=>`<div class="tutorial-card"><strong>${escapeHtml(a)}</strong><div style="margin-top:5px;line-height:1.7;">${escapeHtml(b)}</div></div>`).join('')}${t.example?`<div class="tutorial-example"><strong>操作範例</strong><div>${escapeHtml(t.example)}</div></div>`:''}${t.good?`<div class="tutorial-good"><strong>建議</strong><div>${escapeHtml(t.good)}</div></div>`:''}${t.warn?`<div class="tutorial-warn"><strong>注意</strong><div>${escapeHtml(t.warn)}</div></div>`:''}`;
+  counter.textContent=`${tutorialIndex+1} / ${MATERIALMIND_TUTORIAL.length}`;
+}
+function openTutorial(){ tutorialIndex=0; renderTutorial(); document.getElementById('tutorialOverlay').style.display='flex'; document.body.style.overflow='hidden'; }
+function closeTutorial(){ const el=document.getElementById('tutorialOverlay'); if(el) el.style.display='none'; document.body.style.overflow=''; }
+function tutorialGo(i){ if(i<0||i>=MATERIALMIND_TUTORIAL.length) return; tutorialIndex=i; renderTutorial(); }
+function tutorialNext(){ if(tutorialIndex<MATERIALMIND_TUTORIAL.length-1) tutorialIndex++; else { closeTutorial(); return; } renderTutorial(); }
+function tutorialPrev(){ if(tutorialIndex>0) tutorialIndex--; renderTutorial(); }
+document.addEventListener('keydown',e=>{ const el=document.getElementById('tutorialOverlay'); if(el?.style.display==='flex'){ if(e.key==='Escape') closeTutorial(); if(e.key==='ArrowRight') tutorialNext(); if(e.key==='ArrowLeft') tutorialPrev(); }});
 </script>
 </body>
 </html>
