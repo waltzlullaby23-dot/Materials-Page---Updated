@@ -281,26 +281,88 @@
 <body>
 
 <div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 30%, #f7f0e6, #E6D3A3); z-index: 999999; display: flex; justify-content: center; align-items: center; font-family: 'Noto Sans TC', sans-serif;">
-  <div style="background: rgba(255, 255, 255, 0.96); padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.25); width: 90%; max-width: 400px; border: 2px solid #1D3B56; text-align: center;">
+  <div style="background: rgba(255, 255, 255, 0.97); padding: 36px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.25); width: 92%; max-width: 420px; border: 2px solid #1D3B56; text-align: center;">
     <div style="font-size: 1.6rem; font-weight: 900; color: #1D3B56; margin-bottom: 5px; letter-spacing: 2px;">材料管理系統</div>
-    <div style="font-size: 0.9rem; color: #666; margin-bottom: 8px;">請輸入帳密以進入系統</div>
-    <div style="font-size: 0.78rem; color: #d35400; margin-bottom: 20px;"></div>
-    
-    <div style="text-align: left; margin-bottom: 15px;">
-      <label style="display: block; font-weight: bold; color: #1D3B56; margin-bottom: 5px;">使用者帳號</label>
-      <input type="text" id="loginUsername" placeholder="請輸入帳號" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem;" />
+    <div style="font-size: 0.9rem; color: #666; margin-bottom: 18px;">帳號＋密碼即可登入</div>
+
+    <div style="text-align: left; margin-bottom: 14px;">
+      <label style="display: block; font-weight: bold; color: #1D3B56; margin-bottom: 5px;">使用者帳號／員工編號</label>
+      <input type="text" id="loginUsername" placeholder="請輸入帳號或員工編號" autocomplete="username" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem;" />
     </div>
-    
-    <div style="text-align: left; margin-bottom: 25px;">
+
+    <div style="text-align: left; margin-bottom: 16px;">
       <label style="display: block; font-weight: bold; color: #1D3B56; margin-bottom: 5px;">登入密碼</label>
-      <input type="password" id="loginPassword" placeholder="請輸入密碼" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem;" onkeypress="if(event.key === 'Enter') checkLogin()" />
+      <input type="password" id="loginPassword" placeholder="請輸入密碼" autocomplete="current-password" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem;" onkeypress="if(event.key === 'Enter') checkLogin()" />
     </div>
-    
-    <button onclick="checkLogin()" style="width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(45deg, #1D3B56, #2A587A); color: white; font-size: 1.1rem; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(29, 59, 86, 0.3);">
-      安全登入 🔐
-    </button>
-    
-    <div id="loginError" style="color: #d64545; font-weight: bold; margin-top: 15px; display: none; font-size: 0.95rem;">❌ 帳號或密碼錯誤，請重新輸入！</div>
+
+    <button onclick="checkLogin()" style="width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(45deg, #1D3B56, #2A587A); color: white; font-size: 1.05rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 10px rgba(29, 59, 86, 0.3);">安全登入</button>
+    <button onclick="openForgotLogin()" style="width: 100%; padding: 11px; margin-top: 10px; border: 0; background: transparent; color: #1D3B56; font-weight: 800; cursor: pointer; text-decoration: underline;">忘記帳號／密碼？</button>
+
+    <div id="loginError" style="color: #d64545; font-weight: bold; margin-top: 12px; display: none; font-size: 0.92rem;">帳號或密碼錯誤，請重新輸入。</div>
+    <div id="loginHelp" style="color: #777; margin-top: 10px; font-size: 0.78rem; line-height: 1.6;">首次啟用後，請設定 6 位找回碼。忘記密碼可自行重設。</div>
+  </div>
+</div>
+
+<div id="authRecoveryOverlay" class="tutorial-overlay" style="display:none; z-index:1000000;" onclick="if(event.target===this) closeAuthRecovery()">
+  <div class="tutorial-modal" style="max-width:520px;">
+    <div class="tutorial-header">
+      <div>
+        <div id="authRecoveryTitle" class="tutorial-header-title">找回帳號／密碼</div>
+        <div id="authRecoverySubtitle" style="font-size:.82rem;opacity:.88;margin-top:4px;">不需要管理者介入</div>
+      </div>
+      <button class="tutorial-close" onclick="closeAuthRecovery()" title="關閉">×</button>
+    </div>
+    <div class="tutorial-content" style="padding:24px;">
+      <div id="recoveryStep1">
+        <div class="tutorial-card">
+          <div style="font-weight:900;color:#1D3B56;margin-bottom:10px;">重設密碼</div>
+          <label>帳號／員工編號</label>
+          <input id="recoveryUsername" type="text" autocomplete="username" placeholder="請輸入帳號或員工編號" style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccd4dc;border-radius:8px;box-sizing:border-box;" />
+          <label>6 位數找回碼</label>
+          <input id="recoveryCode" type="password" inputmode="numeric" maxlength="6" placeholder="例如 123456" style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccd4dc;border-radius:8px;box-sizing:border-box;" />
+          <button onclick="verifyRecoveryCode()" style="width:100%;padding:12px;border:0;border-radius:9px;background:#1D3B56;color:#fff;font-weight:900;cursor:pointer;">驗證並繼續</button>
+          <button onclick="recoverUsernameByCode()" style="width:100%;padding:10px;margin-top:8px;border:0;border-radius:9px;background:#eef2f5;color:#1D3B56;font-weight:900;cursor:pointer;">我忘記員工編號</button>
+          <div id="recoveryError" style="display:none;color:#b23b2f;font-weight:800;margin-top:10px;"></div>
+          <div id="recoveredUsername" style="display:none;color:#225f3a;font-weight:900;background:#edf7f1;border:1px solid #badcc7;border-radius:9px;padding:10px;margin-top:10px;"></div>
+        </div>
+        <div class="tutorial-warn" style="margin-top:12px;">連帳號都忘記時，請直接確認你的員工編號；系統不會要求你找管理者重設密碼。</div>
+      </div>
+
+      <div id="recoveryStep2" style="display:none;">
+        <div class="tutorial-card">
+          <div style="font-weight:900;color:#1D3B56;margin-bottom:10px;">設定新密碼</div>
+          <div id="recoveryVerifiedUser" style="margin-bottom:12px;color:#555;font-weight:800;"></div>
+          <label>新密碼</label>
+          <input id="newPassword" type="password" autocomplete="new-password" placeholder="至少 6 碼" style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccd4dc;border-radius:8px;box-sizing:border-box;" />
+          <label>再次輸入新密碼</label>
+          <input id="newPassword2" type="password" autocomplete="new-password" placeholder="再次輸入" style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccd4dc;border-radius:8px;box-sizing:border-box;" />
+          <button onclick="saveResetPassword()" style="width:100%;padding:12px;border:0;border-radius:9px;background:#1D3B56;color:#fff;font-weight:900;cursor:pointer;">完成重設並登入</button>
+          <div id="resetError" style="display:none;color:#b23b2f;font-weight:800;margin-top:10px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="firstSetupOverlay" class="tutorial-overlay" style="display:none; z-index:1000001;">
+  <div class="tutorial-modal" style="max-width:540px;">
+    <div class="tutorial-header">
+      <div>
+        <div class="tutorial-header-title">首次登入設定</div>
+        <div style="font-size:.82rem;opacity:.88;margin-top:4px;">設定一次，之後忘記密碼可以自己找回</div>
+      </div>
+    </div>
+    <div class="tutorial-content" style="padding:24px;">
+      <div class="tutorial-good" style="margin-bottom:14px;">第一次啟用請設定你的<strong>員工編號／帳號</strong>、密碼，以及一組<strong>6 位數找回碼</strong>。完成後不需要管理者幫你重設。</div>
+      <label>員工編號／帳號</label>
+      <input id="setupUsername" type="text" autocomplete="username" placeholder="例如 A123456" style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccd4dc;border-radius:8px;box-sizing:border-box;" />
+      <label>新密碼</label>
+      <input id="setupPassword" type="password" autocomplete="new-password" placeholder="至少 6 碼" style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccd4dc;border-radius:8px;box-sizing:border-box;" />
+      <label>6 位數找回碼</label>
+      <input id="setupRecoveryCode" type="password" inputmode="numeric" maxlength="6" placeholder="請自己設定，務必記住" style="width:100%;padding:12px;margin:6px 0 14px;border:1px solid #ccd4dc;border-radius:8px;box-sizing:border-box;" />
+      <button onclick="completeFirstSetup()" style="width:100%;padding:13px;border:0;border-radius:9px;background:#1D3B56;color:#fff;font-weight:900;cursor:pointer;">完成設定並登入</button>
+      <div id="setupError" style="display:none;color:#b23b2f;font-weight:800;margin-top:10px;"></div>
+    </div>
   </div>
 </div>
 
@@ -3771,23 +3833,165 @@ function importAndMergeEmergencyJSON(file) {
     };
     reader.readAsText(file);
 }
-// 登入驗證（帳號+密碼完整版：已加入永久保留宣告）
-function checkLogin() {
-    const user = document.getElementById('loginUsername').value.trim();
+// ===== MaterialMind 帳號／密碼管理（自助找回簡化版） =====
+const MM_AUTH_KEY = 'materialmind_auth_v2';
+const MM_BOOTSTRAP_USER = 'justdoit';
+const MM_BOOTSTRAP_PASS = 'elegant168';
+let mmRecoveryVerifiedUser = '';
+
+function mmNormalizeUser(v) { return String(v || '').trim(); }
+function mmGetAuthConfig() {
+    try { return JSON.parse(localStorage.getItem(MM_AUTH_KEY) || 'null'); } catch (e) { return null; }
+}
+function mmSetAuthConfig(cfg) { localStorage.setItem(MM_AUTH_KEY, JSON.stringify(cfg)); }
+async function mmHash(text) {
+    const data = new TextEncoder().encode(String(text));
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function mmShowLoginError(msg) {
+    const el = document.getElementById('loginError');
+    el.textContent = msg || '帳號或密碼錯誤，請重新輸入。';
+    el.style.display = 'block';
+}
+function mmClearLoginError() {
+    const el = document.getElementById('loginError'); if (el) el.style.display = 'none';
+}
+
+async function checkLogin() {
+    mmClearLoginError();
+    const user = mmNormalizeUser(document.getElementById('loginUsername').value);
     const pass = document.getElementById('loginPassword').value;
-    
-    if (user === "justdoit" && pass === "elegant168") {
-        sessionStorage.setItem('sys_logged_in', 'true');
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('loginUsername').value = "";
-        document.getElementById('loginPassword').value = "";
-        document.getElementById('loginError').style.display = 'none';
-    } else {
-        document.getElementById('loginError').style.display = 'block';
+    if (!user || !pass) { mmShowLoginError('請輸入帳號與密碼。'); return; }
+
+    const cfg = mmGetAuthConfig();
+    if (!cfg) {
+        if (user === MM_BOOTSTRAP_USER && pass === MM_BOOTSTRAP_PASS) {
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('firstSetupOverlay').style.display = 'flex';
+            return;
+        }
+        mmShowLoginError('帳號或密碼錯誤。首次啟用請使用系統初始帳密。');
+        return;
     }
+
+    const passHash = await mmHash(pass);
+    if (user.toLowerCase() === String(cfg.username).toLowerCase() && passHash === cfg.passwordHash) {
+        sessionStorage.setItem('sys_logged_in', 'true');
+        sessionStorage.setItem('sys_login_user', cfg.username);
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('loginUsername').value = '';
+        document.getElementById('loginPassword').value = '';
+        return;
+    }
+    mmShowLoginError('帳號或密碼錯誤，請重新輸入。');
+}
+
+async function completeFirstSetup() {
+    const username = mmNormalizeUser(document.getElementById('setupUsername').value);
+    const password = document.getElementById('setupPassword').value;
+    const recovery = document.getElementById('setupRecoveryCode').value.trim();
+    const err = document.getElementById('setupError');
+    err.style.display = 'none';
+    if (!username) { err.textContent = '請輸入員工編號／帳號。'; err.style.display = 'block'; return; }
+    if (username === MM_BOOTSTRAP_USER) { err.textContent = '請改用你自己的員工編號／帳號。'; err.style.display = 'block'; return; }
+    if (password.length < 6) { err.textContent = '新密碼至少 6 碼。'; err.style.display = 'block'; return; }
+    if (!/^\d{6}$/.test(recovery)) { err.textContent = '找回碼必須為 6 位數字。'; err.style.display = 'block'; return; }
+
+    mmSetAuthConfig({
+        version: 2,
+        username,
+        passwordHash: await mmHash(password),
+        recoveryHash: await mmHash(recovery),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    });
+    sessionStorage.setItem('sys_logged_in', 'true');
+    sessionStorage.setItem('sys_login_user', username);
+    document.getElementById('firstSetupOverlay').style.display = 'none';
+    document.getElementById('setupUsername').value = '';
+    document.getElementById('setupPassword').value = '';
+    document.getElementById('setupRecoveryCode').value = '';
+    alert('✅ 首次設定完成\n之後忘記密碼，可用「員工編號＋6位找回碼」自行重設。');
+}
+
+function openForgotLogin() {
+    mmClearLoginError();
+    const overlay = document.getElementById('authRecoveryOverlay');
+    overlay.style.display = 'flex';
+    document.getElementById('recoveryStep1').style.display = 'block';
+    document.getElementById('recoveryStep2').style.display = 'none';
+    document.getElementById('recoveryUsername').value = '';
+    document.getElementById('recoveryCode').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('newPassword2').value = '';
+    document.getElementById('recoveryError').style.display = 'none';
+    document.getElementById('recoveredUsername').style.display = 'none';
+    document.getElementById('resetError').style.display = 'none';
+    mmRecoveryVerifiedUser = '';
+}
+function closeAuthRecovery() { document.getElementById('authRecoveryOverlay').style.display = 'none'; }
+
+async function recoverUsernameByCode() {
+    const cfg = mmGetAuthConfig();
+    const code = document.getElementById('recoveryCode').value.trim();
+    const err = document.getElementById('recoveryError');
+    const out = document.getElementById('recoveredUsername');
+    err.style.display = 'none';
+    out.style.display = 'none';
+    if (!cfg) { err.textContent = '尚未完成第一次設定，請先使用初始帳密登入一次。'; err.style.display = 'block'; return; }
+    if (!/^\d{6}$/.test(code)) { err.textContent = '請先輸入 6 位數找回碼。'; err.style.display = 'block'; return; }
+    const codeHash = await mmHash(code);
+    if (codeHash !== cfg.recoveryHash) { err.textContent = '找回碼錯誤。'; err.style.display = 'block'; return; }
+    out.textContent = '你的帳號／員工編號：' + cfg.username;
+    out.style.display = 'block';
+}
+
+async function verifyRecoveryCode() {
+    const cfg = mmGetAuthConfig();
+    const user = mmNormalizeUser(document.getElementById('recoveryUsername').value);
+    const code = document.getElementById('recoveryCode').value.trim();
+    const err = document.getElementById('recoveryError');
+    err.style.display = 'none';
+    if (!cfg) { err.textContent = '尚未完成第一次設定，請先使用初始帳密登入一次。'; err.style.display = 'block'; return; }
+    if (!user || !code) { err.textContent = '請輸入帳號與 6 位找回碼。'; err.style.display = 'block'; return; }
+    if (!/^\d{6}$/.test(code)) { err.textContent = '找回碼必須為 6 位數字。'; err.style.display = 'block'; return; }
+    const codeHash = await mmHash(code);
+    if (user.toLowerCase() !== String(cfg.username).toLowerCase() || codeHash !== cfg.recoveryHash) {
+        err.textContent = '帳號或找回碼錯誤。請確認員工編號後再試。'; err.style.display = 'block'; return;
+    }
+    mmRecoveryVerifiedUser = cfg.username;
+    document.getElementById('recoveryVerifiedUser').textContent = '已驗證：' + cfg.username;
+    document.getElementById('recoveryStep1').style.display = 'none';
+    document.getElementById('recoveryStep2').style.display = 'block';
+}
+
+async function saveResetPassword() {
+    const cfg = mmGetAuthConfig();
+    const p1 = document.getElementById('newPassword').value;
+    const p2 = document.getElementById('newPassword2').value;
+    const err = document.getElementById('resetError');
+    err.style.display = 'none';
+    if (!cfg || !mmRecoveryVerifiedUser) { err.textContent = '驗證狀態已失效，請重新操作。'; err.style.display = 'block'; return; }
+    if (p1.length < 6) { err.textContent = '新密碼至少 6 碼。'; err.style.display = 'block'; return; }
+    if (p1 !== p2) { err.textContent = '兩次輸入的新密碼不同。'; err.style.display = 'block'; return; }
+    cfg.passwordHash = await mmHash(p1);
+    cfg.updatedAt = new Date().toISOString();
+    mmSetAuthConfig(cfg);
+    sessionStorage.setItem('sys_logged_in', 'true');
+    sessionStorage.setItem('sys_login_user', cfg.username);
+    closeAuthRecovery();
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('newPassword2').value = '';
+    alert('✅ 密碼已重新設定，現在已登入系統。');
+    mmRecoveryVerifiedUser = '';
 }
 
 // 網頁載入完成自動執行
+
 window.addEventListener('DOMContentLoaded', () => {
     // 執行瀏覽器永久保留資料庫宣告
     if (navigator.storage && navigator.storage.persist) {
