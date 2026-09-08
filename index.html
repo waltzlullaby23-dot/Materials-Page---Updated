@@ -277,7 +277,7 @@
     .tutorial-next { background:#1D3B56; color:#fff; }
     @media(max-width:760px){ .tutorial-body{grid-template-columns:1fr;} .tutorial-sidebar{border-right:0;border-bottom:1px solid #e1e7eb; display:flex; gap:8px; overflow-x:auto;} .tutorial-topic{min-width:180px;margin-bottom:0;} .tutorial-content{padding:18px;} }
   
-/* MaterialMind V8：庫存維度／流水帳／預警中心 */
+/* MaterialMind V9：庫存維度／流水帳／預警中心 */
 .mm-dashboard-card{background:#fff;border:1px solid #dfe6ee;border-radius:12px;padding:16px;box-shadow:0 4px 14px rgba(31,52,73,.06)}
 .mm-dashboard-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;font-weight:900;color:#17324d}
 .mm-dashboard-head small{font-size:.78rem;color:#7a8794;font-weight:700;margin-left:6px}
@@ -465,6 +465,7 @@
       <button class="nav-btn" onclick="switchTab('search')"><span class="nav-icon">🔍</span><span class="nav-label">歷史查詢</span></button>
       <button class="nav-btn" onclick="switchTab('inventory')"><span class="nav-icon">📦</span><span class="nav-label">即時庫存</span></button>
       <button class="nav-btn nav-btn-transfer" onclick="switchTab('transfer')"><span class="nav-icon">🚚</span><span class="nav-label">進貨/調撥</span></button>
+      <button class="nav-btn" onclick="switchTab('supply')"><span class="nav-icon">📦</span><span class="nav-label">到貨/在途/待過帳</span></button>
       <button class="nav-btn nav-btn-history" onclick="switchTab('history')"><span class="nav-icon">📜</span><span class="nav-label">歷史用料紀錄</span></button>
       <button class="nav-btn" onclick="switchTab('analysis')"><span class="nav-icon">📊</span><span class="nav-label">分析與預測</span></button>
       <button class="nav-btn nav-btn-emergency" onclick="switchTab('emergency')"><span class="nav-icon">⚡</span><span class="nav-label">災害(特殊時期)應用</span></button>
@@ -854,6 +855,50 @@
       </div>
     </div>
 
+    <div id="tab-supply" class="container-3d">
+      <h3 class="section-title">📦 到貨／在途／ERP待過帳管理中心</h3>
+      <div class="mm-dashboard-card">
+        <div class="mm-dashboard-head"><div>🔄 供應狀態流程 <small>採購／訂單 → 在途 → 已到貨 → ERP尚未過帳 → ERP正式過帳</small></div></div>
+        <div id="supplySummary" class="mm-summary-strip"></div>
+        <div style="background:#f8fafc;padding:15px;border-radius:10px;margin-top:12px;">
+          <div class="form-row-4">
+            <div><label>訂單／採購單號</label><input id="supplyOrderNo" placeholder="例如 PO20260908001"></div>
+            <div><label>訂單日期</label><input type="date" id="supplyOrderDate"></div>
+            <div><label>供應商／來源</label><input id="supplySupplier" placeholder="廠商／總處／其他"></div>
+            <div><label>預計到貨日</label><input type="date" id="supplyETA"></div>
+          </div>
+          <div class="form-row-4">
+            <div><label>倉庫</label><input id="supplyWarehouse" placeholder="例如 21M1本庫倉"></div>
+            <div><label>儲格</label><input id="supplyLocation" placeholder="例如 A01-01"></div>
+            <div><label>初始狀態</label><select id="supplyStatus"><option value="在途">🟡 在途訂單</option><option value="已到貨">🚚 已到貨</option><option value="ERP待過帳">🟠 ERP尚未過帳</option></select></div>
+            <div><label>經辦人</label><input id="supplyOperator" placeholder="操作人員"></div>
+          </div>
+          <div class="form-row-4">
+            <div><label>10碼料號</label><input id="supplyPartNo" maxlength="10" oninput="handleUniversalInput(this.value,'supply')"></div>
+            <div><label>品名</label><input id="supplyItemName" disabled style="background:#e8edf2;font-weight:bold"></div>
+            <div><label>評價類型</label><select id="supplyEvalType"><option value="0新">0新</option><option value="1舊">1舊</option><option value="2待修待驗">2待修待驗</option><option value="3資產新">3資產新</option><option value="4資產舊">4資產舊</option></select></div>
+            <div><label>訂購數量</label><input type="number" id="supplyOrderedQty" min="0" step="any"></div>
+          </div>
+          <div class="form-row-4">
+            <div><label>已到貨數量</label><input type="number" id="supplyReceivedQty" min="0" step="any" value="0"></div>
+            <div><label>單位</label><input id="supplyUnit" placeholder="個／組／M／式"></div>
+            <div style="display:flex;align-items:end"><button class="btn-save" style="width:100%;background:linear-gradient(45deg,#2563eb,#1d4ed8)" onclick="createSupplyOrder()">➕ 建立供應訂單</button></div>
+            <div style="display:flex;align-items:end"><button class="btn-search" style="width:100%" onclick="renderSupplyCenter()">🔄 重新整理</button></div>
+          </div>
+          <div style="font-size:.85rem;color:#64748b;margin-top:8px">規則：在途與「已到貨未過帳」只作供應狀態追蹤，不直接增加ERP帳面可用庫存；ERP正式過帳後再以SAP最新快照為準。</div>
+        </div>
+      </div>
+      <div class="mm-dashboard-card" style="margin-top:20px">
+        <div class="mm-dashboard-head"><div>📋 訂單明細與狀態管理</div></div>
+        <div class="mm-filter-row"><input id="supplyFilter" placeholder="搜尋單號／料號／品名／供應商" oninput="renderSupplyCenter()"><select id="supplyStatusFilter" onchange="renderSupplyCenter()"><option value="">全部狀態</option><option value="在途">🟡 在途</option><option value="已到貨">🚚 已到貨</option><option value="ERP待過帳">🟠 ERP待過帳</option><option value="已入帳">🟢 已入帳</option><option value="取消">⚪ 已取消</option></select></div>
+        <div id="supplyBody" class="mm-table-wrap"><div class="mm-empty">尚無供應訂單。</div></div>
+      </div>
+      <div class="mm-dashboard-card" style="margin-top:20px">
+        <div class="mm-dashboard-head"><div>🧮 供應總量視圖 <small>帳面庫存 + 已到貨未過帳 + 在途</small></div></div>
+        <div id="supplyCoverageBody" class="mm-table-wrap"><div class="mm-empty">載入中…</div></div>
+      </div>
+    </div>
+
     <div id="tab-history" class="container-3d">
         <h3 class="section-title">📜 歷史用料紀錄與分析</h3>
         <div style="background: #fff; padding:15px; border-radius:10px; margin-bottom:20px; border:1px solid #ddd;">
@@ -1061,6 +1106,21 @@ db.version(5).stores({
         sourceFile: 'legacy-materials'
     })).filter(x => x.partNo);
     if(rows.length) await tx.table('inventory_locations').bulkAdd(rows);
+});
+
+// V9：採購／在途／已到貨未過帳正式 Header + Items。
+// ERP帳面庫存不因本模組的「在途／已到貨未過帳」而直接增加，避免重複計入。
+db.version(6).stores({
+    materials: '++id, [partNo+rating], partNo, rating, name, erpStock, unit, location, snapshotAt, lastUpdate',
+    changeLog: '++id, date, createdAt, partNo, rating, type, amount, recordId, source, note',
+    importHistory: '++id, fileName, fileHash, importDate, snapshotAt, operator',
+    emergency_logs: '++id, emergencyOrderId, timestamp, dateStr, teamName, partNo, matName, quantity, status, erpOrderNo, businessRecordId',
+    audit_logs: '++id, timestamp, action, entityType, entityId, operator',
+    inventory_locations: '++id, snapshotAt, partNo, rating, warehouse, location, quantity, unit, name, sourceFile, [partNo+rating+warehouse+location]',
+    supply_order_headers: '++id, orderNo, orderDate, supplier, warehouse, status, eta, createdAt, updatedAt',
+    supply_order_items: '++id, orderNo, partNo, evalType, name, orderedQty, receivedQty, outstandingQty, unit, warehouse, location, status, createdAt, updatedAt'
+}).upgrade(async tx => {
+    // 舊版沒有供應訂單資料，不做虛構遷移。
 });
 
 // ==========================================
@@ -1542,6 +1602,7 @@ function switchTab(tabName) {
   
   if(tabName === 'inventory') renderInventoryTable();
   if(tabName === 'analysis') runAnalysis();
+  if(tabName === 'supply') { const d=document.getElementById('supplyOrderDate'); if(d && !d.value) d.value=getTaipeiDateString(); renderSupplyCenter(); }
   if(tabName === 'emergency') setTimeout(initEmergencyModule, 50);
 }
 
@@ -1700,6 +1761,10 @@ async function handleUniversalInput(val, context) {
     } else if(context === 'history') {
         document.getElementById('historySearchInput').value = pNo;
         document.getElementById('historyItemTitle').innerText = pNo + " " + selectedName;
+    } else if(context === 'supply') {
+        document.getElementById('supplyPartNo').value = pNo;
+        document.getElementById('supplyItemName').value = selectedName;
+        await refreshEvalTypeOptionsForPartNo(pNo, 'supplyEvalType');
     } else if(context === 'analysis') {
         document.getElementById('safePartNo').value = pNo;
         document.getElementById('safeNameDisplay').innerText = selectedName;
@@ -2477,7 +2542,7 @@ async function renderInventory3D(){
   }catch(e){ console.error('三維庫存視圖失敗',e); body.innerHTML=`<div class="mm-empty">讀取三維庫存失敗：${escapeHtml(e.message)}</div>`; }
 }
 
-// ==========================================
+// ==========================================\n// V9：到貨／在途／ERP待過帳管理中心\n// ==========================================\nconst SUPPLY_STATUS = {IN_TRANSIT:'在途', RECEIVED:'已到貨', ERP_PENDING:'ERP待過帳', POSTED:'已入帳', CANCELLED:'取消'};\nfunction supplyStatusLabel(s){ return ({'在途':'🟡 在途訂單','已到貨':'🚚 已到貨','ERP待過帳':'🟠 ERP尚未過帳','已入帳':'🟢 已入帳','取消':'⚪ 已取消'})[s] || s; }\nfunction supplyOutstanding(item){ return Math.max(0, normalizeNumber(item.orderedQty) - normalizeNumber(item.receivedQty)); }\nasync function createSupplyOrder(){\n  try{\n    const orderNo=String(document.getElementById('supplyOrderNo')?.value||'').trim();\n    const pNo=normalizePartNo(document.getElementById('supplyPartNo')?.value||'');\n    const orderedQty=normalizeNumber(document.getElementById('supplyOrderedQty')?.value);\n    const receivedQty=normalizeNumber(document.getElementById('supplyReceivedQty')?.value);\n    const operator=String(document.getElementById('supplyOperator')?.value||document.getElementById('operatorName')?.value||'').trim()||'未記錄';\n    if(!orderNo) return alert('請輸入訂單／採購單號');\n    if(!pNo || pNo.length!==10) return alert('料號必須為10碼');\n    if(orderedQty<=0) return alert('訂購數量必須大於0');\n    if(receivedQty<0 || receivedQty>orderedQty) return alert('已到貨數量不可小於0且不可大於訂購數量');\n    const status0=document.getElementById('supplyStatus').value;\n    const status = receivedQty>0 ? (status0==='在途' ? '已到貨' : status0) : status0;\n    const now=new Date().toISOString();\n    const header={orderNo,orderDate:document.getElementById('supplyOrderDate').value||getTaipeiDateString(),supplier:String(document.getElementById('supplySupplier').value||'').trim(),warehouse:String(document.getElementById('supplyWarehouse').value||'').trim(),status,eta:document.getElementById('supplyETA').value||'',createdAt:now,updatedAt:now,operator};\n    const item={orderNo,partNo:pNo,evalType:normalizeEvalType(document.getElementById('supplyEvalType').value),name:getMaterialDisplayName(pNo,document.getElementById('supplyItemName').value||''),orderedQty,receivedQty,outstandingQty:supplyOutstanding({orderedQty,receivedQty}),unit:String(document.getElementById('supplyUnit').value||'').trim(),warehouse:header.warehouse,location:String(document.getElementById('supplyLocation').value||'').trim(),status,createdAt:now,updatedAt:now};\n    const exists=await db.supply_order_headers.where('orderNo').equals(orderNo).count();\n    if(exists) return alert('此訂單號已存在，請使用「加入明細」或修改既有訂單。');\n    await db.transaction('rw',db.supply_order_headers,db.supply_order_items,db.audit_logs,async()=>{\n      const hid=await db.supply_order_headers.add(header); item.headerId=hid; await db.supply_order_items.add(item);\n      await db.audit_logs.add({timestamp:now,action:'CREATE_SUPPLY_ORDER',entityType:'supplyOrder',entityId:orderNo,operator,detail:JSON.stringify({status,partNo:pNo,orderedQty,receivedQty})});\n    });\n    clearSupplyForm(); await renderSupplyCenter(); alert('✅ 供應訂單建立完成');\n  }catch(e){console.error(e);alert('❌ 建立供應訂單失敗：'+e.message);}\n}\nfunction clearSupplyForm(){['supplyOrderNo','supplyOrderDate','supplySupplier','supplyETA','supplyWarehouse','supplyLocation','supplyOperator','supplyPartNo','supplyOrderedQty','supplyReceivedQty','supplyUnit'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); const n=document.getElementById('supplyItemName');if(n)n.value=''; const q=document.getElementById('supplyReceivedQty');if(q)q.value='0';}\nasync function updateSupplyStatus(id,status){\n  try{\n    const item=await db.supply_order_items.get(Number(id)); if(!item)return;\n    const header=await db.supply_order_headers.where('orderNo').equals(item.orderNo).first();\n    const now=new Date().toISOString(); const operator=document.getElementById('operatorName')?.value||'未記錄';\n    await db.transaction('rw',db.supply_order_items,db.supply_order_headers,db.audit_logs,async()=>{\n      await db.supply_order_items.update(item.id,{status,updatedAt:now});\n      if(header) await db.supply_order_headers.update(header.id,{status,updatedAt:now});\n      await db.audit_logs.add({timestamp:now,action:'UPDATE_SUPPLY_STATUS',entityType:'supplyOrderItem',entityId:String(item.id),operator,detail:JSON.stringify({orderNo:item.orderNo,from:item.status,to:status})});\n    });\n    await renderSupplyCenter();\n  }catch(e){console.error(e);alert('❌ 狀態更新失敗：'+e.message);}\n}\nasync function receiveSupplyItem(id){\n  const item=await db.supply_order_items.get(Number(id)); if(!item)return;\n  const input=prompt(`訂單 ${item.orderNo}／料號 ${item.partNo}\n目前已到貨：${item.receivedQty}\n請輸入「本次新增到貨數量」：`,'0');\n  if(input===null)return; const add=normalizeNumber(input); if(add<=0)return alert('到貨數量必須大於0');\n  const next=Math.min(normalizeNumber(item.orderedQty),normalizeNumber(item.receivedQty)+add); if(next>item.orderedQty)return alert('到貨數量不可超過訂購量');\n  const nextStatus=next>=item.orderedQty?'ERP待過帳':'已到貨';\n  try{const now=new Date().toISOString();await db.supply_order_items.update(item.id,{receivedQty:next,outstandingQty:supplyOutstanding({orderedQty:item.orderedQty,receivedQty:next}),status:nextStatus,updatedAt:now});const h=await db.supply_order_headers.where('orderNo').equals(item.orderNo).first();if(h)await db.supply_order_headers.update(h.id,{status:nextStatus,updatedAt:now});await writeAuditLog('RECEIVE_SUPPLY_ITEM','supplyOrderItem',String(item.id),document.getElementById('operatorName')?.value||'未記錄',{orderNo:item.orderNo,addQty:add,receivedQty:next,status:nextStatus});await renderSupplyCenter();}catch(e){alert('❌ 到貨登錄失敗：'+e.message);}\n}\nasync function postSupplyERP(id){\n  const item=await db.supply_order_items.get(Number(id)); if(!item)return;\n  if(normalizeNumber(item.receivedQty)<=0)return alert('尚未有到貨數量，不能標記ERP待過帳完成。');\n  const erpNo=prompt('請輸入ERP過帳單號／文件號（可留空）：',''); if(erpNo===null)return;\n  if(!confirm('確認此筆已完成ERP正式過帳？\n\n注意：本系統不會因此直接增加庫存，正式庫存仍以SAP最新ERP快照為準。'))return;\n  try{const now=new Date().toISOString();await db.supply_order_items.update(item.id,{status:'已入帳',erpPostNo:erpNo,updatedAt:now});const h=await db.supply_order_headers.where('orderNo').equals(item.orderNo).first();const remain=await db.supply_order_items.where('orderNo').equals(item.orderNo).toArray();const allPosted=remain.every(x=>x.id===item.id?true:x.status==='已入帳'||x.status==='取消');if(h)await db.supply_order_headers.update(h.id,{status:allPosted?'已入帳':'ERP待過帳',updatedAt:now});await writeAuditLog('POST_SUPPLY_ERP','supplyOrderItem',String(item.id),document.getElementById('operatorName')?.value||'未記錄',{orderNo:item.orderNo,erpPostNo:erpNo});await renderSupplyCenter();alert('✅ 已標記ERP正式過帳；請以SAP下一次快照核對帳面庫存。');}catch(e){alert('❌ ERP過帳狀態更新失敗：'+e.message);}\n}\nasync function cancelSupply(id){if(!confirm('確定取消此供應明細？取消後不會增加ERP庫存。'))return;await updateSupplyStatus(id,'取消');}\nasync function renderSupplyCenter(){\n  const body=document.getElementById('supplyBody'),sum=document.getElementById('supplySummary'),coverage=document.getElementById('supplyCoverageBody'); if(!body)return;\n  try{const [hs,is]=await Promise.all([db.supply_order_headers.toArray(),db.supply_order_items.toArray()]);const filter=String(document.getElementById('supplyFilter')?.value||'').trim().toLowerCase();const sf=document.getElementById('supplyStatusFilter')?.value||'';const rows=is.map(i=>{const h=hs.find(x=>x.orderNo===i.orderNo)||{};return {...i,supplier:h.supplier||'',eta:h.eta||'',orderDate:h.orderDate||'',headerStatus:h.status||i.status};}).filter(x=>(!sf||x.status===sf)&&(!filter||[x.orderNo,x.partNo,x.name,x.supplier].join(' ').toLowerCase().includes(filter)));\n    const counts={在途:0,已到貨:0,ERP待過帳:0,已入帳:0,取消:0};is.forEach(x=>counts[x.status]=(counts[x.status]||0)+1);if(sum)sum.innerHTML=Object.entries(counts).map(([k,v])=>`<span class="mm-summary-pill">${supplyStatusLabel(k)}：${v}</span>`).join('');\n    body.innerHTML=rows.length?`<table class="mm-table"><thead><tr><th>訂單</th><th>料號／品名</th><th>評價</th><th>訂購</th><th>已到貨</th><th>未到貨</th><th>狀態</th><th>ETA</th><th>供應商</th><th>操作</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${escapeHtml(x.orderNo)}<br><small>${escapeHtml(x.orderDate)}</small></td><td>${escapeHtml(x.partNo)}<br>${escapeHtml(x.name||'')}</td><td>${escapeHtml(x.evalType)}</td><td>${x.orderedQty} ${escapeHtml(x.unit||'')}</td><td>${x.receivedQty}</td><td>${x.outstandingQty}</td><td>${escapeHtml(supplyStatusLabel(x.status))}</td><td>${escapeHtml(x.eta||'')}</td><td>${escapeHtml(x.supplier||'')}</td><td style="min-width:240px">${x.status==='在途'||x.status==='已到貨'?`<button onclick="receiveSupplyItem(${x.id})">🚚 登錄到貨</button>`:''} ${x.status==='ERP待過帳'?`<button onclick="postSupplyERP(${x.id})">🟢 ERP已過帳</button>`:''} ${x.status!=='已入帳'&&x.status!=='取消'?`<button onclick="cancelSupply(${x.id})">取消</button>`:''}</td></tr>`).join('')}</tbody></table>`:'<div class="mm-empty">沒有符合條件的供應訂單。</div>';\n    const inv=getInventoryMap();const grouped={};is.filter(x=>x.status!=='已入帳'&&x.status!=='取消').forEach(x=>{const k=makeInventoryKey(x.partNo,x.evalType);if(!grouped[k])grouped[k]={pNo:x.partNo,name:x.name,evalType:x.evalType,ordered:0,received:0,inTransit:0,pending:0,unit:x.unit};grouped[k].ordered+=normalizeNumber(x.orderedQty);grouped[k].received+=normalizeNumber(x.receivedQty);if(x.status==='在途')grouped[k].inTransit+=Math.max(0,normalizeNumber(x.outstandingQty));if(x.status==='ERP待過帳'||x.status==='已到貨')grouped[k].pending+=normalizeNumber(x.receivedQty);});\n    coverage.innerHTML=Object.values(grouped).length?`<table class="mm-table"><thead><tr><th>料號</th><th>評價</th><th>ERP帳面庫存</th><th>已到貨未過帳</th><th>在途未到貨</th><th>供應總量</th><th>品名</th></tr></thead><tbody>${Object.values(grouped).map(x=>{const erp=normalizeNumber(inv[makeInventoryKey(x.pNo,x.evalType)]?.total);const total=erp+x.pending+x.inTransit;return `<tr><td>${escapeHtml(x.pNo)}</td><td>${escapeHtml(x.evalType)}</td><td><strong>${erp}</strong></td><td>${x.pending}</td><td>${x.inTransit}</td><td><strong>${total}</strong></td><td>${escapeHtml(x.name||'')}</td></tr>`}).join('')}</tbody></table>`:'<div class="mm-empty">目前沒有未結案的在途／待過帳供應資料。</div>';\n  }catch(e){console.error(e);body.innerHTML=`<div class="mm-empty">讀取供應中心失敗：${escapeHtml(e.message)}</div>`;}\n}\nasync function getSupplyEventsForPart(pNo,evalType){const rows=await db.supply_order_items.toArray();pNo=normalizePartNo(pNo);const e=evalType?normalizeEvalType(evalType):'';return rows.filter(x=>normalizePartNo(x.partNo)===pNo&&(!e||normalizeEvalType(x.evalType)===e));}\n\n// ==========================================
 // 資料庫備份與還原
 // ==========================================
 async function backupDatabase() {
@@ -2486,10 +2551,11 @@ async function backupDatabase() {
             materials: await db.materials.toArray(), changeLog: await db.changeLog.toArray(),
             importHistory: await db.importHistory.toArray(), inventory_locations: await db.inventory_locations.toArray(), emergency_logs: await db.emergency_logs.toArray(),
             audit_logs: await db.audit_logs.toArray(),
+            supply_order_headers: await db.supply_order_headers.toArray(), supply_order_items: await db.supply_order_items.toArray(),
             materialRecords: getMaterialRecords(),
             safeStock: getSafeStock(),
             inventoryCache: readJSON('inventoryCache', {}),
-            backupDate: new Date().toISOString(), version: "V8_Inventory_Ledger_Warning"
+            backupDate: new Date().toISOString(), version: "V9_Supply_InTransit_ERPPending"
         };
         const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -2510,6 +2576,7 @@ async function restoreDatabase(file) {
     try {
         const text = await file.text(); const backupData = JSON.parse(text);
         await db.materials.clear();
+        await db.supply_order_headers.clear(); await db.supply_order_items.clear();
         await db.changeLog.clear(); await db.importHistory.clear(); await db.inventory_locations.clear(); await db.emergency_logs.clear(); await db.audit_logs.clear();
         
         if(backupData.materials && backupData.materials.length > 0) await db.materials.bulkAdd(backupData.materials);
@@ -2518,6 +2585,8 @@ async function restoreDatabase(file) {
         if(backupData.inventory_locations && backupData.inventory_locations.length > 0) await db.inventory_locations.bulkAdd(backupData.inventory_locations);
         if(backupData.emergency_logs && backupData.emergency_logs.length > 0) await db.emergency_logs.bulkAdd(backupData.emergency_logs);
         if(backupData.audit_logs && backupData.audit_logs.length > 0) await db.audit_logs.bulkAdd(backupData.audit_logs);
+        if(backupData.supply_order_headers && backupData.supply_order_headers.length > 0) await db.supply_order_headers.bulkAdd(backupData.supply_order_headers);
+        if(backupData.supply_order_items && backupData.supply_order_items.length > 0) await db.supply_order_items.bulkAdd(backupData.supply_order_items);
 
         if(backupData.materialRecords) saveMaterialRecords(backupData.materialRecords);
         if(backupData.safeStock) localStorage.setItem('safeStock', JSON.stringify(backupData.safeStock));
@@ -2775,10 +2844,24 @@ function renderMaterialLedger() {
     const delta=getStockDelta(r.type,r.qty); const cls=delta<0?'color:#c0392b':'color:#27834a';
     html += `<tr><td>${escapeHtml(r.partNo)}</td><td>${escapeHtml(normalizeEvalType(r.evalType))}</td><td>${escapeHtml(r.type||'')}</td><td style="${cls};font-weight:900">${delta>0?'+':''}${delta}</td><td>${escapeHtml(r.unit||'')}</td><td>${escapeHtml(r.operator||r.staff||'')}</td><td>${escapeHtml(getTaipeiDateTimeDisplay(new Date(r.timestamp||r.date)))}</td><td><button onclick="openMaterialUsage12Months('${escapeHtml(r.partNo)}','${escapeHtml(normalizeEvalType(r.evalType))}')">近12個月用量</button></td></tr>`;
   });
+  // V9：把在途／到貨／ERP待過帳納入同一條材料生命週期流水帳。
+  // 非同步查詢改由下方背景補繪，避免破壞原本查詢功能。
+  getSupplyEventsForPart(pNo, evalFilter).then(supplyRows=>{
+    if(!supplyRows.length) return;
+    const extra=supplyRows.map(x=>`<tr><td>${escapeHtml(x.partNo)}</td><td>${escapeHtml(x.evalType)}</td><td>供應：${escapeHtml(supplyStatusLabel(x.status))}</td><td style="color:#2563eb;font-weight:900">+${normalizeNumber(x.receivedQty)} / 在途${normalizeNumber(x.outstandingQty)}</td><td>${escapeHtml(x.unit||'')}</td><td>供應中心</td><td>${escapeHtml(getTaipeiDateTimeDisplay(new Date(x.updatedAt||x.createdAt)))}</td><td><button onclick="switchTab('supply')">查看訂單</button></td></tr>`).join('');
+    const table=body.querySelector('table tbody'); if(table) table.insertAdjacentHTML('beforeend',extra);
+  });
   if(!html) { body.innerHTML='<div class="mm-empty">找不到此料號的異動資料。</div>'; if(summary) summary.innerHTML=''; return; }
   const currentTotal=baselineRows.reduce((sum,x)=>sum+normalizeNumber(x.total),0);
   if(summary) summary.innerHTML=`<span class="mm-summary-pill">料號：${escapeHtml(pNo)}</span><span class="mm-summary-pill">目前庫存：${currentTotal}</span><span class="mm-summary-pill">異動筆數：${records.length}</span><span class="mm-summary-pill">品名：${escapeHtml(getMaterialDisplayName(pNo,''))}</span>`;
   body.innerHTML=`<table class="mm-table"><thead><tr><th>料號</th><th>評價</th><th>異動／基準</th><th>數量變化</th><th>單位</th><th>操作人</th><th>時間</th><th>分析</th></tr></thead><tbody>${html}</tbody></table>`;
+}
+
+async function getOpenSupplyWarningContext(pNo,evalType){
+  try{
+    const rows=await db.supply_order_items.toArray(); const e=normalizeEvalType(evalType);
+    return rows.filter(x=>normalizePartNo(x.partNo)===normalizePartNo(pNo)&&normalizeEvalType(x.evalType)===e&&x.status!=='已入帳'&&x.status!=='取消').reduce((a,x)=>{a.inTransit+=(x.status==='在途'?normalizeNumber(x.outstandingQty):0);a.receivedPending+=((x.status==='已到貨'||x.status==='ERP待過帳')?normalizeNumber(x.receivedQty):0);a.orders++;return a;},{inTransit:0,receivedPending:0,orders:0});
+  }catch(e){return {inTransit:0,receivedPending:0,orders:0};}
 }
 
 function runAnalysis() {
@@ -2799,6 +2882,14 @@ function runAnalysis() {
     });
     if(!html) html = "<div style='text-align:center;color:#666;padding:20px;'>尚未設定安全存量。請輸入料號、選擇評價類型後設定預警值。</div>";
     report.innerHTML=html;
+  }
+  if(warningCenter && rows.length){
+    Promise.all(rows.map(x=>getOpenSupplyWarningContext(x.pNo,x.evalType))).then(ctxs=>{
+      Array.from(warningCenter.querySelectorAll('.mm-warning-item')).forEach((el,i)=>{
+        const c=ctxs[i]; if(!c || (!c.inTransit && !c.receivedPending)) return;
+        const meta=el.querySelector('.meta'); if(meta) meta.innerHTML += `<br>📦 供應：已到貨未過帳 ${c.receivedPending}｜在途未到貨 ${c.inTransit}｜未結案訂單 ${c.orders}`;
+      });
+    });
   }
 }
 
